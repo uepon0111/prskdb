@@ -1260,11 +1260,21 @@
             }
         }
 
-        // 閉じるボタンのイベント
-        document.getElementById('btn-close-modal').addEventListener('click', () => {
+        // 閉じる処理・初期化関数
+        function closeDetailModal() {
             document.getElementById('detail-modal').classList.remove('show');
             audio.pause();
-        });
+            try {
+                audio.currentTime = 0;
+            } catch (e) {}
+            audio.removeAttribute('src');
+            audio.load();
+            currentMusic = null;
+            currentVocal = null;
+        }
+
+        // 閉じるボタンのイベント
+        document.getElementById('btn-close-modal').addEventListener('click', closeDetailModal);
 
         // Audio System
         function loadAudio(music, vocal, autoPlay = false) {
