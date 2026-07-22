@@ -333,7 +333,7 @@
         .layout-3 { grid-template-columns: repeat(3, 1fr); }
         .layout-5 { grid-template-columns: repeat(5, 1fr); }
 
-        /* Player View Layout */
+        /* Player View Layout (レスポンシブ自動調整対応済) */
         .player-layout {
             display: flex;
             flex-direction: row;
@@ -424,7 +424,7 @@
         .player-buttons button.active { color: var(--accent-color); }
         .player-buttons button.mode-btn { margin: 0 8px; }
 
-        /* Mini Player */
+        /* Mini Player (折り返し対応) */
         .mini-player {
             position: fixed;
             bottom: 0;
@@ -434,18 +434,20 @@
             border-top: 1px solid var(--border-color);
             box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
             display: flex;
+            flex-wrap: wrap; /* スマホ画面等での強制折り返し用 */
             align-items: center;
             padding: 8px 16px;
             z-index: 90;
             gap: 12px;
         }
         .mini-jacket { width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
-        .mini-info { flex: 1; min-width: 0; cursor: pointer; }
+        .mini-info { flex: 1 1 0%; min-width: 0; cursor: pointer; }
         .mini-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
         .mini-vocal { font-size: 11px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mini-controls { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-        .mini-controls button .material-icons-round { font-size: 28px; }
-        .mini-progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; }
+        .mini-controls button .material-icons-round { font-size: 24px; }
+        .mini-controls button.icon-btn.active { background: transparent; color: var(--accent-color); }
+        .mini-progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; width: 100%; }
         .mini-progress-fill { height: 100%; background: var(--accent-color); width: 0%; }
 
         /* Modal */
@@ -590,6 +592,7 @@
             justify-content: center;
             align-items: center;
             gap: 16px;
+            flex-wrap: wrap; /* ボタン増加による折り返し対応 */
         }
         .player-buttons button {
             background: transparent;
@@ -751,13 +754,26 @@
                 height: 220px;
             }
             .player-controls { padding: 12px; width: 100%; }
-            .player-buttons button .material-icons-round { font-size: 32px; }
-            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 48px; }
+            .player-buttons { gap: 8px; }
+            .player-buttons button .material-icons-round { font-size: 28px; }
+            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 40px; }
+            .player-buttons button.mode-btn { margin: 0; }
 
-            /* Mini Player UI 調整 */
-            .mini-player { padding: 6px 12px; gap: 8px; }
+            /* Mini Player UI 調整 (2段折り返しレイアウト) */
+            .mini-player { padding: 8px 12px; gap: 8px; }
             .mini-jacket { width: 40px; height: 40px; }
+            .mini-controls {
+                flex: 1 1 100%; /* 強制的に下段に改行させる */
+                justify-content: space-between;
+                gap: 0;
+                margin-top: 4px;
+            }
             .mini-controls button .material-icons-round { font-size: 24px; }
+            
+            /* ミニプレイヤーが2段になる分、余白を増やす */
+            main.with-mini-player {
+                padding-bottom: 120px;
+            }
         }
         @media (max-width: 480px) {
             .layout-1 .music-item img { width: 48px; height: 48px; margin-right: 12px; }
@@ -876,7 +892,9 @@
                             <div class="player-buttons">
                                 <button class="mode-btn" id="p-btn-shuffle" title="シャッフル (オフ)"><span class="material-icons-round">shuffle</span></button>
                                 <button id="p-btn-prev" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
+                                <button id="p-btn-back-10" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
                                 <button id="p-play-pause-btn"><span class="material-icons-round" id="p-play-icon">play_arrow</span></button>
+                                <button id="p-btn-forward-10" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
                                 <button id="p-btn-next" title="次の曲"><span class="material-icons-round">skip_next</span></button>
                                 <button class="mode-btn active" id="p-btn-repeat" title="リピート (全曲)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
                             </div>
@@ -950,8 +968,13 @@
             <div id="mini-vocal" class="mini-vocal">Vocal</div>
         </div>
         <div class="mini-controls">
+            <button id="mini-btn-shuffle" class="icon-btn" title="シャッフル (オフ)"><span class="material-icons-round" id="mini-shuffle-icon">shuffle</span></button>
+            <button id="mini-btn-prev" class="icon-btn" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
+            <button id="mini-btn-back-10" class="icon-btn" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
             <button id="mini-play-pause-btn" class="icon-btn"><span class="material-icons-round" id="mini-play-icon">play_arrow</span></button>
-            <button id="mini-next-btn" class="icon-btn"><span class="material-icons-round">skip_next</span></button>
+            <button id="mini-btn-forward-10" class="icon-btn" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
+            <button id="mini-next-btn" class="icon-btn" title="次の曲"><span class="material-icons-round">skip_next</span></button>
+            <button id="mini-btn-repeat" class="icon-btn active" title="リピート (全曲)"><span class="material-icons-round" id="mini-repeat-icon">repeat</span></button>
         </div>
     </div>
 
@@ -1075,6 +1098,67 @@
 
         const DIFF_ORDER = ['easy', 'normal', 'hard', 'expert', 'master', 'append'];
 
+        // シャッフル・リピート等のUI状態同期
+        function updateRepeatShuffleUI() {
+            const btnShuffle = document.getElementById('p-btn-shuffle');
+            const miniBtnShuffle = document.getElementById('mini-btn-shuffle');
+            
+            [btnShuffle, miniBtnShuffle].forEach(btn => {
+                if(!btn) return;
+                btn.classList.toggle('active', isShuffle);
+                btn.title = isShuffle ? "シャッフル (オン)" : "シャッフル (オフ)";
+            });
+
+            const btnRepeat = document.getElementById('p-btn-repeat');
+            const repeatIcon = document.getElementById('p-repeat-icon');
+            const miniBtnRepeat = document.getElementById('mini-btn-repeat');
+            const miniRepeatIcon = document.getElementById('mini-repeat-icon');
+            
+            let iconText = 'repeat';
+            let isActive = false;
+            let titleText = "リピート (オフ)";
+            
+            if (repeatMode === 'all') {
+                iconText = 'repeat';
+                isActive = true;
+                titleText = "リピート (全曲)";
+            } else if (repeatMode === 'one') {
+                iconText = 'repeat_one';
+                isActive = true;
+                titleText = "リピート (1曲)";
+            } else {
+                iconText = 'repeat';
+                isActive = false;
+                titleText = "リピート (オフ)";
+            }
+
+            [btnRepeat, miniBtnRepeat].forEach(btn => {
+                if(!btn) return;
+                if(isActive) btn.classList.add('active');
+                else btn.classList.remove('active');
+                btn.title = titleText;
+            });
+            [repeatIcon, miniRepeatIcon].forEach(icon => {
+                if(icon) icon.textContent = iconText;
+            });
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            updateRepeatShuffleUI();
+        }
+
+        function toggleRepeat() {
+            if (repeatMode === 'all') {
+                repeatMode = 'one';
+            } else if (repeatMode === 'one') {
+                repeatMode = 'none';
+            } else {
+                repeatMode = 'all';
+            }
+            updateRepeatShuffleUI();
+        }
+
         // Init
         async function init() {
             try {
@@ -1108,6 +1192,7 @@
 
                 setupUI();
                 setupPlayerUI();
+                updateRepeatShuffleUI();
                 renderList();
                 renderPlayerList();
                 document.getElementById('loading').style.display = 'none';
@@ -1318,6 +1403,12 @@
             // Mini Player Events
             document.getElementById('mini-play-pause-btn').addEventListener('click', togglePlayerPlay);
             document.getElementById('mini-next-btn').addEventListener('click', playNext);
+            document.getElementById('mini-btn-prev').addEventListener('click', playPrev);
+            document.getElementById('mini-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); });
+            document.getElementById('mini-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); });
+            document.getElementById('mini-btn-shuffle').addEventListener('click', toggleShuffle);
+            document.getElementById('mini-btn-repeat').addEventListener('click', toggleRepeat);
+
             document.getElementById('mini-info-area').addEventListener('click', () => {
                 document.getElementById('btn-view-player').click();
             });
@@ -1429,32 +1520,14 @@
             document.getElementById('p-btn-prev').onclick = playPrev;
             document.getElementById('p-btn-next').onclick = playNext;
             
+            document.getElementById('p-btn-back-10').onclick = () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); };
+            document.getElementById('p-btn-forward-10').onclick = () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); };
+
             const btnShuffle = document.getElementById('p-btn-shuffle');
-            btnShuffle.onclick = () => {
-                isShuffle = !isShuffle;
-                btnShuffle.classList.toggle('active', isShuffle);
-                btnShuffle.title = isShuffle ? "シャッフル (オン)" : "シャッフル (オフ)";
-            };
+            btnShuffle.onclick = toggleShuffle;
             
             const btnRepeat = document.getElementById('p-btn-repeat');
-            const repeatIcon = document.getElementById('p-repeat-icon');
-            btnRepeat.onclick = () => {
-                if (repeatMode === 'all') {
-                    repeatMode = 'one';
-                    repeatIcon.textContent = 'repeat_one';
-                    btnRepeat.title = "リピート (1曲)";
-                } else if (repeatMode === 'one') {
-                    repeatMode = 'none';
-                    repeatIcon.textContent = 'repeat';
-                    btnRepeat.classList.remove('active');
-                    btnRepeat.title = "リピート (オフ)";
-                } else {
-                    repeatMode = 'all';
-                    repeatIcon.textContent = 'repeat';
-                    btnRepeat.classList.add('active');
-                    btnRepeat.title = "リピート (全曲)";
-                }
-            };
+            btnRepeat.onclick = toggleRepeat;
         }
 
         // Mini Player Visibility Controller
