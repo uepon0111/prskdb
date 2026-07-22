@@ -246,6 +246,10 @@
             padding: 20px;
             min-height: calc(100vh - 80px);
         }
+        /* ミニプレイヤー表示時の余白調整 */
+        main.with-mini-player {
+            padding-bottom: 80px;
+        }
 
         .list-container {
             display: grid;
@@ -332,13 +336,14 @@
         /* Player View Layout */
         .player-layout {
             display: flex;
+            flex-direction: row;
             gap: 24px;
             align-items: flex-start;
         }
         .player-main-sticky {
             position: sticky;
             top: 88px;
-            flex: 0 0 350px;
+            flex: 0 0 320px;
             max-width: 100%;
         }
         .player-main {
@@ -359,6 +364,12 @@
             overflow: hidden;
             text-overflow: ellipsis;
             margin: 0;
+        }
+        /* 横画面用ジャケット固定サイズ */
+        .player-main #p-jacket {
+            width: 280px;
+            height: 280px;
+            border-radius: var(--radius-lg);
         }
         
         /* プレイヤー画面のボーカル情報表示 */
@@ -412,6 +423,30 @@
         
         .player-buttons button.active { color: var(--accent-color); }
         .player-buttons button.mode-btn { margin: 0 8px; }
+
+        /* Mini Player */
+        .mini-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-bg);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            z-index: 90;
+            gap: 12px;
+        }
+        .mini-jacket { width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
+        .mini-info { flex: 1; min-width: 0; cursor: pointer; }
+        .mini-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
+        .mini-vocal { font-size: 11px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mini-controls { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .mini-controls button .material-icons-round { font-size: 28px; }
+        .mini-progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; }
+        .mini-progress-fill { height: 100%; background: var(--accent-color); width: 0%; }
 
         /* Modal */
         .modal-overlay {
@@ -707,8 +742,22 @@
             .music-item .title { font-size: 11px; }
             .modal-content { width: 95%; height: 90vh; }
             
-            .player-layout { flex-direction: column; }
-            .player-main-sticky { position: static; flex: auto; width: 100%; }
+            /* Player UI 自動調整 (縦画面用最適化) */
+            .player-layout { flex-direction: column; gap: 16px; }
+            .player-main-sticky { position: static; flex: auto; width: 100%; max-width: 100%; }
+            .player-main { padding: 16px; gap: 12px; }
+            .player-main #p-jacket {
+                width: 220px;
+                height: 220px;
+            }
+            .player-controls { padding: 12px; width: 100%; }
+            .player-buttons button .material-icons-round { font-size: 32px; }
+            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 48px; }
+
+            /* Mini Player UI 調整 */
+            .mini-player { padding: 6px 12px; gap: 8px; }
+            .mini-jacket { width: 40px; height: 40px; }
+            .mini-controls button .material-icons-round { font-size: 24px; }
         }
         @media (max-width: 480px) {
             .layout-1 .music-item img { width: 48px; height: 48px; margin-right: 12px; }
@@ -891,6 +940,20 @@
             </div>
         </div>
     </main>
+
+    <!-- Mini Player for List View -->
+    <div id="mini-player" class="mini-player" style="display: none;">
+        <div class="mini-progress-bar"><div id="mini-progress" class="mini-progress-fill"></div></div>
+        <img id="mini-jacket" class="mini-jacket" src="" alt="jacket" onerror="handleImageError(this)">
+        <div class="mini-info" id="mini-info-area" title="プレイヤーを開く">
+            <div id="mini-title" class="mini-title">Title</div>
+            <div id="mini-vocal" class="mini-vocal">Vocal</div>
+        </div>
+        <div class="mini-controls">
+            <button id="mini-play-pause-btn" class="icon-btn"><span class="material-icons-round" id="mini-play-icon">play_arrow</span></button>
+            <button id="mini-next-btn" class="icon-btn"><span class="material-icons-round">skip_next</span></button>
+        </div>
+    </div>
 
     <!-- Detail Modal (一覧用) -->
     <div id="detail-modal" class="modal-overlay">
@@ -1082,7 +1145,7 @@
         
         const getAudioBaseUrl = (vocal) => `${ASSET_BASE}/music/long/${vocal.assetbundleName}/${vocal.assetbundleName}.mp3`;
 
-        // Default Vocal Priority Logic (修正済)
+        // Default Vocal Priority Logic
         function getDefaultVocal(music, mVocals) {
             if (!mVocals || mVocals.length === 0) return null;
             if (defaultVocalPref === 'none') return mVocals[0];
@@ -1111,6 +1174,7 @@
                 listOnlyControls.style.display = 'flex';
                 mainSearchBar.style.visibility = 'visible';
                 renderList(); 
+                updateMiniPlayerVisibility();
             });
             btnViewPlayer.addEventListener('click', () => {
                 btnViewList.classList.remove('active');
@@ -1121,6 +1185,7 @@
                 mainSearchBar.style.visibility = 'hidden';
                 renderPlayerList();
                 if(pCurrentMusic) updatePlayerPageInfo(); 
+                updateMiniPlayerVisibility();
             });
 
             const layoutBtns = [
@@ -1248,6 +1313,13 @@
             vocalSel.addEventListener('change', (e) => {
                 defaultVocalPref = e.target.value;
                 localStorage.setItem('defaultVocalPref', defaultVocalPref);
+            });
+
+            // Mini Player Events
+            document.getElementById('mini-play-pause-btn').addEventListener('click', togglePlayerPlay);
+            document.getElementById('mini-next-btn').addEventListener('click', playNext);
+            document.getElementById('mini-info-area').addEventListener('click', () => {
+                document.getElementById('btn-view-player').click();
             });
 
             setupAudioListeners();
@@ -1385,6 +1457,20 @@
             };
         }
 
+        // Mini Player Visibility Controller
+        function updateMiniPlayerVisibility() {
+            const miniPlayer = document.getElementById('mini-player');
+            const mainEl = document.querySelector('main');
+            // リストビュー表示中で、かつ再生する曲が選択されている場合にミニプレイヤーを表示
+            if (document.getElementById('list-view-container').style.display !== 'none' && pCurrentMusic) {
+                miniPlayer.style.display = 'flex';
+                mainEl.classList.add('with-mini-player');
+            } else {
+                miniPlayer.style.display = 'none';
+                mainEl.classList.remove('with-mini-player');
+            }
+        }
+
         function getFilteredAndSortedList(search, aTag, aWritten, sChars, sKey, sOrder, sDiff) {
             let filtered = musics.filter(m => {
                 if (search) {
@@ -1490,12 +1576,20 @@
             container.innerHTML = '';
             mVocals.forEach((v, i) => {
                 const btn = document.createElement('div');
-                // モーダル用かプレイヤー用かでアクティブ判定を切り替え
+                
                 const currentActiveVocal = isModal ? mCurrentVocal : pCurrentVocal;
                 const currentActiveMusic = isModal ? mCurrentMusic : pCurrentMusic;
                 
                 const isCurrentVocal = currentActiveVocal && currentActiveVocal.assetbundleName === v.assetbundleName;
-                const isTarget = currentActiveVocal && currentActiveMusic?.id === music.id ? isCurrentVocal : (v === getDefaultVocal(music, mVocals));
+                
+                let isTarget = false;
+                if (currentActiveVocal && currentActiveMusic?.id === music.id) {
+                    isTarget = isCurrentVocal;
+                } else {
+                    // モーダル（一覧）の場合は設定に関わらず常にリストの最初を選択
+                    isTarget = isModal ? (i === 0) : (v === getDefaultVocal(music, mVocals));
+                }
+
                 btn.className = `vocal-btn ${isTarget ? 'active' : ''}`;
                 
                 const iconsContainer = document.createElement('div');
@@ -1541,7 +1635,7 @@
                     container.querySelectorAll('.vocal-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     if (isModal) {
-                        loadModalAudio(music, v, false); // 一覧のプレビューは自動再生しない（元挙動維持）
+                        loadModalAudio(music, v, false);
                     } else {
                         loadPlayerAudio(music, v, true);
                     }
@@ -1689,7 +1783,8 @@
             mIsSeeking = false;
             try { mAudio.currentTime = 0; } catch (e) {}
             
-            const targetVocal = getDefaultVocal(music, mVocals);
+            // 一覧表示は設定によらず必ずリストの最初のボーカルを取得する
+            const targetVocal = mVocals.length > 0 ? mVocals[0] : null;
             if (targetVocal) {
                 loadModalAudio(music, targetVocal, false);
             } else {
@@ -1705,7 +1800,7 @@
             syncModalUI();
         });
 
-        // Player Page Data Updater (修正済：ボーカル名を動的に生成してUnknownを回避)
+        // Player Page Data Updater
         function updatePlayerPageInfo() {
             if (!pCurrentMusic) return;
             const pJacket = document.getElementById('p-jacket');
@@ -1714,6 +1809,8 @@
             
             pJacket.src = getJacketUrl(pCurrentMusic.id);
             pTitle.textContent = pCurrentMusic.title;
+
+            let finalVocalName = '';
 
             if (pCurrentVocal) {
                 pVocalInfo.style.display = 'inline-flex';
@@ -1747,14 +1844,24 @@
                     }
                 });
 
+                finalVocalName = pCurrentVocal.displayName || vocalNames.join(', ') || 'Unknown Vocal';
                 const labelSpan = document.createElement('span');
-                labelSpan.textContent = pCurrentVocal.displayName || vocalNames.join(', ') || 'Unknown Vocal';
+                labelSpan.textContent = finalVocalName;
                 
                 pVocalInfo.appendChild(iconsContainer);
                 pVocalInfo.appendChild(labelSpan);
             } else {
                 pVocalInfo.style.display = 'none';
             }
+            
+            // --- ミニプレイヤー情報更新 ---
+            const mJacket = document.getElementById('mini-jacket');
+            const mTitle = document.getElementById('mini-title');
+            const mVocal = document.getElementById('mini-vocal');
+            if(mJacket) mJacket.src = getJacketUrl(pCurrentMusic.id);
+            if(mTitle) mTitle.textContent = pCurrentMusic.title;
+            if(mVocal) mVocal.textContent = finalVocalName;
+            updateMiniPlayerVisibility();
             
             renderPlayerList();
             renderList();
@@ -2026,9 +2133,12 @@
                 
                 const pCur = document.getElementById('p-time-current');
                 const pBar = document.getElementById('p-seek-bar');
-                if (pCur && pBar && aDur) {
-                    pCur.textContent = formatTime(cTime);
-                    pBar.value = (cTime / aDur) * 100;
+                const miniProg = document.getElementById('mini-progress'); 
+
+                if (aDur) {
+                    if (pCur) pCur.textContent = formatTime(cTime);
+                    if (pBar) pBar.value = (cTime / aDur) * 100;
+                    if (miniProg) miniProg.style.width = `${(cTime / aDur) * 100}%`;
                 }
                 updatePositionState(pAudio);
             });
@@ -2064,13 +2174,11 @@
             });
             mAudio.addEventListener('pause', () => {
                 syncModalUI();
-                // もしプレイヤーが一時停止中なら、mediaSessionもpausedに戻す
                 if ('mediaSession' in navigator && pAudio.paused) {
                     navigator.mediaSession.playbackState = 'paused';
                 }
             });
             mAudio.addEventListener('ended', () => {
-                // プレビュー用なのでループせず終了
                 try { mAudio.currentTime = skipSilence ? 8 : 0; } catch(e){}
                 syncModalUI();
             });
@@ -2119,6 +2227,9 @@
             if (pI) pI.textContent = isPaused ? 'play_arrow' : 'pause';
             const pDur = document.getElementById('p-time-duration');
             if (pDur && pAudio.duration) pDur.textContent = formatTime(pAudio.duration);
+
+            const miniI = document.getElementById('mini-play-icon');
+            if (miniI) miniI.textContent = isPaused ? 'play_arrow' : 'pause';
         }
 
         function syncModalUI() {
