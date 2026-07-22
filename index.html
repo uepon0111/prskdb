@@ -131,6 +131,11 @@
         }
         .panel.show { display: block; }
 
+        /* プレイヤー画面用パネルの配置調整 */
+        #player-view-container .panel {
+            margin: 0 0 16px 0;
+        }
+
         .filter-section {
             margin-bottom: 16px;
         }
@@ -266,6 +271,10 @@
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
+        .music-item.playing {
+            border: 2px solid var(--accent-color);
+            background: rgba(0, 188, 212, 0.05);
+        }
         
         .music-item img {
             width: 100%;
@@ -321,6 +330,59 @@
         
         .layout-3 { grid-template-columns: repeat(3, 1fr); }
         .layout-5 { grid-template-columns: repeat(5, 1fr); }
+
+        /* Player View Layout */
+        .player-layout {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+        .player-main-sticky {
+            position: sticky;
+            top: 88px;
+            flex: 0 0 350px;
+            max-width: 100%;
+        }
+        .player-main {
+            background: var(--primary-bg);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .player-main h2 {
+            font-size: 18px;
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+        }
+        .player-playlist {
+            flex: 1;
+            min-width: 0;
+        }
+        .playlist-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            background: var(--primary-bg);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        .playlist-header h3 { margin: 0; font-size: 16px; }
+        .playlist-controls-inner { display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; }
+        
+        .player-buttons button.active { color: var(--accent-color); }
+        .player-buttons button.mode-btn { margin: 0 8px; }
 
         /* Modal */
         .modal-overlay {
@@ -457,6 +519,7 @@
             flex-direction: column;
             gap: 12px;
             flex-shrink: 0;
+            width: 100%;
         }
         .player-buttons {
             display: flex;
@@ -476,7 +539,8 @@
         }
         .player-buttons button:hover { color: var(--accent-color); }
         .player-buttons button .material-icons-round { font-size: 28px; }
-        .player-buttons #play-pause-btn .material-icons-round { font-size: 40px; color: var(--accent-color); }
+        .player-buttons #play-pause-btn .material-icons-round,
+        .player-buttons #p-play-pause-btn .material-icons-round { font-size: 40px; color: var(--accent-color); }
         
         .progress-container {
             display: flex;
@@ -613,6 +677,9 @@
             .music-item { padding: 8px; }
             .music-item .title { font-size: 11px; }
             .modal-content { width: 95%; height: 90vh; }
+            
+            .player-layout { flex-direction: column; }
+            .player-main-sticky { position: static; flex: auto; width: 100%; }
         }
         @media (max-width: 480px) {
             .layout-1 .music-item img { width: 48px; height: 48px; margin-right: 12px; }
@@ -637,68 +704,167 @@
 
     <header>
         <div class="header-top">
-            <div class="search-bar">
+            <div class="search-bar" id="main-search-bar">
                 <span class="material-icons-round">search</span>
                 <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
             </div>
             <div class="controls">
-                <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
-                <button class="icon-btn" id="btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
+                <!-- 一覧専用のコントロール -->
+                <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
+                    <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
+                    <button class="icon-btn" id="btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
+                    <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+                    <button class="icon-btn" id="btn-layout-1" title="1列表示"><span class="material-icons-round">view_list</span></button>
+                    <button class="icon-btn active" id="btn-layout-3" title="3列表示"><span class="material-icons-round">view_module</span></button>
+                    <button class="icon-btn" id="btn-layout-5" title="5列表示"><span class="material-icons-round">grid_view</span></button>
+                </span>
+                
                 <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
-                <button class="icon-btn" id="btn-layout-1" title="1列表示"><span class="material-icons-round">view_list</span></button>
-                <button class="icon-btn active" id="btn-layout-3" title="3列表示"><span class="material-icons-round">view_module</span></button>
-                <button class="icon-btn" id="btn-layout-5" title="5列表示"><span class="material-icons-round">grid_view</span></button>
+                
+                <!-- ページ切り替え -->
+                <button class="icon-btn active" id="btn-view-list" title="一覧画面"><span class="material-icons-round">queue_music</span></button>
+                <button class="icon-btn" id="btn-view-player" title="プレイヤー画面"><span class="material-icons-round">play_circle</span></button>
+                
                 <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                 <button class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
             </div>
         </div>
     </header>
 
-    <!-- Filter Panel -->
-    <div id="filter-panel" class="panel">
-        <div class="filter-section">
-            <div class="filter-title">ユニットタグ (1つ選択)</div>
-            <div class="filter-group" id="tag-filters"></div>
-        </div>
-        <div class="filter-section">
-            <div class="filter-title">書き下ろし (1つ選択)</div>
-            <div class="filter-group" id="written-filters"></div>
-        </div>
-        <div class="filter-section">
-            <div class="filter-title">歌唱キャラクター (AND検索)</div>
-            <div class="char-grid-filter" id="game-char-filters"></div>
-            <div class="outside-chars-filter" id="outside-char-filters"></div>
-        </div>
-    </div>
-
-    <!-- Sort Panel -->
-    <div id="sort-panel" class="panel">
-        <div class="sort-controls">
-            <select id="sort-key">
-                <option value="id">ID順</option>
-                <option value="title">タイトル（名前）順</option>
-                <option value="publishedAt" selected>公開日時順</option>
-                <option value="level">楽曲レベル順</option>
-            </select>
-            <select id="sort-diff" disabled>
-                <option value="easy">Easy</option>
-                <option value="normal">Normal</option>
-                <option value="hard">Hard</option>
-                <option value="expert">Expert</option>
-                <option value="master">Master</option>
-                <option value="append">Append</option>
-            </select>
-            <button class="icon-btn active" id="btn-sort-order" title="昇順/降順切り替え">
-                <span class="material-icons-round" id="sort-order-icon">arrow_downward</span>
-            </button>
-        </div>
-    </div>
-
     <main>
-        <div id="music-list" class="list-container layout-3"></div>
+        <!-- List View -->
+        <div id="list-view-container">
+            <!-- Filter Panel -->
+            <div id="filter-panel" class="panel">
+                <div class="filter-section">
+                    <div class="filter-title">ユニットタグ (1つ選択)</div>
+                    <div class="filter-group" id="tag-filters"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">書き下ろし (1つ選択)</div>
+                    <div class="filter-group" id="written-filters"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">歌唱キャラクター (AND検索)</div>
+                    <div class="char-grid-filter" id="game-char-filters"></div>
+                    <div class="outside-chars-filter" id="outside-char-filters"></div>
+                </div>
+            </div>
+
+            <!-- Sort Panel -->
+            <div id="sort-panel" class="panel">
+                <div class="sort-controls">
+                    <select id="sort-key">
+                        <option value="id">ID順</option>
+                        <option value="title">タイトル（名前）順</option>
+                        <option value="publishedAt" selected>公開日時順</option>
+                        <option value="level">楽曲レベル順</option>
+                    </select>
+                    <select id="sort-diff" disabled>
+                        <option value="easy">Easy</option>
+                        <option value="normal">Normal</option>
+                        <option value="hard">Hard</option>
+                        <option value="expert">Expert</option>
+                        <option value="master">Master</option>
+                        <option value="append">Append</option>
+                    </select>
+                    <button class="icon-btn active" id="btn-sort-order" title="昇順/降順切り替え">
+                        <span class="material-icons-round" id="sort-order-icon">arrow_downward</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="music-list" class="list-container layout-3"></div>
+        </div>
+
+        <!-- Player View (新設) -->
+        <div id="player-view-container" style="display: none;">
+            <div class="player-layout">
+                <div class="player-main-sticky">
+                    <div class="player-main">
+                        <img id="p-jacket" class="detail-jacket" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="jacket" onerror="handleImageError(this)">
+                        <h2 id="p-title">選択されていません</h2>
+                        
+                        <div id="p-vocal-selector" class="vocal-selector">
+                            <!-- ボーカルボタンが動的に追加されます -->
+                        </div>
+                        
+                        <div class="player-controls">
+                            <div class="progress-container">
+                                <span id="p-time-current">0:00</span>
+                                <input type="range" id="p-seek-bar" value="0" step="0.1" min="0" max="100">
+                                <span id="p-time-duration">0:00</span>
+                            </div>
+                            <div class="player-buttons">
+                                <button class="mode-btn" id="p-btn-shuffle" title="シャッフル (オフ)"><span class="material-icons-round">shuffle</span></button>
+                                <button id="p-btn-prev" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
+                                <button id="p-play-pause-btn"><span class="material-icons-round" id="p-play-icon">play_arrow</span></button>
+                                <button id="p-btn-next" title="次の曲"><span class="material-icons-round">skip_next</span></button>
+                                <button class="mode-btn active" id="p-btn-repeat" title="リピート (全曲)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="player-playlist">
+                    <div class="playlist-header">
+                        <h3>再生リスト</h3>
+                        <div class="playlist-controls-inner">
+                            <div class="search-bar" style="max-width: 200px;">
+                                <span class="material-icons-round">search</span>
+                                <input type="text" id="p-search-input" placeholder="リストを検索">
+                            </div>
+                            <button class="icon-btn" id="p-btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
+                            <button class="icon-btn" id="p-btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
+                        </div>
+                    </div>
+                    
+                    <!-- プレイヤー専用フィルタ・ソートパネル -->
+                    <div id="p-filter-panel" class="panel">
+                        <div class="filter-section">
+                            <div class="filter-title">ユニットタグ (1つ選択)</div>
+                            <div class="filter-group" id="p-tag-filters"></div>
+                        </div>
+                        <div class="filter-section">
+                            <div class="filter-title">書き下ろし (1つ選択)</div>
+                            <div class="filter-group" id="p-written-filters"></div>
+                        </div>
+                        <div class="filter-section">
+                            <div class="filter-title">歌唱キャラクター (AND検索)</div>
+                            <div class="char-grid-filter" id="p-game-char-filters"></div>
+                            <div class="outside-chars-filter" id="p-outside-char-filters"></div>
+                        </div>
+                    </div>
+
+                    <div id="p-sort-panel" class="panel">
+                        <div class="sort-controls">
+                            <select id="p-sort-key">
+                                <option value="id">ID順</option>
+                                <option value="title">タイトル（名前）順</option>
+                                <option value="publishedAt" selected>公開日時順</option>
+                                <option value="level">楽曲レベル順</option>
+                            </select>
+                            <select id="p-sort-diff" disabled>
+                                <option value="easy">Easy</option>
+                                <option value="normal">Normal</option>
+                                <option value="hard">Hard</option>
+                                <option value="expert">Expert</option>
+                                <option value="master">Master</option>
+                                <option value="append">Append</option>
+                            </select>
+                            <button class="icon-btn active" id="p-btn-sort-order" title="昇順/降順切り替え">
+                                <span class="material-icons-round" id="p-sort-order-icon">arrow_downward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="player-music-list" class="list-container layout-1"></div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- Detail Modal -->
+    <!-- Detail Modal (一覧用) -->
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -720,6 +886,14 @@
             </div>
             <div class="modal-body">
                 <div class="setting-row">
+                    <span>デフォルトボーカル優先</span>
+                    <select id="default-vocal-select" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none;">
+                        <option value="none">指定なし</option>
+                        <option value="sekai">セカイバージョン</option>
+                        <option value="virtual_singer">バーチャルシンガー</option>
+                    </select>
+                </div>
+                <div class="setting-row">
                     <span>無音部分のスキップ</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="skip-toggle">
@@ -731,7 +905,7 @@
     </div>
 
     <script>
-        // 追加: 画像取得失敗時にキャッシュバスターを付加して1度だけ再試行するCORS対策用関数
+        // 画像取得失敗時にキャッシュバスターを付加して1度だけ再試行するCORS対策用関数
         function handleImageError(img) {
             if (!img.dataset.retried) {
                 img.dataset.retried = 'true';
@@ -751,7 +925,7 @@
         let diffMap = new Map(), vocalMap = new Map(), tagMap = new Map(), origMap = new Map();
         let gameCharMap = new Map(), outCharMap = new Map();
 
-        // UI State
+        // UI State (List View)
         let currentLayout = 'layout-3';
         let searchTerm = '';
         let activeTag = 'all';
@@ -760,14 +934,29 @@
         let sortKey = 'publishedAt';
         let sortOrder = 'desc';
         let sortDiff = 'master';
-        let skipSilence = localStorage.getItem('skipSilence') === 'true';
+        
+        // UI State (Player View)
+        let p_searchTerm = '';
+        let p_activeTag = 'all';
+        let p_activeWritten = 'all';
+        let p_selectedChars = new Set();
+        let p_sortKey = 'publishedAt';
+        let p_sortOrder = 'desc';
+        let p_sortDiff = 'master';
+        
+        // Player State
+        let currentPlaylist = [];
+        let isShuffle = false;
+        let repeatMode = 'all'; // 'none', 'all', 'one'
 
-        // Audio State
+        // Audio & Settings State
         const audio = new Audio();
         let currentMusic = null;
         let currentVocal = null;
         let isSeeking = false; 
-        let audioRetryCount = 0; // 追加: 再生失敗回数を記録しリトライを制御
+        let audioRetryCount = 0;
+        let skipSilence = localStorage.getItem('skipSilence') === 'true';
+        let defaultVocalPref = localStorage.getItem('defaultVocalPref') || 'none'; // 'none', 'sekai', 'virtual_singer'
 
         const TAG_DEF = [
             { id: 'all', icon: 'apps', label: '全て' },
@@ -821,7 +1010,9 @@
                 outsideChars.forEach(c => outCharMap.set(c.id, c));
 
                 setupUI();
+                setupPlayerUI();
                 renderList();
+                renderPlayerList();
                 document.getElementById('loading').style.display = 'none';
             } catch (err) {
                 console.error(err);
@@ -829,9 +1020,87 @@
             }
         }
 
-        // Setup UI Listeners & Filters
+        // Logic Utils
+        const getJacketUrl = (id) => {
+            if (!id) return 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+            const pad = String(id).padStart(3, '0');
+            return `${ASSET_BASE}/music/jacket/jacket_s_${pad}/jacket_s_${pad}.png`;
+        };
+
+        const formatDate = (ms) => {
+            if (!ms) return '-';
+            const d = new Date(ms);
+            return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        };
+
+        const formatTime = (sec) => {
+            if (isNaN(sec) || !isFinite(sec)) return '0:00';
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        };
+
+        const getTagName = (musicId) => {
+            const mTags = tagMap.get(musicId) || [];
+            const tagId = mTags.find(t => t !== 'all') || 'other';
+            return TAG_DEF.find(t => t.id === tagId)?.label || 'その他';
+        };
+        
+        const getAudioBaseUrl = (vocal) => `${ASSET_BASE}/music/long/${vocal.assetbundleName}/${vocal.assetbundleName}.mp3`;
+
+        // Default Vocal Priority Logic
+        function getDefaultVocal(music, mVocals) {
+            if (!mVocals || mVocals.length === 0) return null;
+            if (defaultVocalPref === 'none') return mVocals[0];
+
+            let hasSekai = false;
+            let hasVSinger = false;
+
+            mVocals.forEach(v => {
+                if (v.musicVocalType === 'sekai') hasSekai = true;
+                if (v.musicVocalType === 'virtual_singer') hasVSinger = true;
+            });
+
+            // 両方ある場合のみ、設定された方を優先
+            if (hasSekai && hasVSinger) {
+                const targetVocal = mVocals.find(v => v.musicVocalType === defaultVocalPref);
+                if (targetVocal) return targetVocal;
+            }
+
+            return mVocals[0]; // 条件に合わない場合や片方しかない場合は先頭のもの
+        }
+
+        // Setup UI Listeners & Filters (List View & Common)
         function setupUI() {
-            // Layout 
+            // View Switching
+            const btnViewList = document.getElementById('btn-view-list');
+            const btnViewPlayer = document.getElementById('btn-view-player');
+            const listViewCont = document.getElementById('list-view-container');
+            const playerViewCont = document.getElementById('player-view-container');
+            const listOnlyControls = document.getElementById('list-only-controls');
+            const mainSearchBar = document.getElementById('main-search-bar');
+
+            btnViewList.addEventListener('click', () => {
+                btnViewPlayer.classList.remove('active');
+                btnViewList.classList.add('active');
+                listViewCont.style.display = 'block';
+                playerViewCont.style.display = 'none';
+                listOnlyControls.style.display = 'flex';
+                mainSearchBar.style.visibility = 'visible';
+                renderList(); // ハイライト状態を更新するため
+            });
+            btnViewPlayer.addEventListener('click', () => {
+                btnViewList.classList.remove('active');
+                btnViewPlayer.classList.add('active');
+                listViewCont.style.display = 'none';
+                playerViewCont.style.display = 'block';
+                listOnlyControls.style.display = 'none';
+                mainSearchBar.style.visibility = 'hidden'; // ヘッダーの検索バーは隠す
+                renderPlayerList();
+                if(currentMusic) updatePlayerPageInfo(); // 既存の再生曲があればUI更新
+            });
+
+            // Layout (List View)
             const layoutBtns = [
                 { id: 'btn-layout-1', name: 'layout-1' },
                 { id: 'btn-layout-3', name: 'layout-3' },
@@ -849,7 +1118,7 @@
                 });
             });
 
-            // Panels
+            // Panels (List View)
             document.getElementById('btn-filter').addEventListener('click', () => {
                 document.getElementById('filter-panel').classList.toggle('show');
                 document.getElementById('sort-panel').classList.remove('show');
@@ -859,13 +1128,13 @@
                 document.getElementById('filter-panel').classList.remove('show');
             });
 
-            // Search
+            // Search (List View)
             document.getElementById('search-input').addEventListener('input', (e) => {
                 searchTerm = e.target.value.trim().toLowerCase();
                 renderList();
             });
 
-            // Filters Generation
+            // Filters Generation (List View)
             const tagContainer = document.getElementById('tag-filters');
             TAG_DEF.forEach(t => {
                 const chip = document.createElement('div');
@@ -894,7 +1163,7 @@
                 writtenContainer.appendChild(chip);
             });
 
-            // Characters Filter
+            // Characters Filter (List View)
             const gCharContainer = document.getElementById('game-char-filters');
             gameChars.forEach(c => {
                 const div = document.createElement('div');
@@ -903,7 +1172,7 @@
                     <img src="${ASSET_BASE}/character/character_sd_l/chr_sp_${c.id}.png" alt="${c.givenName || ''}" loading="lazy" onerror="handleImageError(this)">
                     <span>${c.firstName || ''}${c.givenName || ''}</span>
                 `;
-                div.onclick = () => toggleCharFilter(`game_${c.id}`, div);
+                div.onclick = () => toggleCharFilter(`game_${c.id}`, div, selectedChars, renderList);
                 gCharContainer.appendChild(div);
             });
 
@@ -912,22 +1181,22 @@
                 const chip = document.createElement('div');
                 chip.className = 'chip';
                 chip.textContent = c.name;
-                chip.onclick = () => toggleCharFilter(`outside_${c.id}`, chip);
+                chip.onclick = () => toggleCharFilter(`outside_${c.id}`, chip, selectedChars, renderList);
                 oCharContainer.appendChild(chip);
             });
 
-            function toggleCharFilter(key, el) {
-                if (selectedChars.has(key)) {
-                    selectedChars.delete(key);
+            function toggleCharFilter(key, el, setObj, renderFunc) {
+                if (setObj.has(key)) {
+                    setObj.delete(key);
                     el.classList.remove('active');
                 } else {
-                    selectedChars.add(key);
+                    setObj.add(key);
                     el.classList.add('active');
                 }
-                renderList();
+                renderFunc();
             }
 
-            // Sorting Setup
+            // Sorting Setup (List View)
             const sortKeySelect = document.getElementById('sort-key');
             const sortDiffSelect = document.getElementById('sort-diff');
             sortKeySelect.addEventListener('change', (e) => {
@@ -958,56 +1227,171 @@
                 skipSilence = e.target.checked;
                 localStorage.setItem('skipSilence', skipSilence);
             });
+            const vocalSel = document.getElementById('default-vocal-select');
+            vocalSel.value = defaultVocalPref;
+            vocalSel.addEventListener('change', (e) => {
+                defaultVocalPref = e.target.value;
+                localStorage.setItem('defaultVocalPref', defaultVocalPref);
+            });
 
             // Audio Listeners
             setupAudioListeners();
         }
 
-        // Logic Utils
-        const getJacketUrl = (id) => {
-            const pad = String(id).padStart(3, '0');
-            return `${ASSET_BASE}/music/jacket/jacket_s_${pad}/jacket_s_${pad}.png`;
-        };
+        // Setup Player View Specific UI
+        function setupPlayerUI() {
+            // Panels (Player View)
+            document.getElementById('p-btn-filter').addEventListener('click', () => {
+                document.getElementById('p-filter-panel').classList.toggle('show');
+                document.getElementById('p-sort-panel').classList.remove('show');
+            });
+            document.getElementById('p-btn-sort').addEventListener('click', () => {
+                document.getElementById('p-sort-panel').classList.toggle('show');
+                document.getElementById('p-filter-panel').classList.remove('show');
+            });
 
-        const formatDate = (ms) => {
-            if (!ms) return '-';
-            const d = new Date(ms);
-            return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        };
+            // Search (Player View)
+            document.getElementById('p-search-input').addEventListener('input', (e) => {
+                p_searchTerm = e.target.value.trim().toLowerCase();
+                renderPlayerList();
+            });
 
-        const formatTime = (sec) => {
-            if (isNaN(sec) || !isFinite(sec)) return '0:00';
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return `${m}:${s.toString().padStart(2, '0')}`;
-        };
+            // Filters Generation (Player View)
+            const pTagContainer = document.getElementById('p-tag-filters');
+            TAG_DEF.forEach(t => {
+                const chip = document.createElement('div');
+                chip.className = `chip ${t.id === p_activeTag ? 'active' : ''}`;
+                chip.innerHTML = `<span class="material-icons-round">${t.icon}</span>${t.label}`;
+                chip.onclick = () => {
+                    pTagContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    p_activeTag = t.id;
+                    renderPlayerList();
+                };
+                pTagContainer.appendChild(chip);
+            });
 
-        const getTagName = (musicId) => {
-            const mTags = tagMap.get(musicId) || [];
-            const tagId = mTags.find(t => t !== 'all') || 'other';
-            return TAG_DEF.find(t => t.id === tagId)?.label || 'その他';
-        };
-        
-        // Audio Base URL 取得ヘルパー
-        const getAudioBaseUrl = (vocal) => `${ASSET_BASE}/music/long/${vocal.assetbundleName}/${vocal.assetbundleName}.mp3`;
+            const pWrittenContainer = document.getElementById('p-written-filters');
+            WRITTEN_DEF.forEach(w => {
+                const chip = document.createElement('div');
+                chip.className = `chip ${w.id === p_activeWritten ? 'active' : ''}`;
+                chip.innerHTML = `<span class="material-icons-round">${w.icon}</span>${w.label}`;
+                chip.onclick = () => {
+                    pWrittenContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    p_activeWritten = w.id;
+                    renderPlayerList();
+                };
+                pWrittenContainer.appendChild(chip);
+            });
 
-        // Render List
-        function renderList() {
+            // Characters Filter (Player View)
+            const pGCharContainer = document.getElementById('p-game-char-filters');
+            gameChars.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'char-item';
+                div.innerHTML = `
+                    <img src="${ASSET_BASE}/character/character_sd_l/chr_sp_${c.id}.png" alt="${c.givenName || ''}" loading="lazy" onerror="handleImageError(this)">
+                    <span>${c.firstName || ''}${c.givenName || ''}</span>
+                `;
+                div.onclick = () => {
+                    if (p_selectedChars.has(`game_${c.id}`)) {
+                        p_selectedChars.delete(`game_${c.id}`);
+                        div.classList.remove('active');
+                    } else {
+                        p_selectedChars.add(`game_${c.id}`);
+                        div.classList.add('active');
+                    }
+                    renderPlayerList();
+                };
+                pGCharContainer.appendChild(div);
+            });
+
+            const pOCharContainer = document.getElementById('p-outside-char-filters');
+            outsideChars.forEach(c => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.textContent = c.name;
+                chip.onclick = () => {
+                    if (p_selectedChars.has(`outside_${c.id}`)) {
+                        p_selectedChars.delete(`outside_${c.id}`);
+                        chip.classList.remove('active');
+                    } else {
+                        p_selectedChars.add(`outside_${c.id}`);
+                        chip.classList.add('active');
+                    }
+                    renderPlayerList();
+                };
+                pOCharContainer.appendChild(chip);
+            });
+
+            // Sorting Setup (Player View)
+            const pSortKeySelect = document.getElementById('p-sort-key');
+            const pSortDiffSelect = document.getElementById('p-sort-diff');
+            pSortKeySelect.addEventListener('change', (e) => {
+                p_sortKey = e.target.value;
+                pSortDiffSelect.disabled = p_sortKey !== 'level';
+                renderPlayerList();
+            });
+            pSortDiffSelect.addEventListener('change', (e) => {
+                p_sortDiff = e.target.value;
+                renderPlayerList();
+            });
+            document.getElementById('p-btn-sort-order').addEventListener('click', () => {
+                p_sortOrder = p_sortOrder === 'asc' ? 'desc' : 'asc';
+                document.getElementById('p-sort-order-icon').textContent = p_sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
+                renderPlayerList();
+            });
+
+            // Player Controls (Play Mode)
+            document.getElementById('p-play-pause-btn').onclick = togglePlay;
+            document.getElementById('p-btn-prev').onclick = playPrev;
+            document.getElementById('p-btn-next').onclick = playNext;
+            
+            const btnShuffle = document.getElementById('p-btn-shuffle');
+            btnShuffle.onclick = () => {
+                isShuffle = !isShuffle;
+                btnShuffle.classList.toggle('active', isShuffle);
+                btnShuffle.title = isShuffle ? "シャッフル (オン)" : "シャッフル (オフ)";
+            };
+            
+            const btnRepeat = document.getElementById('p-btn-repeat');
+            const repeatIcon = document.getElementById('p-repeat-icon');
+            btnRepeat.onclick = () => {
+                if (repeatMode === 'all') {
+                    repeatMode = 'one';
+                    repeatIcon.textContent = 'repeat_one';
+                    btnRepeat.title = "リピート (1曲)";
+                } else if (repeatMode === 'one') {
+                    repeatMode = 'none';
+                    repeatIcon.textContent = 'repeat';
+                    btnRepeat.classList.remove('active');
+                    btnRepeat.title = "リピート (オフ)";
+                } else {
+                    repeatMode = 'all';
+                    repeatIcon.textContent = 'repeat';
+                    btnRepeat.classList.add('active');
+                    btnRepeat.title = "リピート (全曲)";
+                }
+            };
+        }
+
+        // List Rendering Logic (Common Core)
+        function getFilteredAndSortedList(search, aTag, aWritten, sChars, sKey, sOrder, sDiff) {
             let filtered = musics.filter(m => {
-                if (searchTerm) {
-                    const s = searchTerm;
+                if (search) {
                     const matchText = [m.title, m.pronunciation, m.lyricist, m.composer, m.arranger].join(' ').toLowerCase();
-                    if (!matchText.includes(s)) return false;
+                    if (!matchText.includes(search)) return false;
                 }
-                if (activeTag !== 'all') {
+                if (aTag !== 'all') {
                     const mTags = tagMap.get(m.id) || [];
-                    if (!mTags.includes(activeTag)) return false;
+                    if (!mTags.includes(aTag)) return false;
                 }
-                if (activeWritten !== 'all') {
-                    if (activeWritten === 'newly' && !m.isNewlyWrittenMusic) return false;
-                    if (activeWritten === 'cover' && m.isNewlyWrittenMusic) return false;
+                if (aWritten !== 'all') {
+                    if (aWritten === 'newly' && !m.isNewlyWrittenMusic) return false;
+                    if (aWritten === 'cover' && m.isNewlyWrittenMusic) return false;
                 }
-                if (selectedChars.size > 0) {
+                if (sChars.size > 0) {
                     const mVocals = vocalMap.get(m.id) || [];
                     const allCharsInMusic = new Set();
                     mVocals.forEach(v => {
@@ -1015,29 +1399,34 @@
                             allCharsInMusic.add(`${c.characterType === 'game_character' ? 'game' : 'outside'}_${c.characterId}`);
                         });
                     });
-                    for (let charKey of selectedChars) {
+                    for (let charKey of sChars) {
                         if (!allCharsInMusic.has(charKey)) return false;
                     }
                 }
                 return true;
             });
 
-            // Sort
             filtered.sort((a, b) => {
                 let valA, valB;
-                if (sortKey === 'id') { valA = a.id; valB = b.id; }
-                else if (sortKey === 'title') { valA = a.pronunciation || a.title; valB = b.pronunciation || b.title; }
-                else if (sortKey === 'publishedAt') { valA = a.publishedAt || 0; valB = b.publishedAt || 0; }
-                else if (sortKey === 'level') {
-                    valA = diffMap.get(a.id)?.[sortDiff]?.playLevel || 0;
-                    valB = diffMap.get(b.id)?.[sortDiff]?.playLevel || 0;
+                if (sKey === 'id') { valA = a.id; valB = b.id; }
+                else if (sKey === 'title') { valA = a.pronunciation || a.title; valB = b.pronunciation || b.title; }
+                else if (sKey === 'publishedAt') { valA = a.publishedAt || 0; valB = b.publishedAt || 0; }
+                else if (sKey === 'level') {
+                    valA = diffMap.get(a.id)?.[sDiff]?.playLevel || 0;
+                    valB = diffMap.get(b.id)?.[sDiff]?.playLevel || 0;
                 }
                 
-                if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
-                if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+                if (valA < valB) return sOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return sOrder === 'asc' ? 1 : -1;
                 return 0;
             });
 
+            return filtered;
+        }
+
+        // Render List View
+        function renderList() {
+            const filtered = getFilteredAndSortedList(searchTerm, activeTag, activeWritten, selectedChars, sortKey, sortOrder, sortDiff);
             const container = document.getElementById('music-list');
             container.innerHTML = '';
             
@@ -1045,6 +1434,8 @@
             filtered.forEach(m => {
                 const el = document.createElement('div');
                 el.className = 'music-item';
+                // 現在再生中かどうか（一覧に戻った時のために付与してもUIに影響しない）
+                if (currentMusic && currentMusic.id === m.id) el.classList.add('playing');
                 el.onclick = () => openDetail(m);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
@@ -1058,38 +1449,42 @@
             container.appendChild(fragment);
         }
 
-        // Modal Logic
-        function openDetail(music) {
-            currentMusic = music;
-            document.getElementById('modal-title-top').textContent = music.title;
-            const body = document.getElementById('modal-body-content');
-            body.innerHTML = ''; // reset
-
-            // 1. 楽曲タイトル
-            const h2 = document.createElement('h2');
-            h2.style.margin = '0';
-            h2.textContent = music.title;
-            body.appendChild(h2);
-
-            // 2. サムネイル
-            const imgCont = document.createElement('div');
-            imgCont.className = 'detail-jacket-container';
-            const img = document.createElement('img');
-            img.className = 'detail-jacket';
-            img.src = getJacketUrl(music.id);
-            img.onerror = function() { handleImageError(this); };
-            imgCont.appendChild(img);
-            body.appendChild(imgCont);
-
-            // 3. ボーカル選択
-            const vCont = document.createElement('div');
-            vCont.className = 'vocal-selector';
-            const mVocals = vocalMap.get(music.id) || [];
+        // Render Player View List
+        function renderPlayerList() {
+            currentPlaylist = getFilteredAndSortedList(p_searchTerm, p_activeTag, p_activeWritten, p_selectedChars, p_sortKey, p_sortOrder, p_sortDiff);
+            const container = document.getElementById('player-music-list');
+            container.innerHTML = '';
             
+            const fragment = document.createDocumentFragment();
+            currentPlaylist.forEach(m => {
+                const el = document.createElement('div');
+                el.className = 'music-item';
+                if (currentMusic && currentMusic.id === m.id) el.classList.add('playing');
+                el.onclick = () => {
+                    const mVocals = vocalMap.get(m.id) || [];
+                    const vocal = getDefaultVocal(m, mVocals);
+                    loadAudio(m, vocal, true);
+                };
+                el.innerHTML = `
+                    <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
+                    <div class="info-container">
+                        <div class="title">${m.title}</div>
+                        <div class="meta">${getTagName(m.id)}</div>
+                    </div>
+                `;
+                fragment.appendChild(el);
+            });
+            container.appendChild(fragment);
+        }
+
+        // ボーカルセレクタ共通作成関数
+        function createVocalSelectorDOM(container, music, mVocals, isModal) {
+            container.innerHTML = '';
             mVocals.forEach((v, i) => {
                 const btn = document.createElement('div');
-                const isCurrentVocal = audio.src.includes(v.assetbundleName);
-                btn.className = `vocal-btn ${isCurrentVocal || (i === 0 && !audio.src.includes(music.id)) ? 'active' : ''}`;
+                const isCurrentVocal = currentVocal && currentVocal.assetbundleName === v.assetbundleName;
+                const isTarget = currentVocal && currentMusic?.id === music.id ? isCurrentVocal : (v === getDefaultVocal(music, mVocals));
+                btn.className = `vocal-btn ${isTarget ? 'active' : ''}`;
                 
                 const iconsContainer = document.createElement('div');
                 iconsContainer.className = 'vocal-btn-icons';
@@ -1130,18 +1525,43 @@
                 btn.appendChild(iconsContainer);
                 btn.appendChild(labelSpan);
 
-                // ボーカル切替時
                 btn.onclick = () => {
-                    vCont.querySelectorAll('.vocal-btn').forEach(b => b.classList.remove('active'));
+                    container.querySelectorAll('.vocal-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    
-                    loadAudio(music, v, false);
+                    loadAudio(music, v, true);
                 };
-                vCont.appendChild(btn);
+                container.appendChild(btn);
             });
+        }
+
+        // Modal Logic
+        function openDetail(music) {
+            const body = document.getElementById('modal-body-content');
+            body.innerHTML = ''; // reset
+
+            document.getElementById('modal-title-top').textContent = music.title;
+
+            const h2 = document.createElement('h2');
+            h2.style.margin = '0';
+            h2.textContent = music.title;
+            body.appendChild(h2);
+
+            const imgCont = document.createElement('div');
+            imgCont.className = 'detail-jacket-container';
+            const img = document.createElement('img');
+            img.className = 'detail-jacket';
+            img.src = getJacketUrl(music.id);
+            img.onerror = function() { handleImageError(this); };
+            imgCont.appendChild(img);
+            body.appendChild(imgCont);
+
+            const vCont = document.createElement('div');
+            vCont.className = 'vocal-selector';
+            vCont.id = 'modal-vocal-selector';
+            const mVocals = vocalMap.get(music.id) || [];
+            createVocalSelectorDOM(vCont, music, mVocals, true);
             body.appendChild(vCont);
 
-            // 4. 再生バー
             const pCont = document.createElement('div');
             pCont.className = 'player-controls';
             pCont.innerHTML = `
@@ -1160,7 +1580,7 @@
             `;
             body.appendChild(pCont);
 
-            // Bind player events
+            // Bind player events for modal
             const seekBar = pCont.querySelector('#seek-bar');
             pCont.querySelector('#play-pause-btn').onclick = togglePlay;
             pCont.querySelector('#btn-back-10').onclick = () => { audio.currentTime = Math.max(0, audio.currentTime - 10); updatePositionState(); };
@@ -1168,16 +1588,8 @@
             pCont.querySelector('#btn-forward-5').onclick = () => { if(audio.duration) audio.currentTime = Math.min(audio.duration, audio.currentTime + 5); updatePositionState(); };
             pCont.querySelector('#btn-forward-10').onclick = () => { if(audio.duration) audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); updatePositionState(); };
             
-            const startSeek = () => { isSeeking = true; };
-            const finishSeek = () => {
-                if (isSeeking && audio.duration) {
-                    audio.currentTime = (seekBar.value / 100) * audio.duration;
-                    isSeeking = false;
-                    updatePositionState();
-                }
-            };
-            seekBar.addEventListener('mousedown', startSeek);
-            seekBar.addEventListener('touchstart', startSeek, { passive: true });
+            seekBar.addEventListener('mousedown', startSeekGeneral);
+            seekBar.addEventListener('touchstart', startSeekGeneral, { passive: true });
             seekBar.addEventListener('input', (e) => {
                 if (audio.duration) {
                     const time = (e.target.value / 100) * audio.duration;
@@ -1185,11 +1597,11 @@
                     if (cur) cur.textContent = formatTime(time);
                 }
             });
-            seekBar.addEventListener('change', finishSeek);
-            seekBar.addEventListener('mouseup', finishSeek);
-            seekBar.addEventListener('touchend', finishSeek);
+            seekBar.addEventListener('change', finishSeekGeneral);
+            seekBar.addEventListener('mouseup', finishSeekGeneral);
+            seekBar.addEventListener('touchend', finishSeekGeneral);
 
-            // 5~11. メタ情報一覧
+            // Metas
             const infoCont = document.createElement('div');
             infoCont.className = 'info-list';
             const infos = [
@@ -1209,7 +1621,6 @@
             });
             body.appendChild(infoCont);
 
-            // 12. オリジナルビデオ
             const origLink = origMap.get(music.id);
             if (origLink) {
                 const lRow = document.createElement('div');
@@ -1217,18 +1628,14 @@
                 lRow.innerHTML = `<div class="info-label">ビデオ</div>
                                   <div class="info-value"><a href="${origLink}" target="_blank" class="link-btn" id="orig-video-link"><span class="material-icons-round">open_in_new</span>YouTube</a></div>`;
                 body.appendChild(lRow);
-                
                 setTimeout(() => {
                     const lNode = document.getElementById('orig-video-link');
                     if(lNode) {
-                        lNode.onclick = (e) => {
-                            if (!confirm('外部サイトへ移動します。よろしいですか？')) e.preventDefault();
-                        };
+                        lNode.onclick = (e) => { if (!confirm('外部サイトへ移動します。よろしいですか？')) e.preventDefault(); };
                     }
                 }, 0);
             }
 
-            // 13. 難易度ごとのレベル・ノーツ数
             const diffs = diffMap.get(music.id) || {};
             const tableCont = document.createElement('div');
             let tableHTML = `<table class="diff-table"><tr><th>難易度</th><th>レベル</th><th>ノーツ数</th></tr>`;
@@ -1246,60 +1653,68 @@
             tableCont.innerHTML = tableHTML;
             body.appendChild(tableCont);
 
-            // Show modal & Sync UI
             document.getElementById('detail-modal').classList.add('show');
-            syncPlayerUI();
             
-            // 初回または別曲の選択時の自動読み込み
-            if (mVocals.length > 0) {
-                const targetVocal = mVocals[0];
-                const targetUrl = getAudioBaseUrl(targetVocal);
-                if (!audio.src || (audio.src.split('?')[0] !== targetUrl)) {
-                    loadAudio(music, targetVocal, false);
-                }
+            // 別の曲が開かれたら、デフォルトボーカルで再生開始
+            if (!currentMusic || currentMusic.id !== music.id) {
+                const targetVocal = getDefaultVocal(music, mVocals);
+                if (targetVocal) loadAudio(music, targetVocal, false);
+            } else {
+                syncPlayerUI();
             }
         }
 
-        // 閉じる処理・初期化関数
-        function closeDetailModal() {
+        document.getElementById('btn-close-modal').addEventListener('click', () => {
             document.getElementById('detail-modal').classList.remove('show');
-            audio.pause();
-            try {
-                audio.currentTime = 0;
-            } catch (e) {}
-            audio.removeAttribute('src');
-            audio.load();
-            currentMusic = null;
-            currentVocal = null;
-        }
+        });
 
-        // 閉じるボタンのイベント
-        document.getElementById('btn-close-modal').addEventListener('click', closeDetailModal);
+        // Player Page Data Updater
+        function updatePlayerPageInfo() {
+            if (!currentMusic) return;
+            const pJacket = document.getElementById('p-jacket');
+            const pTitle = document.getElementById('p-title');
+            const pVocalSel = document.getElementById('p-vocal-selector');
+            
+            pJacket.src = getJacketUrl(currentMusic.id);
+            pTitle.textContent = currentMusic.title;
+
+            const mVocals = vocalMap.get(currentMusic.id) || [];
+            createVocalSelectorDOM(pVocalSel, currentMusic, mVocals, false);
+            
+            // リストのハイライト更新
+            renderPlayerList();
+            renderList();
+        }
 
         // Audio System
         function loadAudio(music, vocal, autoPlay = false) {
             currentMusic = music;
             currentVocal = vocal;
-            audioRetryCount = 0; // リセット
+            audioRetryCount = 0; 
             const baseUrl = getAudioBaseUrl(vocal);
             
-            // クエリパラメータを除外したベースURLで比較し、同一曲での不要なリロードを回避
             const currentUrl = audio.src ? audio.src.split('?')[0] : '';
             const isNewSrc = currentUrl !== baseUrl;
             
             if (isNewSrc) {
                 audio.pause();
                 audio.src = baseUrl;
-                try {
-                    audio.currentTime = 0;
-                } catch (e) {}
+                try { audio.currentTime = 0; } catch (e) {}
                 audio.load();
             } else if (audio.ended) {
                 audio.currentTime = skipSilence ? 8 : 0;
             }
 
             setupMediaSession(music, vocal);
-            syncPlayerUI(); // ボーカル切替時にも即座にUIを同期
+            updatePlayerPageInfo(); // ボーカル切替時や新規読み込み時にプレイヤー画面のUIも更新
+            
+            // モーダル側のボーカルハイライト更新
+            const mVSel = document.getElementById('modal-vocal-selector');
+            if (mVSel) {
+                createVocalSelectorDOM(mVSel, music, vocalMap.get(music.id) || [], true);
+            }
+
+            syncPlayerUI();
 
             if (autoPlay) {
                 startPlay();
@@ -1320,30 +1735,20 @@
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
-                        audioRetryCount = 0; // 成功したらリトライカウンタをリセット
+                        audioRetryCount = 0;
                     }).catch(e => {
                         console.log('Playback prevented or interrupted:', e);
-                        // ユーザーの操作が必須な場合（NotAllowedError）以外でエラーが出た際、リソース解放対策としてURLにタイムスタンプを付与してリロード
                         if (e.name !== 'NotAllowedError' && audioRetryCount < 2 && currentVocal) {
                             audioRetryCount++;
-                            console.log(`Retrying audio playback (Attempt ${audioRetryCount})...`);
                             const baseUrl = getAudioBaseUrl(currentVocal);
                             const savedTime = isFinite(audio.currentTime) ? audio.currentTime : 0;
-                            
                             audio.src = `${baseUrl}?t=${Date.now()}`;
                             audio.load();
-                            
-                            const onCanPlay = () => {
+                            audio.addEventListener('canplay', () => {
                                 if (savedTime > 0) audio.currentTime = savedTime;
                                 const retryPromise = audio.play();
-                                if (retryPromise !== undefined) {
-                                    retryPromise.catch(err => {
-                                        console.error('Retry playback failed:', err);
-                                        syncPlayerUI();
-                                    });
-                                }
-                            };
-                            audio.addEventListener('canplay', onCanPlay, { once: true });
+                                if (retryPromise !== undefined) retryPromise.catch(()=>syncPlayerUI());
+                            }, { once: true });
                         } else {
                             syncPlayerUI();
                         }
@@ -1355,22 +1760,102 @@
                 doPlay();
             } else {
                 audio.load();
-                const onLoaded = () => {
-                    doPlay();
-                };
-                audio.addEventListener('loadedmetadata', onLoaded, { once: true });
+                audio.addEventListener('loadedmetadata', doPlay, { once: true });
             }
         }
 
         function togglePlay() {
-            if (audio.paused) {
-                startPlay();
-            } else {
-                audio.pause();
+            if (audio.paused) startPlay();
+            else audio.pause();
+        }
+        
+        function playNext() {
+            if (!currentPlaylist || currentPlaylist.length === 0) {
+                try { audio.currentTime = skipSilence ? 8 : 0; } catch (e) {}
+                syncPlayerUI();
+                return;
             }
+            const currentIndex = currentPlaylist.findIndex(m => m.id === currentMusic?.id);
+            let nextIndex = 0;
+
+            if (isShuffle) {
+                nextIndex = Math.floor(Math.random() * currentPlaylist.length);
+                if (nextIndex === currentIndex && currentPlaylist.length > 1) {
+                    nextIndex = (nextIndex + 1) % currentPlaylist.length;
+                }
+            } else {
+                if (currentIndex !== -1) {
+                    nextIndex = currentIndex + 1;
+                    if (nextIndex >= currentPlaylist.length) {
+                        if (repeatMode === 'all') {
+                            nextIndex = 0;
+                        } else {
+                            // repeat none & 最後の曲
+                            audio.pause();
+                            try { audio.currentTime = skipSilence ? 8 : 0; } catch (e) {}
+                            syncPlayerUI();
+                            return;
+                        }
+                    }
+                }
+            }
+
+            const nextMusic = currentPlaylist[nextIndex];
+            const mVocals = vocalMap.get(nextMusic.id) || [];
+            const nextVocal = getDefaultVocal(nextMusic, mVocals);
+            loadAudio(nextMusic, nextVocal, true);
         }
 
+        function playPrev() {
+            if (!currentPlaylist || currentPlaylist.length === 0) return;
+            if (audio.currentTime > 3) {
+                audio.currentTime = skipSilence ? 8 : 0;
+                return;
+            }
+            
+            const currentIndex = currentPlaylist.findIndex(m => m.id === currentMusic?.id);
+            let prevIndex = 0;
+
+            if (isShuffle) {
+                prevIndex = Math.floor(Math.random() * currentPlaylist.length);
+            } else {
+                if (currentIndex !== -1) {
+                    prevIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+                }
+            }
+
+            const prevMusic = currentPlaylist[prevIndex];
+            const mVocals = vocalMap.get(prevMusic.id) || [];
+            const prevVocal = getDefaultVocal(prevMusic, mVocals);
+            loadAudio(prevMusic, prevVocal, true);
+        }
+
+        // Shared Seek Event Handlers
+        const startSeekGeneral = () => { isSeeking = true; };
+        const finishSeekGeneral = (e) => {
+            if (isSeeking && audio.duration) {
+                audio.currentTime = (e.target.value / 100) * audio.duration;
+                isSeeking = false;
+                updatePositionState();
+            }
+        };
+
         function setupAudioListeners() {
+            // Player Page Seekbar Init
+            const pSeekBar = document.getElementById('p-seek-bar');
+            pSeekBar.addEventListener('mousedown', startSeekGeneral);
+            pSeekBar.addEventListener('touchstart', startSeekGeneral, { passive: true });
+            pSeekBar.addEventListener('input', (e) => {
+                if (audio.duration) {
+                    const time = (e.target.value / 100) * audio.duration;
+                    const cur = document.getElementById('p-time-current');
+                    if (cur) cur.textContent = formatTime(time);
+                }
+            });
+            pSeekBar.addEventListener('change', finishSeekGeneral);
+            pSeekBar.addEventListener('mouseup', finishSeekGeneral);
+            pSeekBar.addEventListener('touchend', finishSeekGeneral);
+
             audio.addEventListener('play', () => {
                 syncPlayerUI();
                 if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
@@ -1380,24 +1865,33 @@
                 if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
             });
             audio.addEventListener('ended', () => {
-                try {
-                    audio.currentTime = skipSilence ? 8 : 0;
-                } catch (e) {
-                    console.error(e);
+                if (repeatMode === 'one') {
+                    try { audio.currentTime = skipSilence ? 8 : 0; } catch(e){}
+                    startPlay();
+                    return;
                 }
-                syncPlayerUI();
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.playbackState = 'paused';
-                }
+                playNext();
             });
             audio.addEventListener('timeupdate', () => {
                 if (isSeeking) return;
+                const cTime = audio.currentTime;
+                const aDur = audio.duration;
+                
+                // Modal UI
                 const cur = document.getElementById('time-current');
                 const bar = document.getElementById('seek-bar');
-                if (cur && bar && audio.duration) {
-                    cur.textContent = formatTime(audio.currentTime);
-                    bar.value = (audio.currentTime / audio.duration) * 100;
+                if (cur && bar && aDur) {
+                    cur.textContent = formatTime(cTime);
+                    bar.value = (cTime / aDur) * 100;
                 }
+                // Player Page UI
+                const pCur = document.getElementById('p-time-current');
+                const pBar = document.getElementById('p-seek-bar');
+                if (pCur && pBar && aDur) {
+                    pCur.textContent = formatTime(cTime);
+                    pBar.value = (cTime / aDur) * 100;
+                }
+                
                 updatePositionState();
             });
             audio.addEventListener('loadedmetadata', () => {
@@ -1405,9 +1899,7 @@
                 updatePositionState();
             });
             
-            // オーディオ取得・ネットワークエラー時の自動復旧
             audio.onerror = () => {
-                console.error("Audio error encountered:", audio.error);
                 if (audioRetryCount < 2 && currentVocal) {
                     audioRetryCount++;
                     const baseUrl = getAudioBaseUrl(currentVocal);
@@ -1416,18 +1908,13 @@
                     
                     audio.src = `${baseUrl}?t=${Date.now()}`;
                     audio.load();
-                    
-                    const onCanPlay = () => {
+                    audio.addEventListener('canplay', () => {
                         if (savedTime > 0) audio.currentTime = savedTime;
-                        // エラー直前まで再生されていた場合は再開する
                         if (playIconState) {
                             const retryPromise = audio.play();
-                            if (retryPromise !== undefined) {
-                                retryPromise.catch(e => console.error(e));
-                            }
+                            if (retryPromise !== undefined) retryPromise.catch(e => console.error(e));
                         }
-                    };
-                    audio.addEventListener('canplay', onCanPlay, { once: true });
+                    }, { once: true });
                 } else {
                     syncPlayerUI();
                 }
@@ -1435,14 +1922,18 @@
         }
 
         function syncPlayerUI() {
+            const isPaused = audio.paused;
+            // Modal
             const i = document.getElementById('play-icon');
-            if (i) i.textContent = audio.paused ? 'play_arrow' : 'pause';
-            const cur = document.getElementById('time-current');
+            if (i) i.textContent = isPaused ? 'play_arrow' : 'pause';
             const dur = document.getElementById('time-duration');
-            const bar = document.getElementById('seek-bar');
             if (dur && audio.duration) dur.textContent = formatTime(audio.duration);
-            if (cur) cur.textContent = formatTime(audio.currentTime);
-            if (bar && audio.duration && !isSeeking) bar.value = (audio.currentTime / audio.duration) * 100;
+            
+            // Player view
+            const pI = document.getElementById('p-play-icon');
+            if (pI) pI.textContent = isPaused ? 'play_arrow' : 'pause';
+            const pDur = document.getElementById('p-time-duration');
+            if (pDur && audio.duration) pDur.textContent = formatTime(audio.duration);
         }
 
         function updatePositionState() {
@@ -1475,6 +1966,8 @@
                 const actionHandlers = [
                     ['play', () => startPlay()],
                     ['pause', () => audio.pause()],
+                    ['previoustrack', () => playPrev()],
+                    ['nexttrack', () => playNext()],
                     ['seekbackward', (details) => {
                         const skipTime = details.seekOffset || 5;
                         audio.currentTime = Math.max(audio.currentTime - skipTime, 0);
@@ -1499,7 +1992,7 @@
                     try {
                         navigator.mediaSession.setActionHandler(action, handler);
                     } catch (error) {
-                        console.log(`The media session action "${action}" is not supported yet.`);
+                        // ignore unsupported actions
                     }
                 }
                 updatePositionState();
