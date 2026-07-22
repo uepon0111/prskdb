@@ -362,6 +362,37 @@
             text-overflow: ellipsis;
             margin: 0;
         }
+        
+        /* プレイヤー画面のボーカル情報表示（新設） */
+        .p-vocal-info-display {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0, 188, 212, 0.1);
+            border: 1px solid var(--accent-color);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--accent-color);
+            width: auto;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .p-vocal-info-display img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-left: -6px;
+            border: 1.5px solid var(--primary-bg);
+            background: var(--secondary-bg);
+        }
+        .p-vocal-info-display img:first-child {
+            margin-left: 0;
+        }
+
         .player-playlist {
             flex: 1;
             min-width: 0;
@@ -785,8 +816,9 @@
                         <img id="p-jacket" class="detail-jacket" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="jacket" onerror="handleImageError(this)">
                         <h2 id="p-title">選択されていません</h2>
                         
-                        <div id="p-vocal-selector" class="vocal-selector">
-                            <!-- ボーカルボタンが動的に追加されます -->
+                        <!-- プレイヤー画面専用のボーカル情報表示（選択不可・表示のみ） -->
+                        <div id="p-vocal-info" class="p-vocal-info-display" style="display: none;">
+                            <!-- ボーカル情報が動的に追加されます -->
                         </div>
                         
                         <div class="player-controls">
@@ -1528,7 +1560,8 @@
                 btn.onclick = () => {
                     container.querySelectorAll('.vocal-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    loadAudio(music, v, true);
+                    // モーダルの場合(isModal === true)は自動再生しないように変更
+                    loadAudio(music, v, !isModal); 
                 };
                 container.appendChild(btn);
             });
@@ -1655,17 +1688,26 @@
 
             document.getElementById('detail-modal').classList.add('show');
             
-            // 別の曲が開かれたら、デフォルトボーカルで再生開始
-            if (!currentMusic || currentMusic.id !== music.id) {
-                const targetVocal = getDefaultVocal(music, mVocals);
-                if (targetVocal) loadAudio(music, targetVocal, false);
+            // 毎回必ず初期状態（デフォルトボーカル、時間0）にリセットするよう変更
+            audio.pause();
+            isSeeking = false;
+            try { audio.currentTime = 0; } catch (e) {}
+            
+            const targetVocal = getDefaultVocal(music, mVocals);
+            if (targetVocal) {
+                loadAudio(music, targetVocal, false);
             } else {
                 syncPlayerUI();
             }
         }
 
+        // モーダルを閉じたときの処理を修正：曲を停止し時間をリセット
         document.getElementById('btn-close-modal').addEventListener('click', () => {
             document.getElementById('detail-modal').classList.remove('show');
+            audio.pause();
+            isSeeking = false;
+            try { audio.currentTime = 0; } catch (e) {}
+            syncPlayerUI();
         });
 
         // Player Page Data Updater
@@ -1673,13 +1715,45 @@
             if (!currentMusic) return;
             const pJacket = document.getElementById('p-jacket');
             const pTitle = document.getElementById('p-title');
-            const pVocalSel = document.getElementById('p-vocal-selector');
+            const pVocalInfo = document.getElementById('p-vocal-info'); // 新しいUI要素
             
             pJacket.src = getJacketUrl(currentMusic.id);
             pTitle.textContent = currentMusic.title;
 
-            const mVocals = vocalMap.get(currentMusic.id) || [];
-            createVocalSelectorDOM(pVocalSel, currentMusic, mVocals, false);
+            // プレイヤー画面専用の「再生中ボーカル単体表示」を構成
+            if (currentVocal) {
+                pVocalInfo.style.display = 'inline-flex';
+                pVocalInfo.innerHTML = '';
+                
+                const iconsContainer = document.createElement('div');
+                iconsContainer.className = 'vocal-btn-icons';
+                
+                (currentVocal.characters || []).forEach(c => {
+                    if (c.characterType === 'game_character') {
+                        const cImg = document.createElement('img');
+                        cImg.src = `${ASSET_BASE}/character/character_sd_l/chr_sp_${c.characterId}.png`;
+                        cImg.onerror = function() {
+                            if (!this.dataset.retried) {
+                                this.dataset.retried = 'true';
+                                const url = new URL(this.src, window.location.href);
+                                url.searchParams.set('t', Date.now());
+                                this.src = url.toString();
+                            } else {
+                                this.style.display = 'none';
+                            }
+                        };
+                        iconsContainer.appendChild(cImg);
+                    }
+                });
+
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = currentVocal.displayName || 'Vocal';
+                
+                pVocalInfo.appendChild(iconsContainer);
+                pVocalInfo.appendChild(labelSpan);
+            } else {
+                pVocalInfo.style.display = 'none';
+            }
             
             // リストのハイライト更新
             renderPlayerList();
