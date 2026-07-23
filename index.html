@@ -422,7 +422,7 @@
         .playlist-controls-inner { display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; }
         
         .player-buttons button.active { color: var(--accent-color); }
-        .player-buttons button.mode-btn { margin: 0 8px; }
+        .player-buttons button.mode-btn { margin: 0; }
 
         /* Mini Player (折り返し対応) */
         .mini-player {
@@ -591,8 +591,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 16px;
-            flex-wrap: wrap; /* ボタン増加による折り返し対応 */
+            gap: 8px;
+            flex-wrap: nowrap;
+            width: 100%;
         }
         .player-buttons button {
             background: transparent;
@@ -754,10 +755,24 @@
                 height: 220px;
             }
             .player-controls { padding: 12px; width: 100%; }
-            .player-buttons { gap: 8px; }
+            .player-buttons { gap: 6px; }
             .player-buttons button .material-icons-round { font-size: 28px; }
             .player-buttons #p-play-pause-btn .material-icons-round { font-size: 40px; }
             .player-buttons button.mode-btn { margin: 0; }
+
+            .playlist-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .playlist-controls-inner {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .playlist-controls-inner .search-bar {
+                flex: 1;
+                max-width: none;
+            }
 
             /* Mini Player UI 調整 (2段折り返しレイアウト) */
             .mini-player { padding: 8px 12px; gap: 8px; }
@@ -782,9 +797,9 @@
             .music-item { padding: 6px; }
             .music-item .title { font-size: 10px; }
             .music-item .meta { font-size: 9px; }
-            .header-top { flex-wrap: wrap; }
+            .header-top { flex-direction: column; align-items: stretch; gap: 8px; }
             .search-bar { order: 1; width: 100%; min-width: 100%; }
-            .controls { order: 2; width: 100%; justify-content: space-between; }
+            .controls { order: 2; width: 100%; justify-content: center; flex-wrap: wrap; gap: 6px; }
         }
     </style>
 </head>
