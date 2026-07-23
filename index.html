@@ -112,7 +112,6 @@
             align-items: center;
             justify-content: center;
             transition: background 0.2s, color 0.2s;
-            /* タッチしやすい最小サイズを確保 */
             min-width: 40px;
             min-height: 40px;
         }
@@ -122,7 +121,6 @@
             color: var(--accent-color);
         }
 
-        /* PC等横画面時のヘッダー1行化 */
         @media (min-width: 769px) {
             header {
                 flex-direction: row;
@@ -199,7 +197,7 @@
             font-size: 16px;
         }
 
-        /* Char Grid Filter - 自動で画面幅に折り返すようにレスポンシブ化 */
+        /* Char Grid Filter */
         .char-grid-filter {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
@@ -260,17 +258,12 @@
             outline: none;
             cursor: pointer;
         }
-        select:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
 
         /* Main Content */
         main {
             padding: 20px;
             min-height: calc(100vh - 80px);
         }
-        /* ミニプレイヤー表示時の余白調整 */
         main.with-mini-player {
             padding-bottom: 80px;
         }
@@ -317,7 +310,6 @@
             overflow: hidden;
         }
 
-        /* 楽曲タイトル：最大2行まで表示し、見切れを防ぐ */
         .music-item .title {
             width: 100%;
             font-size: 14px;
@@ -328,7 +320,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.3;
-            min-height: 2.6em; /* 2行分の高さを確保してレイアウトのガタつきを防止 */
+            min-height: 2.6em;
             margin-bottom: 4px;
             word-break: break-word;
         }
@@ -339,6 +331,9 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* Layout Types */
@@ -350,7 +345,7 @@
             padding: 12px 16px;
         }
         .layout-1 .music-item img {
-            width: 72px; /* スマホでも見やすい大きさに微調整 */
+            width: 72px;
             height: 72px;
             margin-bottom: 0;
             margin-right: 16px;
@@ -361,15 +356,14 @@
         }
         .layout-1 .music-item .title { 
             font-size: 15px;
-            -webkit-line-clamp: 1; /* リスト表示時は1行ですっきり見せる */
+            -webkit-line-clamp: 1;
             min-height: auto;
         }
         
-        /* PC標準サイズ */
         .layout-3 { grid-template-columns: repeat(3, 1fr); }
         .layout-5 { grid-template-columns: repeat(5, 1fr); }
 
-        /* Player View Layout (PC横画面でバランスの良い比率に調整) */
+        /* Player View Layout */
         .player-layout {
             display: flex;
             flex-direction: row;
@@ -379,7 +373,7 @@
         .player-main-sticky {
             position: sticky;
             top: 88px;
-            flex: 0 0 380px; /* 左カラムを広くしてジャケットを見やすく */
+            flex: 0 0 380px;
             max-width: 100%;
         }
         .player-main {
@@ -402,13 +396,15 @@
             margin: 0;
         }
         .player-main #p-jacket {
-            width: 320px;
-            height: 320px;
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1;
+            height: auto;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
+            object-fit: cover;
         }
         
-        /* プレイヤー画面のボーカル情報表示 */
         .p-vocal-info-display {
             display: inline-flex;
             align-items: center;
@@ -467,7 +463,7 @@
             justify-content: center;
             align-items: center;
             gap: 12px;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             width: 100%;
         }
         .player-buttons button {
@@ -479,7 +475,7 @@
             align-items: center;
             justify-content: center;
             transition: color 0.2s;
-            padding: 8px; /* タップしやすく */
+            padding: 8px;
         }
         .player-buttons button:hover { color: var(--accent-color); }
         .player-buttons button .material-icons-round { font-size: 32px; }
@@ -534,7 +530,7 @@
         .modal-content {
             background: var(--primary-bg);
             width: 90%;
-            max-width: 800px; /* PC向けに幅を広げる */
+            max-width: 800px; 
             max-height: 90vh;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
@@ -572,7 +568,6 @@
             gap: 20px;
         }
 
-        /* Detail Elements (Modal PC Grid Layout) */
         @media (min-width: 769px) {
             #modal-body-content {
                 display: grid;
@@ -580,7 +575,6 @@
                 gap: 20px 32px;
                 align-items: start;
             }
-            /* JSで追加される順序に合わせてエリアを指定 */
             #modal-body-content > h2 { grid-column: 1 / -1; margin-bottom: -10px; }
             #modal-body-content > .detail-jacket-container { grid-column: 1; grid-row: 2; }
             #modal-body-content > #modal-vocal-selector { grid-column: 1; grid-row: 3; max-height: 300px; }
@@ -630,7 +624,6 @@
             color: var(--text-main);
             flex-shrink: 0;
             min-height: 40px;
-            /* テキストが長い場合でもレイアウトが崩れないようにする */
             max-width: 100%;
         }
         .vocal-btn.active {
@@ -658,7 +651,6 @@
         }
         .vocal-btn-label {
             font-size: 13px;
-            /* 狭い画面でも折り返して表示できるようにする */
             white-space: normal;
             line-height: 1.2;
             text-align: left;
@@ -805,7 +797,6 @@
 
         /* --- 縦画面(スマートフォン向け)のレスポンシブ最適化 --- */
         @media (max-width: 768px) {
-            /* リストビュー: 狭い画面ではカラム数を減らして見やすくする */
             .layout-3 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .layout-5 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
             
@@ -818,13 +809,15 @@
             .player-main-sticky { position: static; flex: auto; width: 100%; max-width: 100%; }
             .player-main { padding: 20px; gap: 16px; }
             .player-main #p-jacket {
-                width: 240px;
-                height: 240px;
+                max-width: 240px;
             }
             .player-controls { padding: 16px; width: 100%; }
-            .player-buttons { gap: 8px; }
-            .player-buttons button .material-icons-round { font-size: 32px; }
-            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 48px; }
+            
+            /* ボタンがはみ出さないように調整 */
+            .player-buttons { gap: 4px; }
+            .player-buttons button { padding: 4px; }
+            .player-buttons button .material-icons-round { font-size: 28px; }
+            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 40px; }
 
             .playlist-header {
                 flex-direction: column;
@@ -840,7 +833,6 @@
                 max-width: none;
             }
 
-            /* Mini Player UI: 2段のグリッドレイアウトで整頓して押しやすく */
             .mini-player { 
                 padding: 12px 16px; 
                 display: grid;
@@ -860,28 +852,25 @@
             .mini-controls {
                 grid-area: controls;
                 display: flex;
-                justify-content: space-between; /* ボタンを均等に配置 */
+                justify-content: space-between; 
                 width: 100%;
                 margin-top: 4px;
             }
             .mini-controls button {
-                padding: 8px; /* タップ領域を大きく */
+                padding: 8px; 
             }
             .mini-controls button .material-icons-round { font-size: 26px; }
             
-            /* ミニプレイヤーが2段になる分、余白を増やす */
             main.with-mini-player {
                 padding-bottom: 140px;
             }
         }
         
-        /* さらなる小型画面(極小スマホ)向け微調整 */
         @media (max-width: 480px) {
             .layout-1 .music-item { padding: 8px 12px; }
             .layout-1 .music-item img { width: 56px; height: 56px; margin-right: 12px; }
             .layout-1 .music-item .title { font-size: 14px; }
             
-            /* さらなるカラム削減による視認性向上 */
             .layout-3 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .layout-5 { grid-template-columns: repeat(3, 1fr); gap: 6px; }
             
@@ -910,7 +899,6 @@
                 <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
             </div>
             <div class="controls">
-                <!-- 一覧専用のコントロール -->
                 <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
                     <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
                     <button class="icon-btn" id="btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
@@ -922,7 +910,6 @@
                 
                 <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                 
-                <!-- ページ切り替え -->
                 <button class="icon-btn active" id="btn-view-list" title="一覧画面"><span class="material-icons-round">queue_music</span></button>
                 <button class="icon-btn" id="btn-view-player" title="プレイヤー画面"><span class="material-icons-round">play_circle</span></button>
                 
@@ -961,8 +948,9 @@
                         <option value="publishedAt" selected>公開日時順</option>
                         <option value="level">楽曲レベル順</option>
                     </select>
-                    <select id="sort-diff" disabled>
-                        <option value="easy">Easy</option>
+                    <!-- レベル順以外は非表示に設定 -->
+                    <select id="sort-diff" style="display: none;">
+                        <option value="easy" selected>Easy</option>
                         <option value="normal">Normal</option>
                         <option value="hard">Hard</option>
                         <option value="expert">Expert</option>
@@ -986,9 +974,7 @@
                         <img id="p-jacket" class="detail-jacket" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="jacket" onerror="handleImageError(this)">
                         <h2 id="p-title">選択されていません</h2>
                         
-                        <div id="p-vocal-info" class="p-vocal-info-display" style="display: none;">
-                            <!-- ボーカル情報が動的に追加されます -->
-                        </div>
+                        <div id="p-vocal-info" class="p-vocal-info-display" style="display: none;"></div>
                         
                         <div class="player-controls">
                             <div class="progress-container">
@@ -1046,8 +1032,8 @@
                                 <option value="publishedAt" selected>公開日時順</option>
                                 <option value="level">楽曲レベル順</option>
                             </select>
-                            <select id="p-sort-diff" disabled>
-                                <option value="easy">Easy</option>
+                            <select id="p-sort-diff" style="display: none;">
+                                <option value="easy" selected>Easy</option>
                                 <option value="normal">Normal</option>
                                 <option value="hard">Hard</option>
                                 <option value="expert">Expert</option>
@@ -1085,7 +1071,7 @@
         </div>
     </div>
 
-    <!-- Detail Modal (一覧用) -->
+    <!-- Detail Modal -->
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -1093,7 +1079,6 @@
                 <button class="icon-btn" id="btn-close-modal"><span class="material-icons-round">close</span></button>
             </div>
             <div class="modal-body" id="modal-body-content">
-                <!-- 要素は順序通り生成・配置されます -->
             </div>
         </div>
     </div>
@@ -1153,7 +1138,7 @@
         let selectedChars = new Set();
         let sortKey = 'publishedAt';
         let sortOrder = 'desc';
-        let sortDiff = 'master';
+        let sortDiff = 'easy'; // デフォルトをeasyに変更
         
         // UI State (Player View)
         let p_searchTerm = '';
@@ -1162,7 +1147,7 @@
         let p_selectedChars = new Set();
         let p_sortKey = 'publishedAt';
         let p_sortOrder = 'desc';
-        let p_sortDiff = 'master';
+        let p_sortDiff = 'easy'; // デフォルトをeasyに変更
         
         // Player State
         let currentPlaylist = [];
@@ -1205,7 +1190,6 @@
 
         const DIFF_ORDER = ['easy', 'normal', 'hard', 'expert', 'master', 'append'];
 
-        // シャッフル・リピート等のUI状態同期
         function updateRepeatShuffleUI() {
             const btnShuffle = document.getElementById('p-btn-shuffle');
             const miniBtnShuffle = document.getElementById('mini-btn-shuffle');
@@ -1266,7 +1250,6 @@
             updateRepeatShuffleUI();
         }
 
-        // Init
         async function init() {
             try {
                 const results = await Promise.all([
@@ -1309,7 +1292,6 @@
             }
         }
 
-        // Logic Utils
         const getJacketUrl = (id) => {
             if (!id) return 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
             const pad = String(id).padStart(3, '0');
@@ -1335,37 +1317,43 @@
             return TAG_DEF.find(t => t.id === tagId)?.label || 'その他';
         };
 
-        // 並び順に合わせてメタデータを表示する関数
-        const getMetaText = (music, sKey, sDiff) => {
+        // レベル順の際に色を付けたHTMLを返すようにメタデータ生成処理を変更
+        const getMeta = (music, sKey, sDiff) => {
+            let text = '';
+            let html = '';
+            
             if (sKey === 'id') {
-                return `ID: ${music.id}`;
+                text = `ID: ${music.id}`;
+                html = text;
             } else if (sKey === 'title') {
-                return music.pronunciation || getTagName(music.id);
+                text = music.pronunciation || getTagName(music.id);
+                html = text;
             } else if (sKey === 'publishedAt') {
-                return formatDate(music.publishedAt);
+                text = formatDate(music.publishedAt);
+                html = text;
             } else if (sKey === 'level') {
                 const level = diffMap.get(music.id)?.[sDiff]?.playLevel || '-';
                 const diffStr = sDiff.charAt(0).toUpperCase() + sDiff.slice(1);
-                return `${diffStr} Lv.${level}`;
+                text = `${diffStr} Lv.${level}`;
+                // HTML上で難易度の色を表示する
+                html = `<span class="diff-badge bg-${sDiff}" style="padding: 2px 8px; font-size: 10px; border-radius: 8px;">${diffStr} Lv.${level}</span>`;
+            } else {
+                text = getTagName(music.id);
+                html = text;
             }
-            return getTagName(music.id);
+            return { text, html };
         };
         
         const getAudioBaseUrl = (vocal) => `${ASSET_BASE}/music/long/${vocal.assetbundleName}/${vocal.assetbundleName}.mp3`;
 
-        // Default Vocal Priority Logic
         function getDefaultVocal(music, mVocals) {
             if (!mVocals || mVocals.length === 0) return null;
             if (defaultVocalPref === 'none') return mVocals[0];
-
-            // 設定されたボーカルタイプのものが存在すればそれを優先
             const targetVocal = mVocals.find(v => v.musicVocalType === defaultVocalPref);
             if (targetVocal) return targetVocal;
-
             return mVocals[0];
         }
 
-        // Setup UI Listeners & Filters
         function setupUI() {
             const btnViewList = document.getElementById('btn-view-list');
             const btnViewPlayer = document.getElementById('btn-view-player');
@@ -1489,9 +1477,11 @@
 
             const sortKeySelect = document.getElementById('sort-key');
             const sortDiffSelect = document.getElementById('sort-diff');
+            
             sortKeySelect.addEventListener('change', (e) => {
                 sortKey = e.target.value;
-                sortDiffSelect.disabled = sortKey !== 'level';
+                // レベル順の場合のみ難易度選択欄を表示する
+                sortDiffSelect.style.display = sortKey === 'level' ? 'inline-block' : 'none';
                 renderList();
             });
             sortDiffSelect.addEventListener('change', (e) => {
@@ -1523,7 +1513,6 @@
                 localStorage.setItem('defaultVocalPref', defaultVocalPref);
             });
 
-            // Mini Player Events
             document.getElementById('mini-play-pause-btn').addEventListener('click', togglePlayerPlay);
             document.getElementById('mini-next-btn').addEventListener('click', playNext);
             document.getElementById('mini-btn-prev').addEventListener('click', playPrev);
@@ -1539,7 +1528,6 @@
             setupAudioListeners();
         }
 
-        // Setup Player View Specific UI
         function setupPlayerUI() {
             document.getElementById('p-btn-filter').addEventListener('click', () => {
                 document.getElementById('p-filter-panel').classList.toggle('show');
@@ -1624,9 +1612,11 @@
 
             const pSortKeySelect = document.getElementById('p-sort-key');
             const pSortDiffSelect = document.getElementById('p-sort-diff');
+            
             pSortKeySelect.addEventListener('change', (e) => {
                 p_sortKey = e.target.value;
-                pSortDiffSelect.disabled = p_sortKey !== 'level';
+                // レベル順の場合のみ難易度選択欄を表示する
+                pSortDiffSelect.style.display = p_sortKey === 'level' ? 'inline-block' : 'none';
                 renderPlayerList();
             });
             pSortDiffSelect.addEventListener('change', (e) => {
@@ -1653,11 +1643,9 @@
             btnRepeat.onclick = toggleRepeat;
         }
 
-        // Mini Player Visibility Controller
         function updateMiniPlayerVisibility() {
             const miniPlayer = document.getElementById('mini-player');
             const mainEl = document.querySelector('main');
-            // リストビュー表示中で、かつ再生する曲が選択されている場合にミニプレイヤーを表示
             if (document.getElementById('list-view-container').style.display !== 'none' && pCurrentMusic) {
                 miniPlayer.style.display = 'flex';
                 mainEl.classList.add('with-mini-player');
@@ -1693,6 +1681,13 @@
                         if (!allCharsInMusic.has(charKey)) return false;
                     }
                 }
+                
+                // レベル順の場合、選択されている難易度データが存在しない曲は除外する
+                if (sKey === 'level') {
+                    const diffInfo = diffMap.get(m.id)?.[sDiff];
+                    if (!diffInfo) return false;
+                }
+
                 return true;
             });
 
@@ -1714,7 +1709,6 @@
             return filtered;
         }
 
-        // Render List View
         function renderList() {
             const filtered = getFilteredAndSortedList(searchTerm, activeTag, activeWritten, selectedChars, sortKey, sortOrder, sortDiff);
             const container = document.getElementById('music-list');
@@ -1724,15 +1718,16 @@
             filtered.forEach(m => {
                 const el = document.createElement('div');
                 el.className = 'music-item';
-                // プレイヤー側で現在再生中の曲をハイライト
                 if (pCurrentMusic && pCurrentMusic.id === m.id) el.classList.add('playing');
                 el.onclick = () => openDetail(m);
-                const metaText = getMetaText(m, sortKey, sortDiff);
+                
+                // 色付きHTMLを生成して代入する
+                const meta = getMeta(m, sortKey, sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
                     <div class="info-container">
                         <div class="title" title="${m.title}">${m.title}</div>
-                        <div class="meta" title="${metaText}">${metaText}</div>
+                        <div class="meta" title="${meta.text}">${meta.html}</div>
                     </div>
                 `;
                 fragment.appendChild(el);
@@ -1740,7 +1735,6 @@
             container.appendChild(fragment);
         }
 
-        // Render Player View List
         function renderPlayerList() {
             currentPlaylist = getFilteredAndSortedList(p_searchTerm, p_activeTag, p_activeWritten, p_selectedChars, p_sortKey, p_sortOrder, p_sortDiff);
             const container = document.getElementById('player-music-list');
@@ -1756,12 +1750,14 @@
                     const vocal = getDefaultVocal(m, mVocals);
                     loadPlayerAudio(m, vocal, true);
                 };
-                const metaText = getMetaText(m, p_sortKey, p_sortDiff);
+                
+                // 色付きHTMLを生成して代入する
+                const meta = getMeta(m, p_sortKey, p_sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
                     <div class="info-container">
                         <div class="title" title="${m.title}">${m.title}</div>
-                        <div class="meta" title="${metaText}">${metaText}</div>
+                        <div class="meta" title="${meta.text}">${meta.html}</div>
                     </div>
                 `;
                 fragment.appendChild(el);
@@ -1769,7 +1765,6 @@
             container.appendChild(fragment);
         }
 
-        // ボーカルセレクタ共通作成関数
         function createVocalSelectorDOM(container, music, mVocals, isModal) {
             container.innerHTML = '';
             mVocals.forEach((v, i) => {
@@ -1784,7 +1779,6 @@
                 if (currentActiveVocal && currentActiveMusic?.id === music.id) {
                     isTarget = isCurrentVocal;
                 } else {
-                    // モーダル（一覧）の場合は設定に関わらず常にリストの最初を選択
                     isTarget = isModal ? (i === 0) : (v === getDefaultVocal(music, mVocals));
                 }
 
@@ -1842,9 +1836,7 @@
             });
         }
 
-        // Modal Logic
         function openDetail(music) {
-            // 一覧プレビューを開く際、プレイヤーが再生中なら一時停止して状態を引き継がないようにする
             if (!pAudio.paused) {
                 pAudio.pause();
             }
@@ -1893,7 +1885,6 @@
             `;
             body.appendChild(pCont);
 
-            // Bind Modal Player Events
             const seekBar = pCont.querySelector('#seek-bar');
             pCont.querySelector('#play-pause-btn').onclick = toggleModalPlay;
             pCont.querySelector('#btn-back-10').onclick = () => { mAudio.currentTime = Math.max(0, mAudio.currentTime - 10); updatePositionState(mAudio); };
@@ -1976,12 +1967,10 @@
 
             document.getElementById('detail-modal').classList.add('show');
             
-            // 毎回必ず初期状態にリセット
             mAudio.pause();
             mIsSeeking = false;
             try { mAudio.currentTime = 0; } catch (e) {}
             
-            // 一覧表示は設定によらず必ずリストの最初のボーカルを取得する
             const targetVocal = mVocals.length > 0 ? mVocals[0] : null;
             if (targetVocal) {
                 loadModalAudio(music, targetVocal, false);
@@ -1998,7 +1987,6 @@
             syncModalUI();
         });
 
-        // Player Page Data Updater
         function updatePlayerPageInfo() {
             if (!pCurrentMusic) return;
             const pJacket = document.getElementById('p-jacket');
@@ -2054,7 +2042,6 @@
                 pVocalInfo.style.display = 'none';
             }
             
-            // --- ミニプレイヤー情報更新 ---
             const mJacket = document.getElementById('mini-jacket');
             const mTitle = document.getElementById('mini-title');
             const mVocal = document.getElementById('mini-vocal');
@@ -2067,7 +2054,6 @@
             renderList();
         }
 
-        // --- Player Audio System ---
         function loadPlayerAudio(music, vocal, autoPlay = false) {
             pCurrentMusic = music;
             pCurrentVocal = vocal;
@@ -2202,8 +2188,6 @@
             loadPlayerAudio(prevMusic, prevVocal, true);
         }
 
-
-        // --- Modal Audio System ---
         function loadModalAudio(music, vocal, autoPlay = false) {
             mCurrentMusic = music;
             mCurrentVocal = vocal;
@@ -2283,9 +2267,7 @@
             else mAudio.pause();
         }
 
-        // --- Audio Listeners Setup ---
         function setupAudioListeners() {
-            // Player Page Seekbar
             const pSeekBar = document.getElementById('p-seek-bar');
             const startSeekPlayer = () => { pIsSeeking = true; };
             const finishSeekPlayer = (e) => {
@@ -2309,7 +2291,6 @@
             pSeekBar.addEventListener('mouseup', finishSeekPlayer);
             pSeekBar.addEventListener('touchend', finishSeekPlayer);
 
-            // Player Audio Events
             pAudio.addEventListener('play', () => {
                 syncPlayerUI();
                 if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
@@ -2367,7 +2348,6 @@
                 }
             };
 
-            // Modal Audio Events
             mAudio.addEventListener('play', () => {
                 syncModalUI();
                 if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
@@ -2515,7 +2495,6 @@
             }
         }
 
-        // Start
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
