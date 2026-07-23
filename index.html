@@ -1334,6 +1334,22 @@
             const tagId = mTags.find(t => t !== 'all') || 'other';
             return TAG_DEF.find(t => t.id === tagId)?.label || 'その他';
         };
+
+        // 並び順に合わせてメタデータを表示する関数
+        const getMetaText = (music, sKey, sDiff) => {
+            if (sKey === 'id') {
+                return `ID: ${music.id}`;
+            } else if (sKey === 'title') {
+                return music.pronunciation || getTagName(music.id);
+            } else if (sKey === 'publishedAt') {
+                return formatDate(music.publishedAt);
+            } else if (sKey === 'level') {
+                const level = diffMap.get(music.id)?.[sDiff]?.playLevel || '-';
+                const diffStr = sDiff.charAt(0).toUpperCase() + sDiff.slice(1);
+                return `${diffStr} Lv.${level}`;
+            }
+            return getTagName(music.id);
+        };
         
         const getAudioBaseUrl = (vocal) => `${ASSET_BASE}/music/long/${vocal.assetbundleName}/${vocal.assetbundleName}.mp3`;
 
@@ -1711,11 +1727,12 @@
                 // プレイヤー側で現在再生中の曲をハイライト
                 if (pCurrentMusic && pCurrentMusic.id === m.id) el.classList.add('playing');
                 el.onclick = () => openDetail(m);
+                const metaText = getMetaText(m, sortKey, sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
                     <div class="info-container">
                         <div class="title" title="${m.title}">${m.title}</div>
-                        <div class="meta">${getTagName(m.id)}</div>
+                        <div class="meta" title="${metaText}">${metaText}</div>
                     </div>
                 `;
                 fragment.appendChild(el);
@@ -1739,11 +1756,12 @@
                     const vocal = getDefaultVocal(m, mVocals);
                     loadPlayerAudio(m, vocal, true);
                 };
+                const metaText = getMetaText(m, p_sortKey, p_sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
                     <div class="info-container">
                         <div class="title" title="${m.title}">${m.title}</div>
-                        <div class="meta">${getTagName(m.id)}</div>
+                        <div class="meta" title="${metaText}">${metaText}</div>
                     </div>
                 `;
                 fragment.appendChild(el);
