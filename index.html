@@ -62,6 +62,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
+            flex-wrap: wrap;
         }
 
         .search-bar {
@@ -73,6 +74,7 @@
             padding: 6px 16px;
             border: 1px solid var(--border-color);
             transition: border-color 0.2s;
+            min-width: 250px;
         }
         
         .search-bar:focus-within {
@@ -110,11 +112,33 @@
             align-items: center;
             justify-content: center;
             transition: background 0.2s, color 0.2s;
+            /* タッチしやすい最小サイズを確保 */
+            min-width: 40px;
+            min-height: 40px;
         }
 
         button.icon-btn:hover, button.icon-btn.active {
             background: var(--secondary-bg);
             color: var(--accent-color);
+        }
+
+        /* PC等横画面時のヘッダー1行化 */
+        @media (min-width: 769px) {
+            header {
+                flex-direction: row;
+                align-items: center;
+            }
+            .header-top {
+                width: 100%;
+                flex-wrap: nowrap;
+            }
+            .search-bar {
+                max-width: 400px;
+            }
+            .controls {
+                flex: 1;
+                justify-content: flex-end;
+            }
         }
 
         /* Filter & Sort Panels */
@@ -175,12 +199,12 @@
             font-size: 16px;
         }
 
-        /* Char Grid Filter */
+        /* Char Grid Filter - 自動で画面幅に折り返すようにレスポンシブ化 */
         .char-grid-filter {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
             gap: 8px;
-            max-width: 300px;
+            width: 100%;
         }
         .char-item {
             text-align: center;
@@ -292,18 +316,25 @@
             align-items: center;
             overflow: hidden;
         }
+
+        /* 楽曲タイトル：最大2行まで表示し、見切れを防ぐ */
         .music-item .title {
             width: 100%;
             font-size: 14px;
             font-weight: bold;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 1.3;
+            min-height: 2.6em; /* 2行分の高さを確保してレイアウトのガタつきを防止 */
+            margin-bottom: 4px;
+            word-break: break-word;
         }
         .music-item .meta {
             font-size: 11px;
             color: var(--text-sub);
-            margin-top: 4px;
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
@@ -319,8 +350,8 @@
             padding: 12px 16px;
         }
         .layout-1 .music-item img {
-            width: 60px;
-            height: 60px;
+            width: 72px; /* スマホでも見やすい大きさに微調整 */
+            height: 72px;
             margin-bottom: 0;
             margin-right: 16px;
             flex-shrink: 0;
@@ -328,28 +359,33 @@
         .layout-1 .music-item .info-container {
             align-items: flex-start;
         }
-        .layout-1 .music-item .title { font-size: 15px; }
+        .layout-1 .music-item .title { 
+            font-size: 15px;
+            -webkit-line-clamp: 1; /* リスト表示時は1行ですっきり見せる */
+            min-height: auto;
+        }
         
+        /* PC標準サイズ */
         .layout-3 { grid-template-columns: repeat(3, 1fr); }
         .layout-5 { grid-template-columns: repeat(5, 1fr); }
 
-        /* Player View Layout (レスポンシブ自動調整対応済) */
+        /* Player View Layout (PC横画面でバランスの良い比率に調整) */
         .player-layout {
             display: flex;
             flex-direction: row;
-            gap: 24px;
+            gap: 32px;
             align-items: flex-start;
         }
         .player-main-sticky {
             position: sticky;
             top: 88px;
-            flex: 0 0 320px;
+            flex: 0 0 380px; /* 左カラムを広くしてジャケットを見やすく */
             max-width: 100%;
         }
         .player-main {
             background: var(--primary-bg);
             border-radius: var(--radius-md);
-            padding: 20px;
+            padding: 24px;
             box-shadow: var(--shadow-md);
             display: flex;
             flex-direction: column;
@@ -357,7 +393,7 @@
             gap: 16px;
         }
         .player-main h2 {
-            font-size: 18px;
+            font-size: 20px;
             text-align: center;
             width: 100%;
             white-space: nowrap;
@@ -365,11 +401,11 @@
             text-overflow: ellipsis;
             margin: 0;
         }
-        /* 横画面用ジャケット固定サイズ */
         .player-main #p-jacket {
-            width: 280px;
-            height: 280px;
+            width: 320px;
+            height: 320px;
             border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
         }
         
         /* プレイヤー画面のボーカル情報表示 */
@@ -388,6 +424,11 @@
             width: auto;
             max-width: 100%;
             margin: 0 auto;
+        }
+        .p-vocal-info-display span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .p-vocal-info-display img {
             width: 24px;
@@ -421,10 +462,33 @@
         .playlist-header h3 { margin: 0; font-size: 16px; }
         .playlist-controls-inner { display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; }
         
+        .player-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+        .player-buttons button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+            padding: 8px; /* タップしやすく */
+        }
+        .player-buttons button:hover { color: var(--accent-color); }
+        .player-buttons button .material-icons-round { font-size: 32px; }
         .player-buttons button.active { color: var(--accent-color); }
+        .player-buttons #play-pause-btn .material-icons-round,
+        .player-buttons #p-play-pause-btn .material-icons-round { font-size: 48px; color: var(--accent-color); }
         .player-buttons button.mode-btn { margin: 0; }
 
-        /* Mini Player (折り返し対応) */
+        /* Mini Player */
         .mini-player {
             position: fixed;
             bottom: 0;
@@ -434,18 +498,17 @@
             border-top: 1px solid var(--border-color);
             box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
             display: flex;
-            flex-wrap: wrap; /* スマホ画面等での強制折り返し用 */
             align-items: center;
             padding: 8px 16px;
             z-index: 90;
-            gap: 12px;
+            gap: 16px;
         }
-        .mini-jacket { width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
+        .mini-jacket { width: 56px; height: 56px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
         .mini-info { flex: 1 1 0%; min-width: 0; cursor: pointer; }
         .mini-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
-        .mini-vocal { font-size: 11px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mini-controls { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-        .mini-controls button .material-icons-round { font-size: 24px; }
+        .mini-vocal { font-size: 12px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;}
+        .mini-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .mini-controls button .material-icons-round { font-size: 28px; }
         .mini-controls button.icon-btn.active { background: transparent; color: var(--accent-color); }
         .mini-progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; width: 100%; }
         .mini-progress-fill { height: 100%; background: var(--accent-color); width: 0%; }
@@ -471,7 +534,7 @@
         .modal-content {
             background: var(--primary-bg);
             width: 90%;
-            max-width: 600px;
+            max-width: 800px; /* PC向けに幅を広げる */
             max-height: 90vh;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
@@ -501,7 +564,7 @@
             text-overflow: ellipsis;
         }
         .modal-body {
-            padding: 20px;
+            padding: 24px;
             overflow-y: auto;
             flex: 1;
             display: flex;
@@ -509,14 +572,32 @@
             gap: 20px;
         }
 
-        /* Detail Elements */
+        /* Detail Elements (Modal PC Grid Layout) */
+        @media (min-width: 769px) {
+            #modal-body-content {
+                display: grid;
+                grid-template-columns: 240px 1fr;
+                gap: 20px 32px;
+                align-items: start;
+            }
+            /* JSで追加される順序に合わせてエリアを指定 */
+            #modal-body-content > h2 { grid-column: 1 / -1; margin-bottom: -10px; }
+            #modal-body-content > .detail-jacket-container { grid-column: 1; grid-row: 2; }
+            #modal-body-content > #modal-vocal-selector { grid-column: 1; grid-row: 3; max-height: 300px; }
+            #modal-body-content > .player-controls { grid-column: 2; grid-row: 2; align-self: center; }
+            #modal-body-content > .info-list { grid-column: 2; grid-row: 3; }
+            #modal-body-content > .info-row { grid-column: 1 / -1; grid-row: 4; }
+            #modal-body-content > div:last-child { grid-column: 1 / -1; grid-row: 5; }
+        }
+
         .detail-jacket-container {
             text-align: center;
             flex-shrink: 0;
         }
         .detail-jacket {
-            width: 180px;
-            height: 180px;
+            width: 100%;
+            max-width: 240px;
+            aspect-ratio: 1;
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-md);
             object-fit: cover;
@@ -526,9 +607,9 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            max-height: 180px; 
+            max-height: 200px; 
             overflow-y: auto;
-            padding: 10px;
+            padding: 12px;
             background: var(--secondary-bg);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
@@ -539,7 +620,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 12px;
+            padding: 8px 12px;
             border: 1px solid var(--border-color);
             border-radius: 20px;
             background: var(--primary-bg);
@@ -548,7 +629,9 @@
             user-select: none;
             color: var(--text-main);
             flex-shrink: 0;
-            min-height: 36px;
+            min-height: 40px;
+            /* テキストが長い場合でもレイアウトが崩れないようにする */
+            max-width: 100%;
         }
         .vocal-btn.active {
             background: rgba(0, 188, 212, 0.12);
@@ -559,6 +642,7 @@
         .vocal-btn-icons {
             display: flex;
             align-items: center;
+            flex-shrink: 0;
         }
         .vocal-btn-icons img {
             width: 24px;
@@ -573,42 +657,23 @@
             margin-left: 0;
         }
         .vocal-btn-label {
-            font-size: 12px;
-            white-space: nowrap;
+            font-size: 13px;
+            /* 狭い画面でも折り返して表示できるようにする */
+            white-space: normal;
+            line-height: 1.2;
+            text-align: left;
         }
 
         .player-controls {
             background: var(--secondary-bg);
-            padding: 16px;
+            padding: 20px;
             border-radius: var(--radius-md);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             flex-shrink: 0;
             width: 100%;
         }
-        .player-buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: nowrap;
-            width: 100%;
-        }
-        .player-buttons button {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-        }
-        .player-buttons button:hover { color: var(--accent-color); }
-        .player-buttons button .material-icons-round { font-size: 28px; }
-        .player-buttons #play-pause-btn .material-icons-round,
-        .player-buttons #p-play-pause-btn .material-icons-round { font-size: 40px; color: var(--accent-color); }
         
         .progress-container {
             display: flex;
@@ -738,27 +803,28 @@
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Responsive Adjustments */
+        /* --- 縦画面(スマートフォン向け)のレスポンシブ最適化 --- */
         @media (max-width: 768px) {
-            .layout-5 { grid-template-columns: repeat(5, 1fr); gap: 6px; }
-            .layout-3 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .music-item { padding: 8px; }
-            .music-item .title { font-size: 11px; }
+            /* リストビュー: 狭い画面ではカラム数を減らして見やすくする */
+            .layout-3 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .layout-5 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            
+            .music-item { padding: 10px; }
+            .music-item .title { font-size: 13px; min-height: 2.6em; }
             .modal-content { width: 95%; height: 90vh; }
             
-            /* Player UI 自動調整 (縦画面用最適化) */
-            .player-layout { flex-direction: column; gap: 16px; }
+            /* Player UI 自動調整 */
+            .player-layout { flex-direction: column; gap: 20px; }
             .player-main-sticky { position: static; flex: auto; width: 100%; max-width: 100%; }
-            .player-main { padding: 16px; gap: 12px; }
+            .player-main { padding: 20px; gap: 16px; }
             .player-main #p-jacket {
-                width: 220px;
-                height: 220px;
+                width: 240px;
+                height: 240px;
             }
-            .player-controls { padding: 12px; width: 100%; }
-            .player-buttons { gap: 6px; }
-            .player-buttons button .material-icons-round { font-size: 28px; }
-            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 40px; }
-            .player-buttons button.mode-btn { margin: 0; }
+            .player-controls { padding: 16px; width: 100%; }
+            .player-buttons { gap: 8px; }
+            .player-buttons button .material-icons-round { font-size: 32px; }
+            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 48px; }
 
             .playlist-header {
                 flex-direction: column;
@@ -774,32 +840,58 @@
                 max-width: none;
             }
 
-            /* Mini Player UI 調整 (2段折り返しレイアウト) */
-            .mini-player { padding: 8px 12px; gap: 8px; }
-            .mini-jacket { width: 40px; height: 40px; }
+            /* Mini Player UI: 2段のグリッドレイアウトで整頓して押しやすく */
+            .mini-player { 
+                padding: 12px 16px; 
+                display: grid;
+                grid-template-columns: 48px 1fr;
+                grid-template-areas:
+                    "jacket info"
+                    "controls controls";
+                gap: 10px 12px;
+                align-items: center;
+            }
+            .mini-progress-bar { grid-column: 1 / -1; }
+            .mini-jacket { grid-area: jacket; width: 48px; height: 48px; }
+            .mini-info { grid-area: info; align-self: center; }
+            .mini-title { font-size: 13px; }
+            .mini-vocal { font-size: 11px; }
+            
             .mini-controls {
-                flex: 1 1 100%; /* 強制的に下段に改行させる */
-                justify-content: space-between;
-                gap: 0;
+                grid-area: controls;
+                display: flex;
+                justify-content: space-between; /* ボタンを均等に配置 */
+                width: 100%;
                 margin-top: 4px;
             }
-            .mini-controls button .material-icons-round { font-size: 24px; }
+            .mini-controls button {
+                padding: 8px; /* タップ領域を大きく */
+            }
+            .mini-controls button .material-icons-round { font-size: 26px; }
             
             /* ミニプレイヤーが2段になる分、余白を増やす */
             main.with-mini-player {
-                padding-bottom: 120px;
+                padding-bottom: 140px;
             }
         }
+        
+        /* さらなる小型画面(極小スマホ)向け微調整 */
         @media (max-width: 480px) {
-            .layout-1 .music-item img { width: 48px; height: 48px; margin-right: 12px; }
-            .layout-3 { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-            .layout-5 { grid-template-columns: repeat(5, 1fr); gap: 4px; }
-            .music-item { padding: 6px; }
-            .music-item .title { font-size: 10px; }
-            .music-item .meta { font-size: 9px; }
-            .header-top { flex-direction: column; align-items: stretch; gap: 8px; }
+            .layout-1 .music-item { padding: 8px 12px; }
+            .layout-1 .music-item img { width: 56px; height: 56px; margin-right: 12px; }
+            .layout-1 .music-item .title { font-size: 14px; }
+            
+            /* さらなるカラム削減による視認性向上 */
+            .layout-3 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .layout-5 { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            
+            .music-item { padding: 8px; }
+            .music-item .title { font-size: 12px; }
+            .music-item .meta { font-size: 10px; }
+            
+            .header-top { flex-direction: column; align-items: stretch; gap: 12px; }
             .search-bar { order: 1; width: 100%; min-width: 100%; }
-            .controls { order: 2; width: 100%; justify-content: center; flex-wrap: wrap; gap: 6px; }
+            .controls { order: 2; width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
         }
     </style>
 </head>
@@ -1622,7 +1714,7 @@
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
                     <div class="info-container">
-                        <div class="title">${m.title}</div>
+                        <div class="title" title="${m.title}">${m.title}</div>
                         <div class="meta">${getTagName(m.id)}</div>
                     </div>
                 `;
@@ -1650,7 +1742,7 @@
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
                     <div class="info-container">
-                        <div class="title">${m.title}</div>
+                        <div class="title" title="${m.title}">${m.title}</div>
                         <div class="meta">${getTagName(m.id)}</div>
                     </div>
                 `;
@@ -1897,6 +1989,7 @@
             
             pJacket.src = getJacketUrl(pCurrentMusic.id);
             pTitle.textContent = pCurrentMusic.title;
+            pTitle.title = pCurrentMusic.title;
 
             let finalVocalName = '';
 
@@ -1935,6 +2028,7 @@
                 finalVocalName = pCurrentVocal.displayName || vocalNames.join(', ') || 'Unknown Vocal';
                 const labelSpan = document.createElement('span');
                 labelSpan.textContent = finalVocalName;
+                labelSpan.title = finalVocalName;
                 
                 pVocalInfo.appendChild(iconsContainer);
                 pVocalInfo.appendChild(labelSpan);
