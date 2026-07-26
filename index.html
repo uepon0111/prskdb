@@ -1134,48 +1134,65 @@
                     </label>
                 </div>
 
-                <div class="filter-title" style="margin-top: 8px;">再生開始時の読み上げ</div>
+                <div class="filter-title" style="margin-top: 16px;">再生開始時の読み上げ</div>
                 <div class="setting-row">
-                    <span>タイトル</span>
+                    <span>読み上げ機能</span>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="speech-title-toggle">
+                        <input type="checkbox" id="speech-enabled-toggle">
                         <span class="slider"></span>
                     </label>
                 </div>
-                <div class="setting-row">
-                    <span>楽曲ID</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="speech-musicid-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="setting-row">
-                    <span>ユニットタグ</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="speech-unittag-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="setting-row">
-                    <span>作詞・作曲・編曲</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="speech-credits-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="setting-row">
-                    <span>公開日時</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="speech-publishedat-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="setting-row">
-                    <span>現在再生中の歌唱キャラクター</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="speech-vocal-toggle">
-                        <span class="slider"></span>
-                    </label>
+                
+                <div id="speech-details-container" style="display: none; padding-left: 16px; border-left: 2px solid var(--border-color); margin-top: 8px;">
+                    <div class="setting-row">
+                        <span>読み上げ速度</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" id="speech-rate-slider" min="0.5" max="2.0" step="0.25" value="1.0">
+                            <span id="speech-rate-display" style="width: 3.5em; text-align: right; font-size: 13px; color: var(--text-sub);">1x</span>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span>タイトル</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="speech-title-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-row">
+                        <span>楽曲ID</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="speech-musicid-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-row">
+                        <span>ユニットタグ</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="speech-unittag-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-row">
+                        <span>作詞・作曲・編曲</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="speech-credits-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-row">
+                        <span>公開日時</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="speech-publishedat-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-row">
+                        <span>現在再生中の歌唱キャラクター</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="speech-vocal-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1243,6 +1260,8 @@
         let defaultVocalPref = localStorage.getItem('defaultVocalPref') || 'none';
 
         const DEFAULT_SPEECH_SETTINGS = {
+            enabled: true,
+            rate: 1.0,
             title: true,
             musicId: true,
             unitTag: true,
@@ -1258,6 +1277,8 @@
                     const parsed = JSON.parse(raw);
                     if (parsed && typeof parsed === 'object') {
                         return {
+                            enabled: parsed.enabled !== false,
+                            rate: typeof parsed.rate === 'number' ? parsed.rate : 1.0,
                             title: parsed.title !== false,
                             musicId: parsed.musicId !== false,
                             unitTag: parsed.unitTag !== false,
@@ -1437,7 +1458,8 @@
             return names.filter(Boolean);
         };
 
-        const buildSpeechSentence = (label, value) => `${label}は${value}です`;
+        // 丁寧語（〜は〜です）から体言止め（〜、〜。）に変更
+        const buildSpeechSentence = (label, value) => `${label}、${value}。`;
 
         function getPreferredJapaneseVoice() {
             if (!('speechSynthesis' in window) || typeof window.speechSynthesis.getVoices !== 'function') return null;
@@ -1464,6 +1486,19 @@
         }
 
         function updateSpeechSettingsUI() {
+            const enabledToggle = document.getElementById('speech-enabled-toggle');
+            if (enabledToggle) enabledToggle.checked = !!speechInfoSettings.enabled;
+
+            const detailsContainer = document.getElementById('speech-details-container');
+            if (detailsContainer) detailsContainer.style.display = speechInfoSettings.enabled ? 'block' : 'none';
+
+            const rateSlider = document.getElementById('speech-rate-slider');
+            const rateDisplay = document.getElementById('speech-rate-display');
+            if (rateSlider && rateDisplay) {
+                rateSlider.value = speechInfoSettings.rate || 1.0;
+                rateDisplay.textContent = rateSlider.value + 'x';
+            }
+
             const map = [
                 ['speech-title-toggle', 'title'],
                 ['speech-musicid-toggle', 'musicId'],
@@ -1491,6 +1526,7 @@
         }
 
         function speakPlayerMusicInfo() {
+            if (!speechInfoSettings.enabled) return false;
             if (!pCurrentMusic) return false;
             if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
 
@@ -1499,7 +1535,7 @@
             if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('楽曲ID', pCurrentMusic.id ?? '未設定'));
             if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ユニットタグ', getTagName(pCurrentMusic.id)));
             if (speechInfoSettings.credits) {
-                parts.push(`作詞は${pCurrentMusic.lyricist || '未設定'}、作曲は${pCurrentMusic.composer || '未設定'}、編曲は${pCurrentMusic.arranger || '未設定'}です`);
+                parts.push(`作詞、${pCurrentMusic.lyricist || '未設定'}。作曲、${pCurrentMusic.composer || '未設定'}。編曲、${pCurrentMusic.arranger || '未設定'}。`);
             }
             if (speechInfoSettings.publishedAt) parts.push(buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)));
             if (speechInfoSettings.vocalCharacters) {
@@ -1511,9 +1547,9 @@
 
             cancelPlayerSpeech();
 
-            const utterance = new SpeechSynthesisUtterance(parts.join('。'));
+            const utterance = new SpeechSynthesisUtterance(parts.join(' '));
             utterance.lang = 'ja-JP';
-            utterance.rate = 0.92;
+            utterance.rate = speechInfoSettings.rate || 1.0;
             utterance.pitch = 0.95;
             utterance.volume = 1;
 
@@ -1597,7 +1633,7 @@
                 listViewCont.style.display = 'block';
                 playerViewCont.style.display = 'none';
                 listOnlyControls.style.display = 'flex';
-                mainSearchBar.style.display = 'flex'; // visibility: visibleから変更（UI崩れ防止）
+                mainSearchBar.style.display = 'flex'; 
                 renderList(); 
                 updateMiniPlayerVisibility();
             });
@@ -1607,7 +1643,7 @@
                 listViewCont.style.display = 'none';
                 playerViewCont.style.display = 'block';
                 listOnlyControls.style.display = 'none';
-                mainSearchBar.style.display = 'none'; // visibility: hiddenから変更（UI崩れ防止）
+                mainSearchBar.style.display = 'none'; 
                 renderPlayerList();
                 if(pCurrentMusic) updatePlayerPageInfo(); 
                 updateMiniPlayerVisibility();
@@ -1742,7 +1778,29 @@
                 localStorage.setItem('defaultVocalPref', defaultVocalPref);
             });
 
+            // 読み上げ設定 UI とイベントの適用
             updateSpeechSettingsUI();
+            
+            const enabledToggle = document.getElementById('speech-enabled-toggle');
+            if(enabledToggle) {
+                enabledToggle.addEventListener('change', (e) => {
+                    speechInfoSettings.enabled = e.target.checked;
+                    document.getElementById('speech-details-container').style.display = e.target.checked ? 'block' : 'none';
+                    saveSpeechSettings();
+                });
+            }
+
+            const rateSlider = document.getElementById('speech-rate-slider');
+            if(rateSlider) {
+                rateSlider.addEventListener('input', (e) => {
+                    document.getElementById('speech-rate-display').textContent = e.target.value + 'x';
+                });
+                rateSlider.addEventListener('change', (e) => {
+                    speechInfoSettings.rate = parseFloat(e.target.value);
+                    saveSpeechSettings();
+                });
+            }
+
             const speechToggleMap = [
                 ['speech-title-toggle', 'title'],
                 ['speech-musicid-toggle', 'musicId'],
@@ -1754,7 +1812,6 @@
             speechToggleMap.forEach(([id, key]) => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                el.checked = !!speechInfoSettings[key];
                 el.addEventListener('change', (e) => {
                     speechInfoSettings[key] = e.target.checked;
                     saveSpeechSettings();
@@ -1863,7 +1920,6 @@
             
             pSortKeySelect.addEventListener('change', (e) => {
                 p_sortKey = e.target.value;
-                // レベル順の場合のみ難易度選択欄を表示する
                 pSortDiffSelect.style.display = p_sortKey === 'level' ? 'inline-block' : 'none';
                 renderPlayerList();
             });
