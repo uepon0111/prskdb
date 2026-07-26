@@ -116,19 +116,12 @@
             min-height: 40px;
         }
 
-        button.icon-btn.active {
+        button.icon-btn:hover, button.icon-btn.active {
             background: var(--secondary-bg);
             color: var(--accent-color);
         }
 
-        @media (hover: hover) {
-            button.icon-btn:hover {
-                background: var(--secondary-bg);
-                color: var(--accent-color);
-            }
-        }
-
-        /* 文字入りナビゲーションボタン用 */
+        /* æå­å¥ãããã²ã¼ã·ã§ã³ãã¿ã³ç¨ */
         button.nav-btn {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -145,23 +138,15 @@
             font-weight: bold;
         }
 
-        button.nav-btn.active {
+        button.nav-btn:hover, button.nav-btn.active {
             background: rgba(0, 188, 212, 0.1);
             border-color: var(--accent-color);
             color: var(--accent-color);
         }
-        
-        @media (hover: hover) {
-            button.nav-btn:hover {
-                background: rgba(0, 188, 212, 0.1);
-                border-color: var(--accent-color);
-                color: var(--accent-color);
-            }
-        }
 
         @media (min-width: 769px) {
             header {
-                flex-direction: column;
+                flex-direction: column; /* å¨ä½ãç¸¦ä¸¦ã³ã®ã¾ã¾ã¨ãã */
                 align-items: stretch;
             }
             .header-top {
@@ -189,6 +174,10 @@
             animation: fadeIn 0.2s ease;
         }
         .panel.show { display: block; }
+
+        #player-view-container .panel {
+            margin: 0 0 16px 0;
+        }
 
         .filter-section {
             margin-bottom: 16px;
@@ -320,11 +309,9 @@
             text-align: center;
             min-width: 0;
         }
-        @media (hover: hover) {
-            .music-item:hover {
-                transform: translateY(-2px);
-                box-shadow: var(--shadow-lg);
-            }
+        .music-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
         .music-item.playing {
             border: 2px solid var(--accent-color);
@@ -408,7 +395,7 @@
         }
         .player-main-sticky {
             position: sticky;
-            top: 140px; 
+            top: 140px; /* ãããã¼ãå¤§ãããªã£ãåãä¸ãã */
             flex: 0 0 380px;
             max-width: 100%;
         }
@@ -475,16 +462,6 @@
             margin-left: 0;
         }
 
-        .p-credits-info {
-            font-size: 13px;
-            color: var(--text-sub);
-            text-align: center;
-            width: 100%;
-            margin-top: -4px;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-
         .player-playlist {
             flex: 1;
             min-width: 0;
@@ -502,6 +479,7 @@
             box-shadow: var(--shadow-sm);
         }
         .playlist-header h3 { margin: 0; font-size: 16px; }
+        .playlist-controls-inner { display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; }
         
         /* Player Buttons Layout */
         .player-buttons {
@@ -537,17 +515,9 @@
             transition: color 0.2s;
             padding: 8px;
         }
-        
-        .player-buttons button.active, .player-buttons-row button.active { 
-            color: var(--accent-color); 
-        }
-        @media (hover: hover) {
-            .player-buttons button:hover, .player-buttons-row button:hover { 
-                color: var(--accent-color); 
-            }
-        }
-        
+        .player-buttons button:hover, .player-buttons-row button:hover { color: var(--accent-color); }
         .player-buttons button .material-icons-round, .player-buttons-row button .material-icons-round { font-size: 32px; }
+        .player-buttons button.active, .player-buttons-row button.active { color: var(--accent-color); }
         .player-buttons #play-pause-btn .material-icons-round,
         .player-buttons-row #p-play-pause-btn .material-icons-round { font-size: 48px; color: var(--accent-color); }
         .player-buttons button.mode-btn, .player-buttons-row button.mode-btn { margin: 0; }
@@ -573,6 +543,7 @@
         .mini-vocal { font-size: 12px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;}
         .mini-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .mini-controls button .material-icons-round { font-size: 28px; }
+        .mini-controls button.icon-btn.active { background: transparent; color: var(--accent-color); }
         .mini-progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; width: 100%; }
         .mini-progress-fill { height: 100%; background: var(--accent-color); width: 0%; }
 
@@ -867,7 +838,7 @@
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 縦画面(スマートフォン向け)のレスポンシブ最適化 --- */
+        /* --- ç¸¦ç»é¢(ã¹ãã¼ããã©ã³åã)ã®ã¬ã¹ãã³ã·ãæé©å --- */
         @media (max-width: 768px) {
             .layout-3 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .layout-5 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -876,7 +847,7 @@
             .music-item .title { font-size: 13px; min-height: 2.6em; }
             .modal-content { width: 95%; height: 90vh; }
             
-            /* Player UI 自動調整 */
+            /* Player UI èªåèª¿æ´ */
             .player-layout { flex-direction: column; gap: 20px; }
             .player-main-sticky { position: static; flex: auto; width: 100%; max-width: 100%; }
             .player-main { padding: 20px; gap: 16px; }
@@ -885,6 +856,7 @@
             }
             .player-controls { padding: 16px; width: 100%; }
             
+            /* ãã¿ã³ãã¯ã¿åºããªãããã«èª¿æ´ */
             .player-buttons { gap: 12px; }
             .player-buttons-row { gap: 8px; }
             .player-buttons button, .player-buttons-row button { padding: 4px; }
@@ -896,6 +868,15 @@
                 flex-direction: column;
                 align-items: stretch;
                 gap: 12px;
+            }
+            .playlist-controls-inner {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .playlist-controls-inner .search-bar {
+                flex: 1;
+                min-width: 0; /* ã¯ã¿åºãé²æ­¢ */
+                max-width: none;
             }
 
             .mini-player { 
@@ -917,8 +898,7 @@
             .mini-controls {
                 grid-area: controls;
                 display: flex;
-                justify-content: center; 
-                gap: 20px;
+                justify-content: space-between; 
                 width: 100%;
                 margin-top: 4px;
             }
@@ -945,7 +925,7 @@
             .music-item .meta { font-size: 10px; }
             
             .header-top { flex-direction: column; align-items: stretch; gap: 12px; }
-            #main-search-bar { order: 1; width: 100%; min-width: 100%; }
+            #main-search-bar { order: 1; width: 100%; min-width: 100%; } /* ã¯ã¿åºãé²æ­¢ */
             .controls { order: 2; width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
         }
     </style>
@@ -955,84 +935,85 @@
     <!-- Loading Screen -->
     <div id="loading">
         <span class="material-icons-round spin">autorenew</span>
-        <p>データを読み込んでいます...</p>
+        <p>ãã¼ã¿ãèª­ã¿è¾¼ãã§ãã¾ã...</p>
     </div>
 
     <header>
         <div class="header-top">
             <div class="search-bar" id="main-search-bar">
                 <span class="material-icons-round">search</span>
-                <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
+                <input type="text" id="search-input" placeholder="ã¿ã¤ãã«ãèª­ã¿æ¹ãã¯ãªã¨ã¤ã¿ã¼ã§æ¤ç´¢">
             </div>
             <div class="controls">
-                <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
-                <button class="icon-btn" id="btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
-                <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
-                
-                <span id="layout-controls" style="display: flex; gap: 8px; align-items: center;">
-                    <button class="icon-btn" id="btn-layout-1" title="1列表示"><span class="material-icons-round">view_list</span></button>
-                    <button class="icon-btn active" id="btn-layout-3" title="3列表示"><span class="material-icons-round">view_module</span></button>
-                    <button class="icon-btn" id="btn-layout-5" title="5列表示"><span class="material-icons-round">grid_view</span></button>
+                <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
+                    <button class="icon-btn" id="btn-filter" title="çµãè¾¼ã¿"><span class="material-icons-round">filter_alt</span></button>
+                    <button class="icon-btn" id="btn-sort" title="ä¸¦ã³æ¿ã"><span class="material-icons-round">sort</span></button>
                     <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+                    <button class="icon-btn" id="btn-layout-1" title="1åè¡¨ç¤º"><span class="material-icons-round">view_list</span></button>
+                    <button class="icon-btn active" id="btn-layout-3" title="3åè¡¨ç¤º"><span class="material-icons-round">view_module</span></button>
+                    <button class="icon-btn" id="btn-layout-5" title="5åè¡¨ç¤º"><span class="material-icons-round">grid_view</span></button>
                 </span>
                 
-                <button class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
+                <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+                
+                <button class="icon-btn" id="btn-settings" title="è¨­å®"><span class="material-icons-round">settings</span></button>
             </div>
         </div>
-        <!-- 画面切り替えボタン -->
+        <!-- ç»é¢åãæ¿ããã¿ã³ãä¸æ®µä¸ã«éç½® -->
         <div class="header-bottom" style="display: flex; gap: 12px; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap;">
-            <button class="nav-btn active" id="btn-view-list" title="一覧画面">
-                <span class="material-icons-round">queue_music</span>一覧画面
+            <button class="nav-btn active" id="btn-view-list" title="ä¸è¦§ç»é¢">
+                <span class="material-icons-round">queue_music</span>ä¸è¦§ç»é¢
             </button>
-            <button class="nav-btn" id="btn-view-player" title="プレイヤー画面">
-                <span class="material-icons-round">play_circle</span>プレイヤー画面
+            <button class="nav-btn" id="btn-view-player" title="ãã¬ã¤ã¤ã¼ç»é¢">
+                <span class="material-icons-round">play_circle</span>ãã¬ã¤ã¤ã¼ç»é¢
             </button>
-        </div>
-        
-        <!-- Filter Panel -->
-        <div id="filter-panel" class="panel" style="margin: 12px 0 0 0;">
-            <div class="filter-section">
-                <div class="filter-title">ユニットタグ (1つ選択)</div>
-                <div class="filter-group" id="tag-filters"></div>
-            </div>
-            <div class="filter-section">
-                <div class="filter-title">書き下ろし (1つ選択)</div>
-                <div class="filter-group" id="written-filters"></div>
-            </div>
-            <div class="filter-section">
-                <div class="filter-title">歌唱キャラクター (AND検索)</div>
-                <div class="char-grid-filter" id="game-char-filters"></div>
-                <div class="outside-chars-filter" id="outside-char-filters"></div>
-            </div>
-        </div>
-
-        <!-- Sort Panel -->
-        <div id="sort-panel" class="panel" style="margin: 12px 0 0 0;">
-            <div class="sort-controls">
-                <select id="sort-key">
-                    <option value="id">ID順</option>
-                    <option value="title">タイトル（名前）順</option>
-                    <option value="publishedAt" selected>公開日時順</option>
-                    <option value="level">楽曲レベル順</option>
-                </select>
-                <select id="sort-diff" style="display: none;">
-                    <option value="easy" selected>Easy</option>
-                    <option value="normal">Normal</option>
-                    <option value="hard">Hard</option>
-                    <option value="expert">Expert</option>
-                    <option value="master">Master</option>
-                    <option value="append">Append</option>
-                </select>
-                <button class="icon-btn active" id="btn-sort-order" title="昇順/降順切り替え">
-                    <span class="material-icons-round" id="sort-order-icon">arrow_downward</span>
-                </button>
-            </div>
         </div>
     </header>
 
     <main>
         <!-- List View -->
         <div id="list-view-container">
+            <!-- Filter Panel -->
+            <div id="filter-panel" class="panel">
+                <div class="filter-section">
+                    <div class="filter-title">ã¦ãããã¿ã° (1ã¤é¸æ)</div>
+                    <div class="filter-group" id="tag-filters"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">æ¸ãä¸ãã (1ã¤é¸æ)</div>
+                    <div class="filter-group" id="written-filters"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">æ­å±ã­ã£ã©ã¯ã¿ã¼ (ANDæ¤ç´¢)</div>
+                    <div class="char-grid-filter" id="game-char-filters"></div>
+                    <div class="outside-chars-filter" id="outside-char-filters"></div>
+                </div>
+            </div>
+
+            <!-- Sort Panel -->
+            <div id="sort-panel" class="panel">
+                <div class="sort-controls">
+                    <select id="sort-key">
+                        <option value="id">IDé </option>
+                        <option value="title">ã¿ã¤ãã«ï¼ååï¼é </option>
+                        <option value="publishedAt" selected>å¬éæ¥æé </option>
+                        <option value="level">æ¥½æ²ã¬ãã«é </option>
+                    </select>
+                    <!-- ã¬ãã«é ä»¥å¤ã¯éè¡¨ç¤ºã«è¨­å® -->
+                    <select id="sort-diff" style="display: none;">
+                        <option value="easy" selected>Easy</option>
+                        <option value="normal">Normal</option>
+                        <option value="hard">Hard</option>
+                        <option value="expert">Expert</option>
+                        <option value="master">Master</option>
+                        <option value="append">Append</option>
+                    </select>
+                    <button class="icon-btn active" id="btn-sort-order" title="æé /éé åãæ¿ã">
+                        <span class="material-icons-round" id="sort-order-icon">arrow_downward</span>
+                    </button>
+                </div>
+            </div>
+
             <div id="music-list" class="list-container layout-3"></div>
         </div>
 
@@ -1042,10 +1023,9 @@
                 <div class="player-main-sticky">
                     <div class="player-main">
                         <img id="p-jacket" class="detail-jacket" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="jacket" onerror="handleImageError(this)">
-                        <h2 id="p-title">選択されていません</h2>
+                        <h2 id="p-title">é¸æããã¦ãã¾ãã</h2>
                         
                         <div id="p-vocal-info" class="p-vocal-info-display" style="display: none;"></div>
-                        <div id="p-credits-info" class="p-credits-info"></div>
                         
                         <div class="player-controls">
                             <div class="progress-container">
@@ -1055,15 +1035,15 @@
                             </div>
                             <div class="player-buttons">
                                 <div class="player-buttons-row">
-                                    <button id="p-btn-back-10" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
-                                    <button id="p-btn-prev" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
+                                    <button id="p-btn-back-10" title="10ç§æ»ã"><span class="material-icons-round">replay_10</span></button>
+                                    <button id="p-btn-prev" title="åã®æ²"><span class="material-icons-round">skip_previous</span></button>
                                     <button id="p-play-pause-btn"><span class="material-icons-round" id="p-play-icon">play_arrow</span></button>
-                                    <button id="p-btn-next" title="次の曲"><span class="material-icons-round">skip_next</span></button>
-                                    <button id="p-btn-forward-10" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
+                                    <button id="p-btn-next" title="æ¬¡ã®æ²"><span class="material-icons-round">skip_next</span></button>
+                                    <button id="p-btn-forward-10" title="10ç§é²ã"><span class="material-icons-round">forward_10</span></button>
                                 </div>
                                 <div class="player-buttons-row">
-                                    <button class="mode-btn" id="p-btn-shuffle" title="シャッフル (オフ)"><span class="material-icons-round">shuffle</span></button>
-                                    <button class="mode-btn active" id="p-btn-repeat" title="リピート (全曲)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
+                                    <button class="mode-btn" id="p-btn-shuffle" title="ã·ã£ããã« (ãªã)"><span class="material-icons-round">shuffle</span></button>
+                                    <button class="mode-btn active" id="p-btn-repeat" title="ãªãã¼ã (å¨æ²)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
                                 </div>
                             </div>
                         </div>
@@ -1072,8 +1052,55 @@
 
                 <div class="player-playlist">
                     <div class="playlist-header">
-                        <h3>再生リスト</h3>
+                        <h3>åçãªã¹ã</h3>
+                        <div class="playlist-controls-inner">
+                            <div class="search-bar" style="max-width: 200px;">
+                                <span class="material-icons-round">search</span>
+                                <input type="text" id="p-search-input" placeholder="ãªã¹ããæ¤ç´¢">
+                            </div>
+                            <button class="icon-btn" id="p-btn-filter" title="çµãè¾¼ã¿"><span class="material-icons-round">filter_alt</span></button>
+                            <button class="icon-btn" id="p-btn-sort" title="ä¸¦ã³æ¿ã"><span class="material-icons-round">sort</span></button>
+                        </div>
                     </div>
+                    
+                    <div id="p-filter-panel" class="panel">
+                        <div class="filter-section">
+                            <div class="filter-title">ã¦ãããã¿ã° (1ã¤é¸æ)</div>
+                            <div class="filter-group" id="p-tag-filters"></div>
+                        </div>
+                        <div class="filter-section">
+                            <div class="filter-title">æ¸ãä¸ãã (1ã¤é¸æ)</div>
+                            <div class="filter-group" id="p-written-filters"></div>
+                        </div>
+                        <div class="filter-section">
+                            <div class="filter-title">æ­å±ã­ã£ã©ã¯ã¿ã¼ (ANDæ¤ç´¢)</div>
+                            <div class="char-grid-filter" id="p-game-char-filters"></div>
+                            <div class="outside-chars-filter" id="p-outside-char-filters"></div>
+                        </div>
+                    </div>
+
+                    <div id="p-sort-panel" class="panel">
+                        <div class="sort-controls">
+                            <select id="p-sort-key">
+                                <option value="id">IDé </option>
+                                <option value="title">ã¿ã¤ãã«ï¼ååï¼é </option>
+                                <option value="publishedAt" selected>å¬éæ¥æé </option>
+                                <option value="level">æ¥½æ²ã¬ãã«é </option>
+                            </select>
+                            <select id="p-sort-diff" style="display: none;">
+                                <option value="easy" selected>Easy</option>
+                                <option value="normal">Normal</option>
+                                <option value="hard">Hard</option>
+                                <option value="expert">Expert</option>
+                                <option value="master">Master</option>
+                                <option value="append">Append</option>
+                            </select>
+                            <button class="icon-btn active" id="p-btn-sort-order" title="æé /éé åãæ¿ã">
+                                <span class="material-icons-round" id="p-sort-order-icon">arrow_downward</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="player-music-list" class="list-container layout-1"></div>
                 </div>
             </div>
@@ -1084,16 +1111,18 @@
     <div id="mini-player" class="mini-player" style="display: none;">
         <div class="mini-progress-bar"><div id="mini-progress" class="mini-progress-fill"></div></div>
         <img id="mini-jacket" class="mini-jacket" src="" alt="jacket" onerror="handleImageError(this)">
-        <div class="mini-info" id="mini-info-area" title="プレイヤーを開く">
+        <div class="mini-info" id="mini-info-area" title="ãã¬ã¤ã¤ã¼ãéã">
             <div id="mini-title" class="mini-title">Title</div>
             <div id="mini-vocal" class="mini-vocal">Vocal</div>
         </div>
         <div class="mini-controls">
-            <button id="mini-btn-prev" class="icon-btn" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
-            <button id="mini-btn-back-10" class="icon-btn" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
+            <button id="mini-btn-shuffle" class="icon-btn" title="ã·ã£ããã« (ãªã)"><span class="material-icons-round" id="mini-shuffle-icon">shuffle</span></button>
+            <button id="mini-btn-prev" class="icon-btn" title="åã®æ²"><span class="material-icons-round">skip_previous</span></button>
+            <button id="mini-btn-back-10" class="icon-btn" title="10ç§æ»ã"><span class="material-icons-round">replay_10</span></button>
             <button id="mini-play-pause-btn" class="icon-btn"><span class="material-icons-round" id="mini-play-icon">play_arrow</span></button>
-            <button id="mini-btn-forward-10" class="icon-btn" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
-            <button id="mini-next-btn" class="icon-btn" title="次の曲"><span class="material-icons-round">skip_next</span></button>
+            <button id="mini-btn-forward-10" class="icon-btn" title="10ç§é²ã"><span class="material-icons-round">forward_10</span></button>
+            <button id="mini-next-btn" class="icon-btn" title="æ¬¡ã®æ²"><span class="material-icons-round">skip_next</span></button>
+            <button id="mini-btn-repeat" class="icon-btn active" title="ãªãã¼ã (å¨æ²)"><span class="material-icons-round" id="mini-repeat-icon">repeat</span></button>
         </div>
     </div>
 
@@ -1113,29 +1142,29 @@
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; height: auto;">
             <div class="modal-header">
-                <h2>設定</h2>
+                <h2>è¨­å®</h2>
                 <button class="icon-btn" id="btn-close-settings"><span class="material-icons-round">close</span></button>
             </div>
             <div class="modal-body">
                 <div class="setting-row">
-                    <span>デフォルトボーカル優先</span>
+                    <span>ããã©ã«ããã¼ã«ã«åªå</span>
                     <select id="default-vocal-select" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none;">
-                        <option value="none">指定なし</option>
-                        <option value="sekai">セカイバージョン</option>
-                        <option value="virtual_singer">バーチャルシンガー</option>
+                        <option value="none">æå®ãªã</option>
+                        <option value="sekai">ã»ã«ã¤ãã¼ã¸ã§ã³</option>
+                        <option value="virtual_singer">ãã¼ãã£ã«ã·ã³ã¬ã¼</option>
                     </select>
                 </div>
                 <div class="setting-row">
-                    <span>無音部分のスキップ</span>
+                    <span>ç¡é³é¨åã®ã¹ã­ãã</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="skip-toggle">
                         <span class="slider"></span>
                     </label>
                 </div>
 
-                <div class="filter-title" style="margin-top: 16px;">再生開始時の読み上げ</div>
+                <div class="filter-title" style="margin-top: 16px;">åçéå§æã®èª­ã¿ä¸ã</div>
                 <div class="setting-row">
-                    <span>読み上げ機能</span>
+                    <span>èª­ã¿ä¸ãæ©è½</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="speech-enabled-toggle">
                         <span class="slider"></span>
@@ -1144,49 +1173,49 @@
                 
                 <div id="speech-details-container" style="display: none; padding-left: 16px; border-left: 2px solid var(--border-color); margin-top: 8px;">
                     <div class="setting-row">
-                        <span>読み上げ速度</span>
+                        <span>èª­ã¿ä¸ãéåº¦</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <input type="range" id="speech-rate-slider" min="0.75" max="1.25" step="0.05" value="1.0">
                             <span id="speech-rate-display" style="width: 3.5em; text-align: right; font-size: 13px; color: var(--text-sub);">1x</span>
                         </div>
                     </div>
                     <div class="setting-row">
-                        <span>タイトル</span>
+                        <span>ã¿ã¤ãã«</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-title-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>楽曲ID</span>
+                        <span>æ¥½æ²ID</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-musicid-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>ユニットタグ</span>
+                        <span>ã¦ãããã¿ã°</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-unittag-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>作詞・作曲・編曲</span>
+                        <span>ä½è©ã»ä½æ²ã»ç·¨æ²</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-credits-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>公開日時</span>
+                        <span>å¬éæ¥æ</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-publishedat-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>現在再生中の歌唱キャラクター</span>
+                        <span>ç¾å¨åçä¸­ã®æ­å±ã­ã£ã©ã¯ã¿ã¼</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-vocal-toggle">
                             <span class="slider"></span>
@@ -1217,7 +1246,7 @@
         let diffMap = new Map(), vocalMap = new Map(), tagMap = new Map(), origMap = new Map();
         let gameCharMap = new Map(), outCharMap = new Map();
 
-        // Shared UI State (List View & Player View)
+        // UI State (List View)
         let currentLayout = 'layout-3';
         let searchTerm = '';
         let activeTag = 'all';
@@ -1226,6 +1255,15 @@
         let sortKey = 'publishedAt';
         let sortOrder = 'desc';
         let sortDiff = 'easy';
+        
+        // UI State (Player View)
+        let p_searchTerm = '';
+        let p_activeTag = 'all';
+        let p_activeWritten = 'all';
+        let p_selectedChars = new Set();
+        let p_sortKey = 'publishedAt';
+        let p_sortOrder = 'desc';
+        let p_sortDiff = 'easy';
         
         // Player State
         let currentPlaylist = [];
@@ -1287,58 +1325,66 @@
         let pSpeechAnnouncedForCurrentTrack = false;
 
         const TAG_DEF = [
-            { id: 'all', icon: 'apps', label: '全て' },
-            { id: 'vocaloid', icon: 'mic', label: 'バチャシン' },
-            { id: 'light_music_club', icon: 'music_note', label: 'レオニ' },
-            { id: 'idol', icon: 'favorite', label: 'モモジャン' },
-            { id: 'street', icon: 'headset', label: 'ビビバス' },
-            { id: 'theme_park', icon: 'attractions', label: 'ワンダショ' },
-            { id: 'school_refusal', icon: 'nightlight_round', label: 'ニーゴ' },
-            { id: 'other', icon: 'more_horiz', label: 'その他' }
+            { id: 'all', icon: 'apps', label: 'å¨ã¦' },
+            { id: 'vocaloid', icon: 'mic', label: 'ããã£ã·ã³' },
+            { id: 'light_music_club', icon: 'music_note', label: 'ã¬ãªã' },
+            { id: 'idol', icon: 'favorite', label: 'ã¢ã¢ã¸ã£ã³' },
+            { id: 'street', icon: 'headset', label: 'ãããã¹' },
+            { id: 'theme_park', icon: 'attractions', label: 'ã¯ã³ãã·ã§' },
+            { id: 'school_refusal', icon: 'nightlight_round', label: 'ãã¼ã´' },
+            { id: 'other', icon: 'more_horiz', label: 'ãã®ä»' }
         ];
 
         const WRITTEN_DEF = [
-            { id: 'all', icon: 'apps', label: '全て' },
-            { id: 'newly', icon: 'new_releases', label: '書き下ろし' },
-            { id: 'cover', icon: 'library_music', label: 'カバー' }
+            { id: 'all', icon: 'apps', label: 'å¨ã¦' },
+            { id: 'newly', icon: 'new_releases', label: 'æ¸ãä¸ãã' },
+            { id: 'cover', icon: 'library_music', label: 'ã«ãã¼' }
         ];
 
         const DIFF_ORDER = ['easy', 'normal', 'hard', 'expert', 'master', 'append'];
 
         function updateRepeatShuffleUI() {
             const btnShuffle = document.getElementById('p-btn-shuffle');
-            if(btnShuffle) {
-                btnShuffle.classList.toggle('active', isShuffle);
-                btnShuffle.title = isShuffle ? "シャッフル (オン)" : "シャッフル (オフ)";
-            }
+            const miniBtnShuffle = document.getElementById('mini-btn-shuffle');
+            
+            [btnShuffle, miniBtnShuffle].forEach(btn => {
+                if(!btn) return;
+                btn.classList.toggle('active', isShuffle);
+                btn.title = isShuffle ? "ã·ã£ããã« (ãªã³)" : "ã·ã£ããã« (ãªã)";
+            });
 
             const btnRepeat = document.getElementById('p-btn-repeat');
             const repeatIcon = document.getElementById('p-repeat-icon');
+            const miniBtnRepeat = document.getElementById('mini-btn-repeat');
+            const miniRepeatIcon = document.getElementById('mini-repeat-icon');
             
             let iconText = 'repeat';
             let isActive = false;
-            let titleText = "リピート (オフ)";
+            let titleText = "ãªãã¼ã (ãªã)";
             
             if (repeatMode === 'all') {
                 iconText = 'repeat';
                 isActive = true;
-                titleText = "リピート (全曲)";
+                titleText = "ãªãã¼ã (å¨æ²)";
             } else if (repeatMode === 'one') {
                 iconText = 'repeat_one';
                 isActive = true;
-                titleText = "リピート (1曲)";
+                titleText = "ãªãã¼ã (1æ²)";
             } else {
                 iconText = 'repeat';
                 isActive = false;
-                titleText = "リピート (オフ)";
+                titleText = "ãªãã¼ã (ãªã)";
             }
 
-            if(btnRepeat) {
-                if(isActive) btnRepeat.classList.add('active');
-                else btnRepeat.classList.remove('active');
-                btnRepeat.title = titleText;
-            }
-            if(repeatIcon) repeatIcon.textContent = iconText;
+            [btnRepeat, miniBtnRepeat].forEach(btn => {
+                if(!btn) return;
+                if(isActive) btn.classList.add('active');
+                else btn.classList.remove('active');
+                btn.title = titleText;
+            });
+            [repeatIcon, miniRepeatIcon].forEach(icon => {
+                if(icon) icon.textContent = iconText;
+            });
         }
 
         function toggleShuffle() {
@@ -1390,11 +1436,12 @@
                 setupUI();
                 setupPlayerUI();
                 updateRepeatShuffleUI();
-                updateLists();
+                renderList();
+                renderPlayerList();
                 document.getElementById('loading').style.display = 'none';
             } catch (err) {
                 console.error(err);
-                alert('データの読み込みに失敗しました。');
+                alert('ãã¼ã¿ã®èª­ã¿è¾¼ã¿ã«å¤±æãã¾ããã');
             }
         }
 
@@ -1418,10 +1465,11 @@
         };
 
         const formatSpeechDate = (ms) => {
-            if (!ms) return '未設定';
+            if (!ms) return 'æªè¨­å®';
             const d = new Date(ms);
-            if (isNaN(d.getTime())) return '未設定';
-            return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${d.getHours()}時${d.getMinutes()}分`;
+            if (isNaN(d.getTime())) return 'æªè¨­å®';
+            // 0åãããªããããã®ã¾ã¾æ°å¤ã¨ãã¦èª­ã¾ãããã¨ã§ãã¼ã­ããããããªã©ã®ä¸èªç¶ãªçºé³ãé²ã
+            return `${d.getFullYear()}å¹´${d.getMonth() + 1}æ${d.getDate()}æ¥ ${d.getHours()}æ${d.getMinutes()}å`;
         };
 
         const getMusicVocalCharacterNames = (vocal) => {
@@ -1439,14 +1487,14 @@
             return names.filter(Boolean);
         };
 
-        const buildSpeechSentence = (label, value) => `${label}、${value}。`;
+        const buildSpeechSentence = (label, value) => `${label}ã${value}ã`;
 
         function getPreferredJapaneseVoice() {
             if (!('speechSynthesis' in window) || typeof window.speechSynthesis.getVoices !== 'function') return null;
             const voices = window.speechSynthesis.getVoices() || [];
             if (!voices.length) return null;
 
-            const candidates = voices.filter(v => /^ja(-|$)/i.test(v.lang || '') || /japanese|日本語/i.test(v.name || ''));
+            const candidates = voices.filter(v => /^ja(-|$)/i.test(v.lang || '') || /japanese|æ¥æ¬èª/i.test(v.name || ''));
             const pool = candidates.length ? candidates : voices.filter(v => (v.lang || '').toLowerCase().startsWith('ja'));
             if (!pool.length) return null;
 
@@ -1454,7 +1502,7 @@
                 const name = `${voice.name || ''} ${voice.lang || ''}`.toLowerCase();
                 let score = 0;
                 if (/ja(-|$)/i.test(voice.lang || '')) score += 30;
-                if (/japanese|日本語/i.test(voice.name || '')) score += 40;
+                if (/japanese|æ¥æ¬èª/i.test(voice.name || '')) score += 40;
                 if (/google|microsoft|siri|natural|premium|enhanced|neural/i.test(name)) score += 25;
                 if (/kyoko|nozomi|otoya|hikari|sakura|haruka|naomi|kenta|taro|yumi|emiko/i.test(name)) score += 10;
                 if (voice.localService) score += 5;
@@ -1503,7 +1551,6 @@
             if ('speechSynthesis' in window) {
                 try { window.speechSynthesis.cancel(); } catch (e) {}
             }
-            pAudio.volume = 1.0;
         }
 
         function speakPlayerMusicInfo() {
@@ -1511,34 +1558,39 @@
             if (!pCurrentMusic) return false;
             if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
 
+            // èª­ã¿ä¸ããã­ã¹ããèªç¶ã«ããããã®ãã«ãã¼é¢æ°
             const adjustText = (text) => {
-                if (!text) return '未設定';
+                if (!text) return 'æªè¨­å®';
                 let t = String(text);
+                // è±å¤§æå­ã®é£ç¶ãåèªã¨ãã¦èª­ã¾ããããï¼ä¾: GIGA -> Gigaï¼åé ­ã®ã¿å¤§æå­ã«ãã
                 t = t.replace(/[A-Z]{2,}/g, m => m.charAt(0) + m.slice(1).toLowerCase());
-                t = t.replace(/[*_~・]/g, ' ');
+                // ç¹æ®è¨å·ãã¹ãã¼ã¹ã«ç½®æãã¦ä¸èªç¶ãªèª­ã¿ãé¿ãã
+                t = t.replace(/[*_~ã»]/g, ' ');
+                // æ°å­ã®åã®ä¸è¦ãª0ãæ¶ãï¼ä¾: 09 -> 9ï¼
                 t = t.replace(/\b0+(\d+)\b/g, '$1');
                 return t;
             };
 
             const parts = [];
             if (speechInfoSettings.title) {
-                const titleText = pCurrentMusic.pronunciation || pCurrentMusic.title || '未設定';
-                parts.push(buildSpeechSentence('タイトル', adjustText(titleText)));
+                // ã¿ã¤ãã«ã¯èª­ã¿æ¹ï¼pronunciationï¼ãåªåãã
+                const titleText = pCurrentMusic.pronunciation || pCurrentMusic.title || 'æªè¨­å®';
+                parts.push(buildSpeechSentence('ã¿ã¤ãã«', adjustText(titleText)));
             }
-            if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('楽曲ID', pCurrentMusic.id ?? '未設定'));
-            if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ユニットタグ', getTagName(pCurrentMusic.id)));
+            if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('æ¥½æ²ID', pCurrentMusic.id ?? 'æªè¨­å®'));
+            if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ã¦ãããã¿ã°', getTagName(pCurrentMusic.id)));
             if (speechInfoSettings.credits) {
                 const lyricist = adjustText(pCurrentMusic.lyricist);
                 const composer = adjustText(pCurrentMusic.composer);
                 const arranger = adjustText(pCurrentMusic.arranger);
-                parts.push(`作詞、${lyricist}。作曲、${composer}。編曲、${arranger}。`);
+                parts.push(`ä½è©ã${lyricist}ãä½æ²ã${composer}ãç·¨æ²ã${arranger}ã`);
             }
             if (speechInfoSettings.publishedAt) {
-                parts.push(buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)));
+                parts.push(buildSpeechSentence('å¬éæ¥æ', formatSpeechDate(pCurrentMusic.publishedAt)));
             }
             if (speechInfoSettings.vocalCharacters) {
                 const names = getMusicVocalCharacterNames(pCurrentVocal);
-                parts.push(buildSpeechSentence('現在再生中の歌唱キャラクター', names.length ? names.join('、') : '未設定'));
+                parts.push(buildSpeechSentence('ç¾å¨åçä¸­ã®æ­å±ã­ã£ã©ã¯ã¿ã¼', names.length ? names.join('ã') : 'æªè¨­å®'));
             }
 
             if (parts.length === 0) return false;
@@ -1554,17 +1606,12 @@
             const voice = getPreferredJapaneseVoice();
             if (voice) utterance.voice = voice;
 
-            utterance.onstart = () => {
-                pAudio.volume = 0.15; 
-            };
-            utterance.onend = () => {
-                pSpeechAnnouncedForCurrentTrack = true;
-                pAudio.volume = 1.0; 
-            };
             utterance.onerror = () => {
                 pSpeechAnnouncedForCurrentTrack = false;
                 pSpeechAnnouncePending = true;
-                pAudio.volume = 1.0; 
+            };
+            utterance.onend = () => {
+                pSpeechAnnouncedForCurrentTrack = true;
             };
 
             try {
@@ -1575,7 +1622,6 @@
             } catch (e) {
                 pSpeechAnnouncedForCurrentTrack = false;
                 pSpeechAnnouncePending = true;
-                pAudio.volume = 1.0;
                 return false;
             }
         };
@@ -1583,7 +1629,7 @@
         const getTagName = (musicId) => {
             const mTags = tagMap.get(musicId) || [];
             const tagId = mTags.find(t => t !== 'all') || 'other';
-            return TAG_DEF.find(t => t.id === tagId)?.label || 'その他';
+            return TAG_DEF.find(t => t.id === tagId)?.label || 'ãã®ä»';
         };
 
         const getMeta = (music, sKey, sDiff) => {
@@ -1621,25 +1667,22 @@
             return mVocals[0];
         }
 
-        function updateLists() {
-            renderList();
-            renderPlayerList();
-        }
-
         function setupUI() {
             const btnViewList = document.getElementById('btn-view-list');
             const btnViewPlayer = document.getElementById('btn-view-player');
             const listViewCont = document.getElementById('list-view-container');
             const playerViewCont = document.getElementById('player-view-container');
-            const layoutControls = document.getElementById('layout-controls');
+            const listOnlyControls = document.getElementById('list-only-controls');
+            const mainSearchBar = document.getElementById('main-search-bar');
 
             btnViewList.addEventListener('click', () => {
                 btnViewPlayer.classList.remove('active');
                 btnViewList.classList.add('active');
                 listViewCont.style.display = 'block';
                 playerViewCont.style.display = 'none';
-                layoutControls.style.display = 'flex';
-                updateLists(); 
+                listOnlyControls.style.display = 'flex';
+                mainSearchBar.style.display = 'flex'; 
+                renderList(); 
                 updateMiniPlayerVisibility();
             });
             btnViewPlayer.addEventListener('click', () => {
@@ -1647,7 +1690,9 @@
                 btnViewPlayer.classList.add('active');
                 listViewCont.style.display = 'none';
                 playerViewCont.style.display = 'block';
-                layoutControls.style.display = 'none';
+                listOnlyControls.style.display = 'none';
+                mainSearchBar.style.display = 'none'; 
+                renderPlayerList();
                 if(pCurrentMusic) updatePlayerPageInfo(); 
                 updateMiniPlayerVisibility();
             });
@@ -1680,7 +1725,7 @@
 
             document.getElementById('search-input').addEventListener('input', (e) => {
                 searchTerm = e.target.value.trim().toLowerCase();
-                updateLists();
+                renderList();
             });
 
             const tagContainer = document.getElementById('tag-filters');
@@ -1692,7 +1737,7 @@
                     tagContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
                     chip.classList.add('active');
                     activeTag = t.id;
-                    updateLists();
+                    renderList();
                 };
                 tagContainer.appendChild(chip);
             });
@@ -1706,7 +1751,7 @@
                     writtenContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
                     chip.classList.add('active');
                     activeWritten = w.id;
-                    updateLists();
+                    renderList();
                 };
                 writtenContainer.appendChild(chip);
             });
@@ -1719,7 +1764,7 @@
                     <img src="${ASSET_BASE}/character/character_sd_l/chr_sp_${c.id}.png" alt="${c.givenName || ''}" loading="lazy" onerror="handleImageError(this)">
                     <span>${c.firstName || ''}${c.givenName || ''}</span>
                 `;
-                div.onclick = () => toggleCharFilter(`game_${c.id}`, div, selectedChars, updateLists);
+                div.onclick = () => toggleCharFilter(`game_${c.id}`, div, selectedChars, renderList);
                 gCharContainer.appendChild(div);
             });
 
@@ -1728,7 +1773,7 @@
                 const chip = document.createElement('div');
                 chip.className = 'chip';
                 chip.textContent = c.name;
-                chip.onclick = () => toggleCharFilter(`outside_${c.id}`, chip, selectedChars, updateLists);
+                chip.onclick = () => toggleCharFilter(`outside_${c.id}`, chip, selectedChars, renderList);
                 oCharContainer.appendChild(chip);
             });
 
@@ -1749,16 +1794,16 @@
             sortKeySelect.addEventListener('change', (e) => {
                 sortKey = e.target.value;
                 sortDiffSelect.style.display = sortKey === 'level' ? 'inline-block' : 'none';
-                updateLists();
+                renderList();
             });
             sortDiffSelect.addEventListener('change', (e) => {
                 sortDiff = e.target.value;
-                updateLists();
+                renderList();
             });
             document.getElementById('btn-sort-order').addEventListener('click', () => {
                 sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
                 document.getElementById('sort-order-icon').textContent = sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
-                updateLists();
+                renderList();
             });
 
             document.getElementById('btn-settings').addEventListener('click', () => {
@@ -1824,6 +1869,8 @@
             document.getElementById('mini-btn-prev').addEventListener('click', playPrev);
             document.getElementById('mini-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); });
             document.getElementById('mini-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); });
+            document.getElementById('mini-btn-shuffle').addEventListener('click', toggleShuffle);
+            document.getElementById('mini-btn-repeat').addEventListener('click', toggleRepeat);
 
             document.getElementById('mini-info-area').addEventListener('click', () => {
                 document.getElementById('btn-view-player').click();
@@ -1833,6 +1880,105 @@
         }
 
         function setupPlayerUI() {
+            document.getElementById('p-btn-filter').addEventListener('click', () => {
+                document.getElementById('p-filter-panel').classList.toggle('show');
+                document.getElementById('p-sort-panel').classList.remove('show');
+            });
+            document.getElementById('p-btn-sort').addEventListener('click', () => {
+                document.getElementById('p-sort-panel').classList.toggle('show');
+                document.getElementById('p-filter-panel').classList.remove('show');
+            });
+
+            document.getElementById('p-search-input').addEventListener('input', (e) => {
+                p_searchTerm = e.target.value.trim().toLowerCase();
+                renderPlayerList();
+            });
+
+            const pTagContainer = document.getElementById('p-tag-filters');
+            TAG_DEF.forEach(t => {
+                const chip = document.createElement('div');
+                chip.className = `chip ${t.id === p_activeTag ? 'active' : ''}`;
+                chip.innerHTML = `<span class="material-icons-round">${t.icon}</span>${t.label}`;
+                chip.onclick = () => {
+                    pTagContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    p_activeTag = t.id;
+                    renderPlayerList();
+                };
+                pTagContainer.appendChild(chip);
+            });
+
+            const pWrittenContainer = document.getElementById('p-written-filters');
+            WRITTEN_DEF.forEach(w => {
+                const chip = document.createElement('div');
+                chip.className = `chip ${w.id === p_activeWritten ? 'active' : ''}`;
+                chip.innerHTML = `<span class="material-icons-round">${w.icon}</span>${w.label}`;
+                chip.onclick = () => {
+                    pWrittenContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    p_activeWritten = w.id;
+                    renderPlayerList();
+                };
+                pWrittenContainer.appendChild(chip);
+            });
+
+            const pGCharContainer = document.getElementById('p-game-char-filters');
+            gameChars.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'char-item';
+                div.innerHTML = `
+                    <img src="${ASSET_BASE}/character/character_sd_l/chr_sp_${c.id}.png" alt="${c.givenName || ''}" loading="lazy" onerror="handleImageError(this)">
+                    <span>${c.firstName || ''}${c.givenName || ''}</span>
+                `;
+                div.onclick = () => {
+                    if (p_selectedChars.has(`game_${c.id}`)) {
+                        p_selectedChars.delete(`game_${c.id}`);
+                        div.classList.remove('active');
+                    } else {
+                        p_selectedChars.add(`game_${c.id}`);
+                        div.classList.add('active');
+                    }
+                    renderPlayerList();
+                };
+                pGCharContainer.appendChild(div);
+            });
+
+            const pOCharContainer = document.getElementById('p-outside-char-filters');
+            outsideChars.forEach(c => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.textContent = c.name;
+                chip.onclick = () => {
+                    if (p_selectedChars.has(`outside_${c.id}`)) {
+                        p_selectedChars.delete(`outside_${c.id}`);
+                        chip.classList.remove('active');
+                    } else {
+                        p_selectedChars.add(`outside_${c.id}`);
+                        chip.classList.add('active');
+                    }
+                    renderPlayerList();
+                };
+                pOCharContainer.appendChild(chip);
+            });
+
+            const pSortKeySelect = document.getElementById('p-sort-key');
+            const pSortDiffSelect = document.getElementById('p-sort-diff');
+            
+            pSortKeySelect.addEventListener('change', (e) => {
+                p_sortKey = e.target.value;
+                pSortDiffSelect.style.display = p_sortKey === 'level' ? 'inline-block' : 'none';
+                renderPlayerList();
+            });
+            pSortDiffSelect.addEventListener('change', (e) => {
+                p_sortDiff = e.target.value;
+                renderPlayerList();
+            });
+            document.getElementById('p-btn-sort-order').addEventListener('click', () => {
+                p_sortOrder = p_sortOrder === 'asc' ? 'desc' : 'asc';
+                document.getElementById('p-sort-order-icon').textContent = p_sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
+                renderPlayerList();
+            });
+
             document.getElementById('p-play-pause-btn').onclick = togglePlayerPlay;
             document.getElementById('p-btn-prev').onclick = playPrev;
             document.getElementById('p-btn-next').onclick = playNext;
@@ -1851,7 +1997,7 @@
             const miniPlayer = document.getElementById('mini-player');
             const mainEl = document.querySelector('main');
             if (document.getElementById('list-view-container').style.display !== 'none' && pCurrentMusic) {
-                miniPlayer.style.display = ''; 
+                miniPlayer.style.display = 'flex';
                 mainEl.classList.add('with-mini-player');
             } else {
                 miniPlayer.style.display = 'none';
@@ -1938,7 +2084,7 @@
         }
 
         function renderPlayerList() {
-            currentPlaylist = getFilteredAndSortedList(searchTerm, activeTag, activeWritten, selectedChars, sortKey, sortOrder, sortDiff);
+            currentPlaylist = getFilteredAndSortedList(p_searchTerm, p_activeTag, p_activeWritten, p_selectedChars, p_sortKey, p_sortOrder, p_sortDiff);
             const container = document.getElementById('player-music-list');
             container.innerHTML = '';
             
@@ -1953,7 +2099,7 @@
                     loadPlayerAudio(m, vocal, true);
                 };
                 
-                const meta = getMeta(m, sortKey, sortDiff);
+                const meta = getMeta(m, p_sortKey, p_sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
                     <div class="info-container">
@@ -2077,11 +2223,11 @@
                     <span id="time-duration">0:00</span>
                 </div>
                 <div class="player-buttons">
-                    <button id="btn-back-10" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
-                    <button id="btn-back-5" title="5秒戻る"><span class="material-icons-round">replay_5</span></button>
+                    <button id="btn-back-10" title="10ç§æ»ã"><span class="material-icons-round">replay_10</span></button>
+                    <button id="btn-back-5" title="5ç§æ»ã"><span class="material-icons-round">replay_5</span></button>
                     <button id="play-pause-btn"><span class="material-icons-round" id="play-icon">play_arrow</span></button>
-                    <button id="btn-forward-5" title="5秒進む"><span class="material-icons-round">forward_5</span></button>
-                    <button id="btn-forward-10" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
+                    <button id="btn-forward-5" title="5ç§é²ã"><span class="material-icons-round">forward_5</span></button>
+                    <button id="btn-forward-10" title="10ç§é²ã"><span class="material-icons-round">forward_10</span></button>
                 </div>
             `;
             body.appendChild(pCont);
@@ -2118,13 +2264,13 @@
             const infoCont = document.createElement('div');
             infoCont.className = 'info-list';
             const infos = [
-                { l: '楽曲ID', v: music.id },
-                { l: 'タイトル', v: `${music.title} <br><small style="color:var(--text-sub)">(${music.pronunciation || '-'})</small>` },
-                { l: 'ユニットタグ', v: getTagName(music.id) },
-                { l: '作詞', v: music.lyricist || '-' },
-                { l: '作曲', v: music.composer || '-' },
-                { l: '編曲', v: music.arranger || '-' },
-                { l: '公開日時', v: formatDate(music.publishedAt) }
+                { l: 'æ¥½æ²ID', v: music.id },
+                { l: 'ã¿ã¤ãã«', v: `${music.title} <br><small style="color:var(--text-sub)">(${music.pronunciation || '-'})</small>` },
+                { l: 'ã¦ãããã¿ã°', v: getTagName(music.id) },
+                { l: 'ä½è©', v: music.lyricist || '-' },
+                { l: 'ä½æ²', v: music.composer || '-' },
+                { l: 'ç·¨æ²', v: music.arranger || '-' },
+                { l: 'å¬éæ¥æ', v: formatDate(music.publishedAt) }
             ];
             infos.forEach(i => {
                 const row = document.createElement('div');
@@ -2138,20 +2284,20 @@
             if (origLink) {
                 const lRow = document.createElement('div');
                 lRow.className = 'info-row';
-                lRow.innerHTML = `<div class="info-label">ビデオ</div>
+                lRow.innerHTML = `<div class="info-label">ãããª</div>
                                   <div class="info-value"><a href="${origLink}" target="_blank" class="link-btn" id="orig-video-link"><span class="material-icons-round">open_in_new</span>YouTube</a></div>`;
                 body.appendChild(lRow);
                 setTimeout(() => {
                     const lNode = document.getElementById('orig-video-link');
                     if(lNode) {
-                        lNode.onclick = (e) => { if (!confirm('外部サイトへ移動します。よろしいですか？')) e.preventDefault(); };
+                        lNode.onclick = (e) => { if (!confirm('å¤é¨ãµã¤ãã¸ç§»åãã¾ããããããã§ããï¼')) e.preventDefault(); };
                     }
                 }, 0);
             }
 
             const diffs = diffMap.get(music.id) || {};
             const tableCont = document.createElement('div');
-            let tableHTML = `<table class="diff-table"><tr><th>難易度</th><th>レベル</th><th>ノーツ数</th></tr>`;
+            let tableHTML = `<table class="diff-table"><tr><th>é£æåº¦</th><th>ã¬ãã«</th><th>ãã¼ãæ°</th></tr>`;
             DIFF_ORDER.forEach(diffName => {
                 const d = diffs[diffName];
                 if (d) {
@@ -2193,15 +2339,10 @@
             const pJacket = document.getElementById('p-jacket');
             const pTitle = document.getElementById('p-title');
             const pVocalInfo = document.getElementById('p-vocal-info'); 
-            const pCredits = document.getElementById('p-credits-info');
             
             pJacket.src = getJacketUrl(pCurrentMusic.id);
             pTitle.textContent = pCurrentMusic.title;
             pTitle.title = pCurrentMusic.title;
-            
-            if (pCredits) {
-                pCredits.textContent = `作詞: ${pCurrentMusic.lyricist || '-'} / 作曲: ${pCurrentMusic.composer || '-'} / 編曲: ${pCurrentMusic.arranger || '-'}`;
-            }
 
             let finalVocalName = '';
 
@@ -2256,7 +2397,8 @@
             if(mVocal) mVocal.textContent = finalVocalName;
             updateMiniPlayerVisibility();
             
-            updateLists();
+            renderPlayerList();
+            renderList();
         }
 
         function loadPlayerAudio(music, vocal, autoPlay = false) {
@@ -2619,102 +2761,79 @@
         }
 
         function syncPlayerUI() {
-            const isPlaying = !pAudio.paused && !pAudio.ended;
+            const isPlaying = !pAudio.paused;
+            const dur = pAudio.duration;
             
-            const pIcon = document.getElementById('p-play-icon');
-            if (pIcon) pIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
-            
-            const mIcon = document.getElementById('mini-play-icon');
-            if (mIcon) mIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+            const pPlayIcon = document.getElementById('p-play-icon');
+            const mPlayIcon = document.getElementById('mini-play-icon');
+            if (pPlayIcon) pPlayIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+            if (mPlayIcon) mPlayIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
 
-            const cTime = pAudio.currentTime || 0;
-            const aDur = pAudio.duration || 0;
-            
             const pDur = document.getElementById('p-time-duration');
-            if (pDur) pDur.textContent = formatTime(aDur);
-            
-            const pCur = document.getElementById('p-time-current');
-            const pBar = document.getElementById('p-seek-bar');
-            const miniProg = document.getElementById('mini-progress');
-
-            if (!pIsSeeking) {
-                if (pCur) pCur.textContent = formatTime(cTime);
-                if (pBar) pBar.value = aDur ? (cTime / aDur) * 100 : 0;
-                if (miniProg) miniProg.style.width = aDur ? `${(cTime / aDur) * 100}%` : '0%';
-            }
+            if (pDur && dur) pDur.textContent = formatTime(dur);
         }
 
         function syncModalUI() {
-            const isPlaying = !mAudio.paused && !mAudio.ended;
+            const isPlaying = !mAudio.paused;
+            const dur = mAudio.duration;
+            
             const icon = document.getElementById('play-icon');
             if (icon) icon.textContent = isPlaying ? 'pause' : 'play_arrow';
 
-            const cTime = mAudio.currentTime || 0;
-            const aDur = mAudio.duration || 0;
-            
-            const dur = document.getElementById('time-duration');
-            if (dur) dur.textContent = formatTime(aDur);
-            
-            const cur = document.getElementById('time-current');
-            const bar = document.getElementById('seek-bar');
-
-            if (!mIsSeeking) {
-                if (cur) cur.textContent = formatTime(cTime);
-                if (bar) bar.value = aDur ? (cTime / aDur) * 100 : 0;
-            }
+            const durEl = document.getElementById('time-duration');
+            if (durEl && dur) durEl.textContent = formatTime(dur);
         }
 
-        function updatePositionState(audioEl) {
-            if ('mediaSession' in navigator && isFinite(audioEl.duration) && audioEl.duration > 0) {
+        function updatePositionState(audioObj) {
+            if ('mediaSession' in navigator && navigator.mediaSession.setPositionState) {
                 try {
                     navigator.mediaSession.setPositionState({
-                        duration: audioEl.duration,
-                        playbackRate: audioEl.playbackRate,
-                        position: audioEl.currentTime
+                        duration: audioObj.duration || 0,
+                        playbackRate: audioObj.playbackRate || 1,
+                        position: audioObj.currentTime || 0
                     });
                 } catch (e) {}
             }
         }
 
-        function setupMediaSession(music, vocal, audioEl, isMainPlayer) {
-            if (!('mediaSession' in navigator)) return;
-            
-            const title = music.title || 'Unknown Title';
-            const artist = vocal?.displayName || 'Unknown Vocal';
-            const jacketUrl = getJacketUrl(music.id);
+        function setupMediaSession(music, vocal, audioObj, isPlayer) {
+            if ('mediaSession' in navigator) {
+                const vocalNames = getMusicVocalCharacterNames(vocal).join(', ') || 'Vocal';
+                
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: music.title,
+                    artist: vocalNames,
+                    album: getTagName(music.id),
+                    artwork: [
+                        { src: getJacketUrl(music.id), sizes: '256x256', type: 'image/png' }
+                    ]
+                });
 
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: title,
-                artist: artist,
-                album: 'Sekai Music DB',
-                artwork: [
-                    { src: jacketUrl, sizes: '256x256', type: 'image/png' },
-                    { src: jacketUrl, sizes: '512x512', type: 'image/png' }
-                ]
-            });
+                const seekForward = () => { audioObj.currentTime = Math.min(audioObj.duration || 0, audioObj.currentTime + 10); updatePositionState(audioObj); };
+                const seekBackward = () => { audioObj.currentTime = Math.max(0, audioObj.currentTime - 10); updatePositionState(audioObj); };
 
-            const handlers = [
-                ['play', () => { audioEl.play(); }],
-                ['pause', () => { audioEl.pause(); }],
-                ['seekbackward', (e) => { audioEl.currentTime = Math.max(0, audioEl.currentTime - (e.seekOffset || 10)); updatePositionState(audioEl); }],
-                ['seekforward', (e) => { if(audioEl.duration) audioEl.currentTime = Math.min(audioEl.duration, audioEl.currentTime + (e.seekOffset || 10)); updatePositionState(audioEl); }],
-                ['seekto', (e) => { if (e.fastSeek && 'fastSeek' in audioEl) { audioEl.fastSeek(e.seekTime); } else { audioEl.currentTime = e.seekTime; } updatePositionState(audioEl); }]
-            ];
+                navigator.mediaSession.setActionHandler('play', () => { if(isPlayer) startPlayerPlay(); else startModalPlay(); });
+                navigator.mediaSession.setActionHandler('pause', () => { audioObj.pause(); });
+                navigator.mediaSession.setActionHandler('seekbackward', seekBackward);
+                navigator.mediaSession.setActionHandler('seekforward', seekForward);
+                navigator.mediaSession.setActionHandler('seekto', (d) => {
+                    if (d.fastSeek && 'fastSeek' in audioObj) audioObj.fastSeek(d.seekTime);
+                    else audioObj.currentTime = d.seekTime;
+                    updatePositionState(audioObj);
+                });
 
-            if (isMainPlayer) {
-                handlers.push(['previoustrack', playPrev]);
-                handlers.push(['nexttrack', playNext]);
-            } else {
-                handlers.push(['previoustrack', null]);
-                handlers.push(['nexttrack', null]);
+                if (isPlayer) {
+                    navigator.mediaSession.setActionHandler('previoustrack', playPrev);
+                    navigator.mediaSession.setActionHandler('nexttrack', playNext);
+                } else {
+                    navigator.mediaSession.setActionHandler('previoustrack', null);
+                    navigator.mediaSession.setActionHandler('nexttrack', null);
+                }
             }
-
-            handlers.forEach(([action, handler]) => {
-                try { navigator.mediaSession.setActionHandler(action, handler); } catch (e) {}
-            });
         }
 
-        window.onload = init;
+        document.addEventListener('DOMContentLoaded', init);
+
     </script>
 </body>
 </html>
