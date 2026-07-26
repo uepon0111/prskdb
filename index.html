@@ -458,6 +458,7 @@
         .playlist-header h3 { margin: 0; font-size: 16px; }
         .playlist-controls-inner { display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; }
         
+        /* Player Buttons Layout */
         .player-buttons {
             display: flex;
             justify-content: center;
@@ -466,7 +467,21 @@
             flex-wrap: wrap;
             width: 100%;
         }
-        .player-buttons button {
+        #player-view-container .player-buttons {
+            flex-direction: column;
+            gap: 16px;
+        }
+        .player-buttons-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        #player-view-container .player-buttons-row:last-child {
+            gap: 48px;
+        }
+        .player-buttons button, .player-buttons-row button {
             background: transparent;
             border: none;
             cursor: pointer;
@@ -477,12 +492,12 @@
             transition: color 0.2s;
             padding: 8px;
         }
-        .player-buttons button:hover { color: var(--accent-color); }
-        .player-buttons button .material-icons-round { font-size: 32px; }
-        .player-buttons button.active { color: var(--accent-color); }
+        .player-buttons button:hover, .player-buttons-row button:hover { color: var(--accent-color); }
+        .player-buttons button .material-icons-round, .player-buttons-row button .material-icons-round { font-size: 32px; }
+        .player-buttons button.active, .player-buttons-row button.active { color: var(--accent-color); }
         .player-buttons #play-pause-btn .material-icons-round,
-        .player-buttons #p-play-pause-btn .material-icons-round { font-size: 48px; color: var(--accent-color); }
-        .player-buttons button.mode-btn { margin: 0; }
+        .player-buttons-row #p-play-pause-btn .material-icons-round { font-size: 48px; color: var(--accent-color); }
+        .player-buttons button.mode-btn, .player-buttons-row button.mode-btn { margin: 0; }
 
         /* Mini Player */
         .mini-player {
@@ -814,10 +829,12 @@
             .player-controls { padding: 16px; width: 100%; }
             
             /* ボタンがはみ出さないように調整 */
-            .player-buttons { gap: 4px; }
-            .player-buttons button { padding: 4px; }
-            .player-buttons button .material-icons-round { font-size: 28px; }
-            .player-buttons #p-play-pause-btn .material-icons-round { font-size: 40px; }
+            .player-buttons { gap: 12px; }
+            .player-buttons-row { gap: 8px; }
+            .player-buttons button, .player-buttons-row button { padding: 4px; }
+            .player-buttons button .material-icons-round, .player-buttons-row button .material-icons-round { font-size: 28px; }
+            .player-buttons #p-play-pause-btn .material-icons-round,
+            .player-buttons-row #p-play-pause-btn .material-icons-round { font-size: 40px; }
 
             .playlist-header {
                 flex-direction: column;
@@ -830,6 +847,7 @@
             }
             .playlist-controls-inner .search-bar {
                 flex: 1;
+                min-width: 0; /* はみ出し防止 */
                 max-width: none;
             }
 
@@ -879,7 +897,7 @@
             .music-item .meta { font-size: 10px; }
             
             .header-top { flex-direction: column; align-items: stretch; gap: 12px; }
-            .search-bar { order: 1; width: 100%; min-width: 100%; }
+            #main-search-bar { order: 1; width: 100%; min-width: 100%; } /* はみ出し防止 */
             .controls { order: 2; width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
         }
     </style>
@@ -983,13 +1001,17 @@
                                 <span id="p-time-duration">0:00</span>
                             </div>
                             <div class="player-buttons">
-                                <button class="mode-btn" id="p-btn-shuffle" title="シャッフル (オフ)"><span class="material-icons-round">shuffle</span></button>
-                                <button id="p-btn-prev" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
-                                <button id="p-btn-back-10" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
-                                <button id="p-play-pause-btn"><span class="material-icons-round" id="p-play-icon">play_arrow</span></button>
-                                <button id="p-btn-forward-10" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
-                                <button id="p-btn-next" title="次の曲"><span class="material-icons-round">skip_next</span></button>
-                                <button class="mode-btn active" id="p-btn-repeat" title="リピート (全曲)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
+                                <div class="player-buttons-row">
+                                    <button id="p-btn-back-10" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
+                                    <button id="p-btn-prev" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
+                                    <button id="p-play-pause-btn"><span class="material-icons-round" id="p-play-icon">play_arrow</span></button>
+                                    <button id="p-btn-next" title="次の曲"><span class="material-icons-round">skip_next</span></button>
+                                    <button id="p-btn-forward-10" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
+                                </div>
+                                <div class="player-buttons-row">
+                                    <button class="mode-btn" id="p-btn-shuffle" title="シャッフル (オフ)"><span class="material-icons-round">shuffle</span></button>
+                                    <button class="mode-btn active" id="p-btn-repeat" title="リピート (全曲)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1368,7 +1390,7 @@
                 listViewCont.style.display = 'block';
                 playerViewCont.style.display = 'none';
                 listOnlyControls.style.display = 'flex';
-                mainSearchBar.style.visibility = 'visible';
+                mainSearchBar.style.display = 'flex'; // visibility: visibleから変更（UI崩れ防止）
                 renderList(); 
                 updateMiniPlayerVisibility();
             });
@@ -1378,7 +1400,7 @@
                 listViewCont.style.display = 'none';
                 playerViewCont.style.display = 'block';
                 listOnlyControls.style.display = 'none';
-                mainSearchBar.style.visibility = 'hidden';
+                mainSearchBar.style.display = 'none'; // visibility: hiddenから変更（UI崩れ防止）
                 renderPlayerList();
                 if(pCurrentMusic) updatePlayerPageInfo(); 
                 updateMiniPlayerVisibility();
@@ -2321,7 +2343,6 @@
                     if (pBar) pBar.value = (cTime / aDur) * 100;
                     if (miniProg) miniProg.style.width = `${(cTime / aDur) * 100}%`;
                 }
-                updatePositionState(pAudio);
             });
             pAudio.addEventListener('loadedmetadata', () => {
                 syncPlayerUI();
@@ -2373,7 +2394,6 @@
                     cur.textContent = formatTime(cTime);
                     bar.value = (cTime / aDur) * 100;
                 }
-                updatePositionState(mAudio);
             });
             mAudio.addEventListener('loadedmetadata', () => {
                 syncModalUI();
