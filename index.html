@@ -761,7 +761,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
             padding: 12px 0;
+        }
+        .setting-row > span {
+            flex: 1;
+            min-width: 0;
         }
         .toggle-switch {
             position: relative;
@@ -1128,6 +1133,50 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+
+                <div class="filter-title" style="margin-top: 8px;">再生開始時の読み上げ</div>
+                <div class="setting-row">
+                    <span>タイトル</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="speech-title-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>楽曲ID</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="speech-musicid-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>ユニットタグ</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="speech-unittag-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>作詞・作曲・編曲</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="speech-credits-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>公開日時</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="speech-publishedat-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>現在再生中の歌唱キャラクター</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="speech-vocal-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -1192,6 +1241,39 @@
         // Settings State
         let skipSilence = localStorage.getItem('skipSilence') === 'true';
         let defaultVocalPref = localStorage.getItem('defaultVocalPref') || 'none';
+
+        const DEFAULT_SPEECH_SETTINGS = {
+            title: true,
+            musicId: true,
+            unitTag: true,
+            credits: true,
+            publishedAt: true,
+            vocalCharacters: true
+        };
+
+        function loadSpeechSettings() {
+            try {
+                const raw = localStorage.getItem('speechInfoSettings');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed === 'object') {
+                        return {
+                            title: parsed.title !== false,
+                            musicId: parsed.musicId !== false,
+                            unitTag: parsed.unitTag !== false,
+                            credits: parsed.credits !== false,
+                            publishedAt: parsed.publishedAt !== false,
+                            vocalCharacters: parsed.vocalCharacters !== false
+                        };
+                    }
+                }
+            } catch (e) {}
+            return { ...DEFAULT_SPEECH_SETTINGS };
+        }
+
+        let speechInfoSettings = loadSpeechSettings();
+        let pSpeechAnnouncePending = false;
+        let pSpeechAnnouncedForCurrentTrack = false;
 
         const TAG_DEF = [
             { id: 'all', icon: 'apps', label: '全て' },
@@ -1331,6 +1413,131 @@
             const m = Math.floor(sec / 60);
             const s = Math.floor(sec % 60);
             return `${m}:${s.toString().padStart(2, '0')}`;
+        };
+
+        const formatSpeechDate = (ms) => {
+            if (!ms) return '未設定';
+            const d = new Date(ms);
+            if (isNaN(d.getTime())) return '未設定';
+            return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, '0')}時${String(d.getMinutes()).padStart(2, '0')}分`;
+        };
+
+        const getMusicVocalCharacterNames = (vocal) => {
+            const names = [];
+            (vocal?.characters || []).forEach(c => {
+                if (c.characterType === 'game_character') {
+                    const gc = gameCharMap.get(c.characterId);
+                    const name = gc ? `${gc.firstName || ''}${gc.givenName || ''}` : '';
+                    if (name) names.push(name);
+                } else {
+                    const oc = outCharMap.get(c.characterId);
+                    if (oc?.name) names.push(oc.name);
+                }
+            });
+            return names.filter(Boolean);
+        };
+
+        const buildSpeechSentence = (label, value) => `${label}は${value}です`;
+
+        function getPreferredJapaneseVoice() {
+            if (!('speechSynthesis' in window) || typeof window.speechSynthesis.getVoices !== 'function') return null;
+            const voices = window.speechSynthesis.getVoices() || [];
+            if (!voices.length) return null;
+
+            const candidates = voices.filter(v => /^ja(-|$)/i.test(v.lang || '') || /japanese|日本語/i.test(v.name || ''));
+            const pool = candidates.length ? candidates : voices.filter(v => (v.lang || '').toLowerCase().startsWith('ja'));
+            if (!pool.length) return null;
+
+            const scoreVoice = (voice) => {
+                const name = `${voice.name || ''} ${voice.lang || ''}`.toLowerCase();
+                let score = 0;
+                if (/ja(-|$)/i.test(voice.lang || '')) score += 30;
+                if (/japanese|日本語/i.test(voice.name || '')) score += 40;
+                if (/google|microsoft|siri|natural|premium|enhanced|neural/i.test(name)) score += 25;
+                if (/kyoko|nozomi|otoya|hikari|sakura|haruka|naomi|kenta|taro|yumi|emiko/i.test(name)) score += 10;
+                if (voice.localService) score += 5;
+                if (voice.default) score += 3;
+                return score;
+            };
+
+            return [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a))[0] || null;
+        }
+
+        function updateSpeechSettingsUI() {
+            const map = [
+                ['speech-title-toggle', 'title'],
+                ['speech-musicid-toggle', 'musicId'],
+                ['speech-unittag-toggle', 'unitTag'],
+                ['speech-credits-toggle', 'credits'],
+                ['speech-publishedat-toggle', 'publishedAt'],
+                ['speech-vocal-toggle', 'vocalCharacters']
+            ];
+            map.forEach(([id, key]) => {
+                const el = document.getElementById(id);
+                if (el) el.checked = !!speechInfoSettings[key];
+            });
+        }
+
+        function saveSpeechSettings() {
+            try {
+                localStorage.setItem('speechInfoSettings', JSON.stringify(speechInfoSettings));
+            } catch (e) {}
+        }
+
+        function cancelPlayerSpeech() {
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch (e) {}
+            }
+        }
+
+        function speakPlayerMusicInfo() {
+            if (!pCurrentMusic) return false;
+            if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
+
+            const parts = [];
+            if (speechInfoSettings.title) parts.push(buildSpeechSentence('タイトル', pCurrentMusic.title || '未設定'));
+            if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('楽曲ID', pCurrentMusic.id ?? '未設定'));
+            if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ユニットタグ', getTagName(pCurrentMusic.id)));
+            if (speechInfoSettings.credits) {
+                parts.push(`作詞は${pCurrentMusic.lyricist || '未設定'}、作曲は${pCurrentMusic.composer || '未設定'}、編曲は${pCurrentMusic.arranger || '未設定'}です`);
+            }
+            if (speechInfoSettings.publishedAt) parts.push(buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)));
+            if (speechInfoSettings.vocalCharacters) {
+                const names = getMusicVocalCharacterNames(pCurrentVocal);
+                parts.push(buildSpeechSentence('現在再生中の歌唱キャラクター', names.length ? names.join('、') : '未設定'));
+            }
+
+            if (parts.length === 0) return false;
+
+            cancelPlayerSpeech();
+
+            const utterance = new SpeechSynthesisUtterance(parts.join('。'));
+            utterance.lang = 'ja-JP';
+            utterance.rate = 0.92;
+            utterance.pitch = 0.95;
+            utterance.volume = 1;
+
+            const voice = getPreferredJapaneseVoice();
+            if (voice) utterance.voice = voice;
+
+            utterance.onerror = () => {
+                pSpeechAnnouncedForCurrentTrack = false;
+                pSpeechAnnouncePending = true;
+            };
+            utterance.onend = () => {
+                pSpeechAnnouncedForCurrentTrack = true;
+            };
+
+            try {
+                window.speechSynthesis.speak(utterance);
+                pSpeechAnnouncedForCurrentTrack = true;
+                pSpeechAnnouncePending = false;
+                return true;
+            } catch (e) {
+                pSpeechAnnouncedForCurrentTrack = false;
+                pSpeechAnnouncePending = true;
+                return false;
+            }
         };
 
         const getTagName = (musicId) => {
@@ -1533,6 +1740,25 @@
             vocalSel.addEventListener('change', (e) => {
                 defaultVocalPref = e.target.value;
                 localStorage.setItem('defaultVocalPref', defaultVocalPref);
+            });
+
+            updateSpeechSettingsUI();
+            const speechToggleMap = [
+                ['speech-title-toggle', 'title'],
+                ['speech-musicid-toggle', 'musicId'],
+                ['speech-unittag-toggle', 'unitTag'],
+                ['speech-credits-toggle', 'credits'],
+                ['speech-publishedat-toggle', 'publishedAt'],
+                ['speech-vocal-toggle', 'vocalCharacters']
+            ];
+            speechToggleMap.forEach(([id, key]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.checked = !!speechInfoSettings[key];
+                el.addEventListener('change', (e) => {
+                    speechInfoSettings[key] = e.target.checked;
+                    saveSpeechSettings();
+                });
             });
 
             document.getElementById('mini-play-pause-btn').addEventListener('click', togglePlayerPlay);
@@ -2079,12 +2305,15 @@
         function loadPlayerAudio(music, vocal, autoPlay = false) {
             pCurrentMusic = music;
             pCurrentVocal = vocal;
-            pAudioRetryCount = 0; 
+            pAudioRetryCount = 0;
+            pSpeechAnnouncePending = true;
+            pSpeechAnnouncedForCurrentTrack = false;
+            cancelPlayerSpeech();
             const baseUrl = getAudioBaseUrl(vocal);
-            
+
             const currentUrl = pAudio.src ? pAudio.src.split('?')[0] : '';
             const isNewSrc = currentUrl !== baseUrl;
-            
+
             if (isNewSrc) {
                 pAudio.pause();
                 pAudio.src = baseUrl;
@@ -2111,6 +2340,10 @@
                     pAudio.currentTime = 8;
                 }
             };
+
+            if (pSpeechAnnouncePending && !pSpeechAnnouncedForCurrentTrack && document.getElementById('player-view-container')?.style.display !== 'none') {
+                speakPlayerMusicInfo();
+            }
 
             const doPlay = () => {
                 resetPositionIfNeeded();
@@ -2315,15 +2548,22 @@
 
             pAudio.addEventListener('play', () => {
                 syncPlayerUI();
+                if (pSpeechAnnouncePending && !pSpeechAnnouncedForCurrentTrack && document.getElementById('player-view-container')?.style.display !== 'none') {
+                    speakPlayerMusicInfo();
+                } else {
+                    pSpeechAnnouncePending = false;
+                }
                 if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
             });
             pAudio.addEventListener('pause', () => {
                 syncPlayerUI();
+                cancelPlayerSpeech();
                 if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
             });
             pAudio.addEventListener('ended', () => {
                 if (repeatMode === 'one') {
                     try { pAudio.currentTime = skipSilence ? 8 : 0; } catch(e){}
+                    pSpeechAnnouncePending = true;
                     startPlayerPlay();
                     return;
                 }
