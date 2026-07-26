@@ -1147,7 +1147,7 @@
                     <div class="setting-row">
                         <span>読み上げ速度</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="range" id="speech-rate-slider" min="0.5" max="2.0" step="0.25" value="1.0">
+                            <input type="range" id="speech-rate-slider" min="0.75" max="1.25" step="0.05" value="1.0">
                             <span id="speech-rate-display" style="width: 3.5em; text-align: right; font-size: 13px; color: var(--text-sub);">1x</span>
                         </div>
                     </div>
@@ -1226,7 +1226,7 @@
         let selectedChars = new Set();
         let sortKey = 'publishedAt';
         let sortOrder = 'desc';
-        let sortDiff = 'easy'; // デフォルトをeasyに変更
+        let sortDiff = 'easy';
         
         // UI State (Player View)
         let p_searchTerm = '';
@@ -1235,7 +1235,7 @@
         let p_selectedChars = new Set();
         let p_sortKey = 'publishedAt';
         let p_sortOrder = 'desc';
-        let p_sortDiff = 'easy'; // デフォルトをeasyに変更
+        let p_sortDiff = 'easy';
         
         // Player State
         let currentPlaylist = [];
@@ -1278,7 +1278,7 @@
                     if (parsed && typeof parsed === 'object') {
                         return {
                             enabled: parsed.enabled !== false,
-                            rate: typeof parsed.rate === 'number' ? parsed.rate : 1.0,
+                            rate: typeof parsed.rate === 'number' ? Math.max(0.75, Math.min(1.25, parsed.rate)) : 1.0,
                             title: parsed.title !== false,
                             musicId: parsed.musicId !== false,
                             unitTag: parsed.unitTag !== false,
@@ -1440,7 +1440,8 @@
             if (!ms) return '未設定';
             const d = new Date(ms);
             if (isNaN(d.getTime())) return '未設定';
-            return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, '0')}時${String(d.getMinutes()).padStart(2, '0')}分`;
+            // 0埋めをなくし、そのまま数値として読ませることで「ゼロきゅうじ」などの不自然な発音を防ぐ
+            return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${d.getHours()}時${d.getMinutes()}分`;
         };
 
         const getMusicVocalCharacterNames = (vocal) => {
@@ -1458,7 +1459,6 @@
             return names.filter(Boolean);
         };
 
-        // 丁寧語（〜は〜です）から体言止め（〜、〜。）に変更
         const buildSpeechSentence = (label, value) => `${label}、${value}。`;
 
         function getPreferredJapaneseVoice() {
@@ -1530,14 +1530,36 @@
             if (!pCurrentMusic) return false;
             if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
 
+            // 読み上げテキストを自然にするためのヘルパー関数
+            const adjustText = (text) => {
+                if (!text) return '未設定';
+                let t = String(text);
+                // 英大文字の連続を単語として読ませるため（例: GIGA -> Giga）先頭のみ大文字にする
+                t = t.replace(/[A-Z]{2,}/g, m => m.charAt(0) + m.slice(1).toLowerCase());
+                // 特殊記号をスペースに置換して不自然な読みを避ける
+                t = t.replace(/[*_~・]/g, ' ');
+                // 数字の前の不要な0を消す（例: 09 -> 9）
+                t = t.replace(/\b0+(\d+)\b/g, '$1');
+                return t;
+            };
+
             const parts = [];
-            if (speechInfoSettings.title) parts.push(buildSpeechSentence('タイトル', pCurrentMusic.title || '未設定'));
+            if (speechInfoSettings.title) {
+                // タイトルは読み方（pronunciation）を優先する
+                const titleText = pCurrentMusic.pronunciation || pCurrentMusic.title || '未設定';
+                parts.push(buildSpeechSentence('タイトル', adjustText(titleText)));
+            }
             if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('楽曲ID', pCurrentMusic.id ?? '未設定'));
             if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ユニットタグ', getTagName(pCurrentMusic.id)));
             if (speechInfoSettings.credits) {
-                parts.push(`作詞、${pCurrentMusic.lyricist || '未設定'}。作曲、${pCurrentMusic.composer || '未設定'}。編曲、${pCurrentMusic.arranger || '未設定'}。`);
+                const lyricist = adjustText(pCurrentMusic.lyricist);
+                const composer = adjustText(pCurrentMusic.composer);
+                const arranger = adjustText(pCurrentMusic.arranger);
+                parts.push(`作詞、${lyricist}。作曲、${composer}。編曲、${arranger}。`);
             }
-            if (speechInfoSettings.publishedAt) parts.push(buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)));
+            if (speechInfoSettings.publishedAt) {
+                parts.push(buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)));
+            }
             if (speechInfoSettings.vocalCharacters) {
                 const names = getMusicVocalCharacterNames(pCurrentVocal);
                 parts.push(buildSpeechSentence('現在再生中の歌唱キャラクター', names.length ? names.join('、') : '未設定'));
@@ -1582,7 +1604,6 @@
             return TAG_DEF.find(t => t.id === tagId)?.label || 'その他';
         };
 
-        // レベル順の際に色を付けたHTMLを返すようにメタデータ生成処理を変更
         const getMeta = (music, sKey, sDiff) => {
             let text = '';
             let html = '';
@@ -1600,7 +1621,6 @@
                 const level = diffMap.get(music.id)?.[sDiff]?.playLevel || '-';
                 const diffStr = sDiff.charAt(0).toUpperCase() + sDiff.slice(1);
                 text = `${diffStr} Lv.${level}`;
-                // HTML上で難易度の色を表示する
                 html = `<span class="diff-badge bg-${sDiff}" style="padding: 2px 8px; font-size: 10px; border-radius: 8px;">${diffStr} Lv.${level}</span>`;
             } else {
                 text = getTagName(music.id);
@@ -1745,7 +1765,6 @@
             
             sortKeySelect.addEventListener('change', (e) => {
                 sortKey = e.target.value;
-                // レベル順の場合のみ難易度選択欄を表示する
                 sortDiffSelect.style.display = sortKey === 'level' ? 'inline-block' : 'none';
                 renderList();
             });
@@ -1778,7 +1797,6 @@
                 localStorage.setItem('defaultVocalPref', defaultVocalPref);
             });
 
-            // 読み上げ設定 UI とイベントの適用
             updateSpeechSettingsUI();
             
             const enabledToggle = document.getElementById('speech-enabled-toggle');
@@ -1986,7 +2004,6 @@
                     }
                 }
                 
-                // レベル順の場合、選択されている難易度データが存在しない曲は除外する
                 if (sKey === 'level') {
                     const diffInfo = diffMap.get(m.id)?.[sDiff];
                     if (!diffInfo) return false;
@@ -2025,7 +2042,6 @@
                 if (pCurrentMusic && pCurrentMusic.id === m.id) el.classList.add('playing');
                 el.onclick = () => openDetail(m);
                 
-                // 色付きHTMLを生成して代入する
                 const meta = getMeta(m, sortKey, sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
@@ -2055,7 +2071,6 @@
                     loadPlayerAudio(m, vocal, true);
                 };
                 
-                // 色付きHTMLを生成して代入する
                 const meta = getMeta(m, p_sortKey, p_sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
