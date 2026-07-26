@@ -121,10 +121,33 @@
             color: var(--accent-color);
         }
 
+        /* 文字入りナビゲーションボタン用 */
+        button.nav-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            color: var(--text-sub);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        button.nav-btn:hover, button.nav-btn.active {
+            background: rgba(0, 188, 212, 0.1);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
         @media (min-width: 769px) {
             header {
-                flex-direction: row;
-                align-items: center;
+                flex-direction: column; /* 全体を縦並びのままとする */
+                align-items: stretch;
             }
             .header-top {
                 width: 100%;
@@ -372,7 +395,7 @@
         }
         .player-main-sticky {
             position: sticky;
-            top: 88px;
+            top: 140px; /* ヘッダーが大きくなった分、下げる */
             flex: 0 0 380px;
             max-width: 100%;
         }
@@ -581,6 +604,22 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+        }
+
+        @media (min-width: 769px) {
+            #modal-body-content {
+                display: grid;
+                grid-template-columns: 240px 1fr;
+                gap: 20px 32px;
+                align-items: start;
+            }
+            #modal-body-content > h2 { grid-column: 1 / -1; margin-bottom: -10px; }
+            #modal-body-content > .detail-jacket-container { grid-column: 1; grid-row: 2; }
+            #modal-body-content > #modal-vocal-selector { grid-column: 1; grid-row: 3; max-height: 300px; }
+            #modal-body-content > .player-controls { grid-column: 2; grid-row: 2; align-self: center; }
+            #modal-body-content > .info-list { grid-column: 2; grid-row: 3; }
+            #modal-body-content > .info-row { grid-column: 1 / -1; grid-row: 4; }
+            #modal-body-content > div:last-child { grid-column: 1 / -1; grid-row: 5; }
         }
 
         .detail-jacket-container {
@@ -917,12 +956,17 @@
                 
                 <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                 
-                <button class="icon-btn active" id="btn-view-list" title="一覧画面"><span class="material-icons-round">queue_music</span></button>
-                <button class="icon-btn" id="btn-view-player" title="プレイヤー画面"><span class="material-icons-round">play_circle</span></button>
-                
-                <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                 <button class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
             </div>
+        </div>
+        <!-- 画面切り替えボタンを一段下に配置 -->
+        <div class="header-bottom" style="display: flex; gap: 12px; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap;">
+            <button class="nav-btn active" id="btn-view-list" title="一覧画面">
+                <span class="material-icons-round">queue_music</span>一覧画面
+            </button>
+            <button class="nav-btn" id="btn-view-player" title="プレイヤー画面">
+                <span class="material-icons-round">play_circle</span>プレイヤー画面
+            </button>
         </div>
     </header>
 
@@ -1105,6 +1149,7 @@
                 <div class="setting-row">
                     <span>デフォルトボーカル優先</span>
                     <select id="default-vocal-select" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none;">
+                        <option value="none">指定なし</option>
                         <option value="sekai">セカイバージョン</option>
                         <option value="virtual_singer">バーチャルシンガー</option>
                     </select>
@@ -1117,6 +1162,7 @@
                     </label>
                 </div>
 
+                <div class="filter-title" style="margin-top: 16px;">再生開始時の読み上げ</div>
                 <div class="setting-row">
                     <span>読み上げ機能</span>
                     <label class="toggle-switch">
@@ -1239,12 +1285,7 @@
 
         // Settings State
         let skipSilence = localStorage.getItem('skipSilence') === 'true';
-        let defaultVocalPref = localStorage.getItem('defaultVocalPref') || 'sekai';
-        if (defaultVocalPref === 'none') {
-            // 古い設定が残っている場合はセカイバージョンに自動修正
-            defaultVocalPref = 'sekai';
-            localStorage.setItem('defaultVocalPref', 'sekai');
-        }
+        let defaultVocalPref = localStorage.getItem('defaultVocalPref') || 'none';
 
         const DEFAULT_SPEECH_SETTINGS = {
             enabled: true,
@@ -1427,6 +1468,7 @@
             if (!ms) return '未設定';
             const d = new Date(ms);
             if (isNaN(d.getTime())) return '未設定';
+            // 0埋めをなくし、そのまま数値として読ませることで「ゼロきゅうじ」などの不自然な発音を防ぐ
             return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${d.getHours()}時${d.getMinutes()}分`;
         };
 
@@ -1516,17 +1558,22 @@
             if (!pCurrentMusic) return false;
             if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
 
+            // 読み上げテキストを自然にするためのヘルパー関数
             const adjustText = (text) => {
                 if (!text) return '未設定';
                 let t = String(text);
+                // 英大文字の連続を単語として読ませるため（例: GIGA -> Giga）先頭のみ大文字にする
                 t = t.replace(/[A-Z]{2,}/g, m => m.charAt(0) + m.slice(1).toLowerCase());
+                // 特殊記号をスペースに置換して不自然な読みを避ける
                 t = t.replace(/[*_~・]/g, ' ');
+                // 数字の前の不要な0を消す（例: 09 -> 9）
                 t = t.replace(/\b0+(\d+)\b/g, '$1');
                 return t;
             };
 
             const parts = [];
             if (speechInfoSettings.title) {
+                // タイトルは読み方（pronunciation）を優先する
                 const titleText = pCurrentMusic.pronunciation || pCurrentMusic.title || '未設定';
                 parts.push(buildSpeechSentence('タイトル', adjustText(titleText)));
             }
@@ -1614,6 +1661,7 @@
 
         function getDefaultVocal(music, mVocals) {
             if (!mVocals || mVocals.length === 0) return null;
+            if (defaultVocalPref === 'none') return mVocals[0];
             const targetVocal = mVocals.find(v => v.musicVocalType === defaultVocalPref);
             if (targetVocal) return targetVocal;
             return mVocals[0];
@@ -2713,100 +2761,79 @@
         }
 
         function syncPlayerUI() {
-            const isPaused = pAudio.paused;
-            const pI = document.getElementById('p-play-icon');
-            if (pI) pI.textContent = isPaused ? 'play_arrow' : 'pause';
-            const pDur = document.getElementById('p-time-duration');
-            if (pDur && pAudio.duration) pDur.textContent = formatTime(pAudio.duration);
+            const isPlaying = !pAudio.paused;
+            const dur = pAudio.duration;
+            
+            const pPlayIcon = document.getElementById('p-play-icon');
+            const mPlayIcon = document.getElementById('mini-play-icon');
+            if (pPlayIcon) pPlayIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+            if (mPlayIcon) mPlayIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
 
-            const miniI = document.getElementById('mini-play-icon');
-            if (miniI) miniI.textContent = isPaused ? 'play_arrow' : 'pause';
+            const pDur = document.getElementById('p-time-duration');
+            if (pDur && dur) pDur.textContent = formatTime(dur);
         }
 
         function syncModalUI() {
-            const isPaused = mAudio.paused;
-            const i = document.getElementById('play-icon');
-            if (i) i.textContent = isPaused ? 'play_arrow' : 'pause';
-            const dur = document.getElementById('time-duration');
-            if (dur && mAudio.duration) dur.textContent = formatTime(mAudio.duration);
+            const isPlaying = !mAudio.paused;
+            const dur = mAudio.duration;
+            
+            const icon = document.getElementById('play-icon');
+            if (icon) icon.textContent = isPlaying ? 'pause' : 'play_arrow';
+
+            const durEl = document.getElementById('time-duration');
+            if (durEl && dur) durEl.textContent = formatTime(dur);
         }
 
         function updatePositionState(audioObj) {
-            if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
-                if (audioObj.duration && !isNaN(audioObj.duration) && isFinite(audioObj.duration)) {
-                    try {
-                        navigator.mediaSession.setPositionState({
-                            duration: audioObj.duration,
-                            playbackRate: audioObj.playbackRate || 1.0,
-                            position: Math.min(audioObj.currentTime, audioObj.duration)
-                        });
-                    } catch (e) {}
-                }
+            if ('mediaSession' in navigator && navigator.mediaSession.setPositionState) {
+                try {
+                    navigator.mediaSession.setPositionState({
+                        duration: audioObj.duration || 0,
+                        playbackRate: audioObj.playbackRate || 1,
+                        position: audioObj.currentTime || 0
+                    });
+                } catch (e) {}
             }
         }
 
         function setupMediaSession(music, vocal, audioObj, isPlayer) {
             if ('mediaSession' in navigator) {
-                let vocalNames = [];
-                (vocal.characters || []).forEach(c => {
-                    if (c.characterType === 'game_character') {
-                        const gc = gameCharMap.get(c.characterId);
-                        if (gc) vocalNames.push(`${gc.firstName || ''}${gc.givenName || ''}`);
-                    } else {
-                        const oc = outCharMap.get(c.characterId);
-                        if (oc) vocalNames.push(oc.name);
-                    }
-                });
-                const artistName = vocal.displayName || vocalNames.join(', ') || 'Unknown Vocal';
-
+                const vocalNames = getMusicVocalCharacterNames(vocal).join(', ') || 'Vocal';
+                
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: music.title,
-                    artist: artistName,
-                    album: 'Sekai Music DB',
+                    artist: vocalNames,
+                    album: getTagName(music.id),
                     artwork: [
-                        { src: getJacketUrl(music.id), sizes: '512x512', type: 'image/png' }
+                        { src: getJacketUrl(music.id), sizes: '256x256', type: 'image/png' }
                     ]
                 });
 
-                const actionHandlers = [
-                    ['play', () => isPlayer ? startPlayerPlay() : startModalPlay()],
-                    ['pause', () => audioObj.pause()],
-                    ['previoustrack', isPlayer ? () => playPrev() : null],
-                    ['nexttrack', isPlayer ? () => playNext() : null],
-                    ['seekbackward', (details) => {
-                        const skipTime = details.seekOffset || 5;
-                        audioObj.currentTime = Math.max(audioObj.currentTime - skipTime, 0);
-                        updatePositionState(audioObj);
-                    }],
-                    ['seekforward', (details) => {
-                        const skipTime = details.seekOffset || 5;
-                        if (audioObj.duration) {
-                            audioObj.currentTime = Math.min(audioObj.currentTime + skipTime, audioObj.duration);
-                        }
-                        updatePositionState(audioObj);
-                    }],
-                    ['seekto', (details) => {
-                        if (details.seekTime !== undefined && audioObj.duration) {
-                            audioObj.currentTime = Math.min(Math.max(details.seekTime, 0), audioObj.duration);
-                            updatePositionState(audioObj);
-                        }
-                    }]
-                ];
+                const seekForward = () => { audioObj.currentTime = Math.min(audioObj.duration || 0, audioObj.currentTime + 10); updatePositionState(audioObj); };
+                const seekBackward = () => { audioObj.currentTime = Math.max(0, audioObj.currentTime - 10); updatePositionState(audioObj); };
 
-                for (const [action, handler] of actionHandlers) {
-                    try {
-                        if (handler) {
-                            navigator.mediaSession.setActionHandler(action, handler);
-                        } else {
-                            navigator.mediaSession.setActionHandler(action, null);
-                        }
-                    } catch (error) {}
+                navigator.mediaSession.setActionHandler('play', () => { if(isPlayer) startPlayerPlay(); else startModalPlay(); });
+                navigator.mediaSession.setActionHandler('pause', () => { audioObj.pause(); });
+                navigator.mediaSession.setActionHandler('seekbackward', seekBackward);
+                navigator.mediaSession.setActionHandler('seekforward', seekForward);
+                navigator.mediaSession.setActionHandler('seekto', (d) => {
+                    if (d.fastSeek && 'fastSeek' in audioObj) audioObj.fastSeek(d.seekTime);
+                    else audioObj.currentTime = d.seekTime;
+                    updatePositionState(audioObj);
+                });
+
+                if (isPlayer) {
+                    navigator.mediaSession.setActionHandler('previoustrack', playPrev);
+                    navigator.mediaSession.setActionHandler('nexttrack', playNext);
+                } else {
+                    navigator.mediaSession.setActionHandler('previoustrack', null);
+                    navigator.mediaSession.setActionHandler('nexttrack', null);
                 }
-                updatePositionState(audioObj);
             }
         }
 
-        window.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', init);
+
     </script>
 </body>
 </html>
