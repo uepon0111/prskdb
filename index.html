@@ -121,7 +121,7 @@
             color: var(--accent-color);
         }
 
-        /* æå­å¥ãããã²ã¼ã·ã§ã³ãã¿ã³ç¨ */
+        /* 文字入りナビゲーションボタン用 */
         button.nav-btn {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -146,7 +146,7 @@
 
         @media (min-width: 769px) {
             header {
-                flex-direction: column; /* å¨ä½ãç¸¦ä¸¦ã³ã®ã¾ã¾ã¨ãã */
+                flex-direction: column; /* 全体を縦並びのままとする */
                 align-items: stretch;
             }
             .header-top {
@@ -395,7 +395,7 @@
         }
         .player-main-sticky {
             position: sticky;
-            top: 140px; /* ãããã¼ãå¤§ãããªã£ãåãä¸ãã */
+            top: 140px; /* ヘッダーが大きくなった分、下げる */
             flex: 0 0 380px;
             max-width: 100%;
         }
@@ -479,7 +479,6 @@
             box-shadow: var(--shadow-sm);
         }
         .playlist-header h3 { margin: 0; font-size: 16px; }
-        .playlist-controls-inner { display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; }
         
         /* Player Buttons Layout */
         .player-buttons {
@@ -517,7 +516,15 @@
         }
         .player-buttons button:hover, .player-buttons-row button:hover { color: var(--accent-color); }
         .player-buttons button .material-icons-round, .player-buttons-row button .material-icons-round { font-size: 32px; }
-        .player-buttons button.active, .player-buttons-row button.active { color: var(--accent-color); }
+        
+        /* シャッフル・ループボタンのON状態を確実に反映するCSS設定 */
+        .player-buttons button.active, 
+        .player-buttons button.active .material-icons-round,
+        .player-buttons-row button.active,
+        .player-buttons-row button.active .material-icons-round { 
+            color: var(--accent-color) !important; 
+        }
+
         .player-buttons #play-pause-btn .material-icons-round,
         .player-buttons-row #p-play-pause-btn .material-icons-round { font-size: 48px; color: var(--accent-color); }
         .player-buttons button.mode-btn, .player-buttons-row button.mode-btn { margin: 0; }
@@ -531,14 +538,18 @@
             background: var(--primary-bg);
             border-top: 1px solid var(--border-color);
             box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
             padding: 8px 16px;
             z-index: 90;
             gap: 16px;
+            /* JavaScriptで .show クラスが付与された時のみ表示 */
+            display: none;
+            align-items: center;
+        }
+        .mini-player.show {
+            display: flex;
         }
         .mini-jacket { width: 56px; height: 56px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
-        .mini-info { flex: 1 1 0%; min-width: 0; cursor: pointer; }
+        .mini-info { flex: 1 1 0%; min-width: 0; cursor: pointer; display: flex; flex-direction: column; justify-content: center;}
         .mini-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
         .mini-vocal { font-size: 12px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;}
         .mini-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -838,7 +849,7 @@
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- ç¸¦ç»é¢(ã¹ãã¼ããã©ã³åã)ã®ã¬ã¹ãã³ã·ãæé©å --- */
+        /* --- 縦画面(スマートフォン向け)のレスポンシブ最適化 --- */
         @media (max-width: 768px) {
             .layout-3 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .layout-5 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -847,7 +858,7 @@
             .music-item .title { font-size: 13px; min-height: 2.6em; }
             .modal-content { width: 95%; height: 90vh; }
             
-            /* Player UI èªåèª¿æ´ */
+            /* Player UI 自動調整 */
             .player-layout { flex-direction: column; gap: 20px; }
             .player-main-sticky { position: static; flex: auto; width: 100%; max-width: 100%; }
             .player-main { padding: 20px; gap: 16px; }
@@ -856,7 +867,7 @@
             }
             .player-controls { padding: 16px; width: 100%; }
             
-            /* ãã¿ã³ãã¯ã¿åºããªãããã«èª¿æ´ */
+            /* ボタンがはみ出さないように調整 */
             .player-buttons { gap: 12px; }
             .player-buttons-row { gap: 8px; }
             .player-buttons button, .player-buttons-row button { padding: 4px; }
@@ -873,13 +884,8 @@
                 width: 100%;
                 justify-content: space-between;
             }
-            .playlist-controls-inner .search-bar {
-                flex: 1;
-                min-width: 0; /* ã¯ã¿åºãé²æ­¢ */
-                max-width: none;
-            }
 
-            .mini-player { 
+            .mini-player.show { 
                 padding: 12px 16px; 
                 display: grid;
                 grid-template-columns: 48px 1fr;
@@ -898,9 +904,10 @@
             .mini-controls {
                 grid-area: controls;
                 display: flex;
-                justify-content: space-between; 
+                justify-content: center; /* シャッフル等がなくなったため中央寄せ気味で配置 */
                 width: 100%;
                 margin-top: 4px;
+                gap: 12px;
             }
             .mini-controls button {
                 padding: 8px; 
@@ -925,7 +932,7 @@
             .music-item .meta { font-size: 10px; }
             
             .header-top { flex-direction: column; align-items: stretch; gap: 12px; }
-            #main-search-bar { order: 1; width: 100%; min-width: 100%; } /* ã¯ã¿åºãé²æ­¢ */
+            #main-search-bar, #player-search-bar { order: 1; width: 100%; min-width: 100%; } /* はみ出し防止 */
             .controls { order: 2; width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
         }
     </style>
@@ -935,37 +942,52 @@
     <!-- Loading Screen -->
     <div id="loading">
         <span class="material-icons-round spin">autorenew</span>
-        <p>ãã¼ã¿ãèª­ã¿è¾¼ãã§ãã¾ã...</p>
+        <p>データを読み込んでいます...</p>
     </div>
 
     <header>
         <div class="header-top">
+            <!-- 一覧画面用検索バー -->
             <div class="search-bar" id="main-search-bar">
                 <span class="material-icons-round">search</span>
-                <input type="text" id="search-input" placeholder="ã¿ã¤ãã«ãèª­ã¿æ¹ãã¯ãªã¨ã¤ã¿ã¼ã§æ¤ç´¢">
+                <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
             </div>
+            
+            <!-- プレイヤー画面用検索バー -->
+            <div class="search-bar" id="player-search-bar" style="display: none;">
+                <span class="material-icons-round">search</span>
+                <input type="text" id="p-search-input" placeholder="リストを検索">
+            </div>
+
             <div class="controls">
+                <!-- 一覧画面用コントロール -->
                 <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
-                    <button class="icon-btn" id="btn-filter" title="çµãè¾¼ã¿"><span class="material-icons-round">filter_alt</span></button>
-                    <button class="icon-btn" id="btn-sort" title="ä¸¦ã³æ¿ã"><span class="material-icons-round">sort</span></button>
+                    <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
+                    <button class="icon-btn" id="btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
                     <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
-                    <button class="icon-btn" id="btn-layout-1" title="1åè¡¨ç¤º"><span class="material-icons-round">view_list</span></button>
-                    <button class="icon-btn active" id="btn-layout-3" title="3åè¡¨ç¤º"><span class="material-icons-round">view_module</span></button>
-                    <button class="icon-btn" id="btn-layout-5" title="5åè¡¨ç¤º"><span class="material-icons-round">grid_view</span></button>
+                    <button class="icon-btn" id="btn-layout-1" title="1列表示"><span class="material-icons-round">view_list</span></button>
+                    <button class="icon-btn active" id="btn-layout-3" title="3列表示"><span class="material-icons-round">view_module</span></button>
+                    <button class="icon-btn" id="btn-layout-5" title="5列表示"><span class="material-icons-round">grid_view</span></button>
+                </span>
+
+                <!-- プレイヤー画面用コントロール -->
+                <span id="player-only-controls" style="display: none; gap: 8px; align-items: center;">
+                    <button class="icon-btn" id="p-btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
+                    <button class="icon-btn" id="p-btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
                 </span>
                 
                 <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                 
-                <button class="icon-btn" id="btn-settings" title="è¨­å®"><span class="material-icons-round">settings</span></button>
+                <button class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
             </div>
         </div>
-        <!-- ç»é¢åãæ¿ããã¿ã³ãä¸æ®µä¸ã«éç½® -->
+        <!-- 画面切り替えボタンを一段下に配置 -->
         <div class="header-bottom" style="display: flex; gap: 12px; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap;">
-            <button class="nav-btn active" id="btn-view-list" title="ä¸è¦§ç»é¢">
-                <span class="material-icons-round">queue_music</span>ä¸è¦§ç»é¢
+            <button class="nav-btn active" id="btn-view-list" title="一覧画面">
+                <span class="material-icons-round">queue_music</span>一覧画面
             </button>
-            <button class="nav-btn" id="btn-view-player" title="ãã¬ã¤ã¤ã¼ç»é¢">
-                <span class="material-icons-round">play_circle</span>ãã¬ã¤ã¤ã¼ç»é¢
+            <button class="nav-btn" id="btn-view-player" title="プレイヤー画面">
+                <span class="material-icons-round">play_circle</span>プレイヤー画面
             </button>
         </div>
     </header>
@@ -976,15 +998,15 @@
             <!-- Filter Panel -->
             <div id="filter-panel" class="panel">
                 <div class="filter-section">
-                    <div class="filter-title">ã¦ãããã¿ã° (1ã¤é¸æ)</div>
+                    <div class="filter-title">ユニットタグ (1つ選択)</div>
                     <div class="filter-group" id="tag-filters"></div>
                 </div>
                 <div class="filter-section">
-                    <div class="filter-title">æ¸ãä¸ãã (1ã¤é¸æ)</div>
+                    <div class="filter-title">書き下ろし (1つ選択)</div>
                     <div class="filter-group" id="written-filters"></div>
                 </div>
                 <div class="filter-section">
-                    <div class="filter-title">æ­å±ã­ã£ã©ã¯ã¿ã¼ (ANDæ¤ç´¢)</div>
+                    <div class="filter-title">歌唱キャラクター (AND検索)</div>
                     <div class="char-grid-filter" id="game-char-filters"></div>
                     <div class="outside-chars-filter" id="outside-char-filters"></div>
                 </div>
@@ -994,12 +1016,12 @@
             <div id="sort-panel" class="panel">
                 <div class="sort-controls">
                     <select id="sort-key">
-                        <option value="id">IDé </option>
-                        <option value="title">ã¿ã¤ãã«ï¼ååï¼é </option>
-                        <option value="publishedAt" selected>å¬éæ¥æé </option>
-                        <option value="level">æ¥½æ²ã¬ãã«é </option>
+                        <option value="id">ID順</option>
+                        <option value="title">タイトル（名前）順</option>
+                        <option value="publishedAt" selected>公開日時順</option>
+                        <option value="level">楽曲レベル順</option>
                     </select>
-                    <!-- ã¬ãã«é ä»¥å¤ã¯éè¡¨ç¤ºã«è¨­å® -->
+                    <!-- レベル順以外は非表示に設定 -->
                     <select id="sort-diff" style="display: none;">
                         <option value="easy" selected>Easy</option>
                         <option value="normal">Normal</option>
@@ -1008,7 +1030,7 @@
                         <option value="master">Master</option>
                         <option value="append">Append</option>
                     </select>
-                    <button class="icon-btn active" id="btn-sort-order" title="æé /éé åãæ¿ã">
+                    <button class="icon-btn active" id="btn-sort-order" title="昇順/降順切り替え">
                         <span class="material-icons-round" id="sort-order-icon">arrow_downward</span>
                     </button>
                 </div>
@@ -1019,11 +1041,58 @@
 
         <!-- Player View -->
         <div id="player-view-container" style="display: none;">
+            
+            <!-- プレイヤー画面用 Filter & Sort Panel をヘッダー直下へ配置 -->
+            <div id="p-filter-panel" class="panel">
+                <div class="filter-section">
+                    <div class="filter-title">ユニットタグ (1つ選択)</div>
+                    <div class="filter-group" id="p-tag-filters"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">書き下ろし (1つ選択)</div>
+                    <div class="filter-group" id="p-written-filters"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">歌唱キャラクター (AND検索)</div>
+                    <div class="char-grid-filter" id="p-game-char-filters"></div>
+                    <div class="outside-chars-filter" id="p-outside-char-filters"></div>
+                </div>
+            </div>
+
+            <div id="p-sort-panel" class="panel">
+                <div class="sort-controls">
+                    <select id="p-sort-key">
+                        <option value="id">ID順</option>
+                        <option value="title">タイトル（名前）順</option>
+                        <option value="publishedAt" selected>公開日時順</option>
+                        <option value="level">楽曲レベル順</option>
+                    </select>
+                    <select id="p-sort-diff" style="display: none;">
+                        <option value="easy" selected>Easy</option>
+                        <option value="normal">Normal</option>
+                        <option value="hard">Hard</option>
+                        <option value="expert">Expert</option>
+                        <option value="master">Master</option>
+                        <option value="append">Append</option>
+                    </select>
+                    <button class="icon-btn active" id="p-btn-sort-order" title="昇順/降順切り替え">
+                        <span class="material-icons-round" id="p-sort-order-icon">arrow_downward</span>
+                    </button>
+                </div>
+            </div>
+
             <div class="player-layout">
                 <div class="player-main-sticky">
                     <div class="player-main">
                         <img id="p-jacket" class="detail-jacket" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="jacket" onerror="handleImageError(this)">
-                        <h2 id="p-title">é¸æããã¦ãã¾ãã</h2>
+                        <h2 id="p-title">選択されていません</h2>
+                        
+                        <!-- 作詞・作曲・編曲情報エリア -->
+                        <div id="p-credits" style="font-size: 12px; color: var(--text-sub); text-align: center; margin: -8px 0 8px 0; width: 100%; display: none;">
+                            <span id="p-credit-lyricist"></span> / 
+                            <span id="p-credit-composer"></span> / 
+                            <span id="p-credit-arranger"></span>
+                        </div>
                         
                         <div id="p-vocal-info" class="p-vocal-info-display" style="display: none;"></div>
                         
@@ -1035,15 +1104,15 @@
                             </div>
                             <div class="player-buttons">
                                 <div class="player-buttons-row">
-                                    <button id="p-btn-back-10" title="10ç§æ»ã"><span class="material-icons-round">replay_10</span></button>
-                                    <button id="p-btn-prev" title="åã®æ²"><span class="material-icons-round">skip_previous</span></button>
+                                    <button id="p-btn-back-10" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
+                                    <button id="p-btn-prev" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
                                     <button id="p-play-pause-btn"><span class="material-icons-round" id="p-play-icon">play_arrow</span></button>
-                                    <button id="p-btn-next" title="æ¬¡ã®æ²"><span class="material-icons-round">skip_next</span></button>
-                                    <button id="p-btn-forward-10" title="10ç§é²ã"><span class="material-icons-round">forward_10</span></button>
+                                    <button id="p-btn-next" title="次の曲"><span class="material-icons-round">skip_next</span></button>
+                                    <button id="p-btn-forward-10" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
                                 </div>
                                 <div class="player-buttons-row">
-                                    <button class="mode-btn" id="p-btn-shuffle" title="ã·ã£ããã« (ãªã)"><span class="material-icons-round">shuffle</span></button>
-                                    <button class="mode-btn active" id="p-btn-repeat" title="ãªãã¼ã (å¨æ²)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
+                                    <button class="mode-btn" id="p-btn-shuffle" title="シャッフル (オフ)"><span class="material-icons-round">shuffle</span></button>
+                                    <button class="mode-btn active" id="p-btn-repeat" title="リピート (全曲)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
                                 </div>
                             </div>
                         </div>
@@ -1052,55 +1121,10 @@
 
                 <div class="player-playlist">
                     <div class="playlist-header">
-                        <h3>åçãªã¹ã</h3>
-                        <div class="playlist-controls-inner">
-                            <div class="search-bar" style="max-width: 200px;">
-                                <span class="material-icons-round">search</span>
-                                <input type="text" id="p-search-input" placeholder="ãªã¹ããæ¤ç´¢">
-                            </div>
-                            <button class="icon-btn" id="p-btn-filter" title="çµãè¾¼ã¿"><span class="material-icons-round">filter_alt</span></button>
-                            <button class="icon-btn" id="p-btn-sort" title="ä¸¦ã³æ¿ã"><span class="material-icons-round">sort</span></button>
-                        </div>
+                        <h3>再生リスト</h3>
+                        <!-- 検索・絞り込み・ソートはヘッダーに移動しました -->
                     </div>
                     
-                    <div id="p-filter-panel" class="panel">
-                        <div class="filter-section">
-                            <div class="filter-title">ã¦ãããã¿ã° (1ã¤é¸æ)</div>
-                            <div class="filter-group" id="p-tag-filters"></div>
-                        </div>
-                        <div class="filter-section">
-                            <div class="filter-title">æ¸ãä¸ãã (1ã¤é¸æ)</div>
-                            <div class="filter-group" id="p-written-filters"></div>
-                        </div>
-                        <div class="filter-section">
-                            <div class="filter-title">æ­å±ã­ã£ã©ã¯ã¿ã¼ (ANDæ¤ç´¢)</div>
-                            <div class="char-grid-filter" id="p-game-char-filters"></div>
-                            <div class="outside-chars-filter" id="p-outside-char-filters"></div>
-                        </div>
-                    </div>
-
-                    <div id="p-sort-panel" class="panel">
-                        <div class="sort-controls">
-                            <select id="p-sort-key">
-                                <option value="id">IDé </option>
-                                <option value="title">ã¿ã¤ãã«ï¼ååï¼é </option>
-                                <option value="publishedAt" selected>å¬éæ¥æé </option>
-                                <option value="level">æ¥½æ²ã¬ãã«é </option>
-                            </select>
-                            <select id="p-sort-diff" style="display: none;">
-                                <option value="easy" selected>Easy</option>
-                                <option value="normal">Normal</option>
-                                <option value="hard">Hard</option>
-                                <option value="expert">Expert</option>
-                                <option value="master">Master</option>
-                                <option value="append">Append</option>
-                            </select>
-                            <button class="icon-btn active" id="p-btn-sort-order" title="æé /éé åãæ¿ã">
-                                <span class="material-icons-round" id="p-sort-order-icon">arrow_downward</span>
-                            </button>
-                        </div>
-                    </div>
-
                     <div id="player-music-list" class="list-container layout-1"></div>
                 </div>
             </div>
@@ -1108,21 +1132,20 @@
     </main>
 
     <!-- Mini Player for List View -->
-    <div id="mini-player" class="mini-player" style="display: none;">
+    <div id="mini-player" class="mini-player">
         <div class="mini-progress-bar"><div id="mini-progress" class="mini-progress-fill"></div></div>
         <img id="mini-jacket" class="mini-jacket" src="" alt="jacket" onerror="handleImageError(this)">
-        <div class="mini-info" id="mini-info-area" title="ãã¬ã¤ã¤ã¼ãéã">
+        <div class="mini-info" id="mini-info-area" title="プレイヤーを開く">
             <div id="mini-title" class="mini-title">Title</div>
             <div id="mini-vocal" class="mini-vocal">Vocal</div>
         </div>
         <div class="mini-controls">
-            <button id="mini-btn-shuffle" class="icon-btn" title="ã·ã£ããã« (ãªã)"><span class="material-icons-round" id="mini-shuffle-icon">shuffle</span></button>
-            <button id="mini-btn-prev" class="icon-btn" title="åã®æ²"><span class="material-icons-round">skip_previous</span></button>
-            <button id="mini-btn-back-10" class="icon-btn" title="10ç§æ»ã"><span class="material-icons-round">replay_10</span></button>
+            <!-- シャッフルボタン、ループ再生ボタンを削除 -->
+            <button id="mini-btn-prev" class="icon-btn" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
+            <button id="mini-btn-back-10" class="icon-btn" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
             <button id="mini-play-pause-btn" class="icon-btn"><span class="material-icons-round" id="mini-play-icon">play_arrow</span></button>
-            <button id="mini-btn-forward-10" class="icon-btn" title="10ç§é²ã"><span class="material-icons-round">forward_10</span></button>
-            <button id="mini-next-btn" class="icon-btn" title="æ¬¡ã®æ²"><span class="material-icons-round">skip_next</span></button>
-            <button id="mini-btn-repeat" class="icon-btn active" title="ãªãã¼ã (å¨æ²)"><span class="material-icons-round" id="mini-repeat-icon">repeat</span></button>
+            <button id="mini-btn-forward-10" class="icon-btn" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
+            <button id="mini-next-btn" class="icon-btn" title="次の曲"><span class="material-icons-round">skip_next</span></button>
         </div>
     </div>
 
@@ -1142,29 +1165,29 @@
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; height: auto;">
             <div class="modal-header">
-                <h2>è¨­å®</h2>
+                <h2>設定</h2>
                 <button class="icon-btn" id="btn-close-settings"><span class="material-icons-round">close</span></button>
             </div>
             <div class="modal-body">
                 <div class="setting-row">
-                    <span>ããã©ã«ããã¼ã«ã«åªå</span>
+                    <span>デフォルトボーカル優先</span>
                     <select id="default-vocal-select" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none;">
-                        <option value="none">æå®ãªã</option>
-                        <option value="sekai">ã»ã«ã¤ãã¼ã¸ã§ã³</option>
-                        <option value="virtual_singer">ãã¼ãã£ã«ã·ã³ã¬ã¼</option>
+                        <option value="none">指定なし</option>
+                        <option value="sekai">セカイバージョン</option>
+                        <option value="virtual_singer">バーチャルシンガー</option>
                     </select>
                 </div>
                 <div class="setting-row">
-                    <span>ç¡é³é¨åã®ã¹ã­ãã</span>
+                    <span>無音部分のスキップ</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="skip-toggle">
                         <span class="slider"></span>
                     </label>
                 </div>
 
-                <div class="filter-title" style="margin-top: 16px;">åçéå§æã®èª­ã¿ä¸ã</div>
+                <div class="filter-title" style="margin-top: 16px;">再生開始時の読み上げ</div>
                 <div class="setting-row">
-                    <span>èª­ã¿ä¸ãæ©è½</span>
+                    <span>読み上げ機能</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="speech-enabled-toggle">
                         <span class="slider"></span>
@@ -1173,49 +1196,49 @@
                 
                 <div id="speech-details-container" style="display: none; padding-left: 16px; border-left: 2px solid var(--border-color); margin-top: 8px;">
                     <div class="setting-row">
-                        <span>èª­ã¿ä¸ãéåº¦</span>
+                        <span>読み上げ速度</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <input type="range" id="speech-rate-slider" min="0.75" max="1.25" step="0.05" value="1.0">
                             <span id="speech-rate-display" style="width: 3.5em; text-align: right; font-size: 13px; color: var(--text-sub);">1x</span>
                         </div>
                     </div>
                     <div class="setting-row">
-                        <span>ã¿ã¤ãã«</span>
+                        <span>タイトル</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-title-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>æ¥½æ²ID</span>
+                        <span>楽曲ID</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-musicid-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>ã¦ãããã¿ã°</span>
+                        <span>ユニットタグ</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-unittag-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>ä½è©ã»ä½æ²ã»ç·¨æ²</span>
+                        <span>作詞・作曲・編曲</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-credits-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>å¬éæ¥æ</span>
+                        <span>公開日時</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-publishedat-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="setting-row">
-                        <span>ç¾å¨åçä¸­ã®æ­å±ã­ã£ã©ã¯ã¿ã¼</span>
+                        <span>現在再生中の歌唱キャラクター</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="speech-vocal-toggle">
                             <span class="slider"></span>
@@ -1325,64 +1348,62 @@
         let pSpeechAnnouncedForCurrentTrack = false;
 
         const TAG_DEF = [
-            { id: 'all', icon: 'apps', label: 'å¨ã¦' },
-            { id: 'vocaloid', icon: 'mic', label: 'ããã£ã·ã³' },
-            { id: 'light_music_club', icon: 'music_note', label: 'ã¬ãªã' },
-            { id: 'idol', icon: 'favorite', label: 'ã¢ã¢ã¸ã£ã³' },
-            { id: 'street', icon: 'headset', label: 'ãããã¹' },
-            { id: 'theme_park', icon: 'attractions', label: 'ã¯ã³ãã·ã§' },
-            { id: 'school_refusal', icon: 'nightlight_round', label: 'ãã¼ã´' },
-            { id: 'other', icon: 'more_horiz', label: 'ãã®ä»' }
+            { id: 'all', icon: 'apps', label: '全て' },
+            { id: 'vocaloid', icon: 'mic', label: 'バチャシン' },
+            { id: 'light_music_club', icon: 'music_note', label: 'レオニ' },
+            { id: 'idol', icon: 'favorite', label: 'モモジャン' },
+            { id: 'street', icon: 'headset', label: 'ビビバス' },
+            { id: 'theme_park', icon: 'attractions', label: 'ワンダショ' },
+            { id: 'school_refusal', icon: 'nightlight_round', label: 'ニーゴ' },
+            { id: 'other', icon: 'more_horiz', label: 'その他' }
         ];
 
         const WRITTEN_DEF = [
-            { id: 'all', icon: 'apps', label: 'å¨ã¦' },
-            { id: 'newly', icon: 'new_releases', label: 'æ¸ãä¸ãã' },
-            { id: 'cover', icon: 'library_music', label: 'ã«ãã¼' }
+            { id: 'all', icon: 'apps', label: '全て' },
+            { id: 'newly', icon: 'new_releases', label: '書き下ろし' },
+            { id: 'cover', icon: 'library_music', label: 'カバー' }
         ];
 
         const DIFF_ORDER = ['easy', 'normal', 'hard', 'expert', 'master', 'append'];
 
         function updateRepeatShuffleUI() {
             const btnShuffle = document.getElementById('p-btn-shuffle');
-            const miniBtnShuffle = document.getElementById('mini-btn-shuffle');
             
-            [btnShuffle, miniBtnShuffle].forEach(btn => {
+            [btnShuffle].forEach(btn => {
                 if(!btn) return;
-                btn.classList.toggle('active', isShuffle);
-                btn.title = isShuffle ? "ã·ã£ããã« (ãªã³)" : "ã·ã£ããã« (ãªã)";
+                if (isShuffle) btn.classList.add('active');
+                else btn.classList.remove('active');
+                btn.title = isShuffle ? "シャッフル (オン)" : "シャッフル (オフ)";
             });
 
             const btnRepeat = document.getElementById('p-btn-repeat');
             const repeatIcon = document.getElementById('p-repeat-icon');
-            const miniBtnRepeat = document.getElementById('mini-btn-repeat');
-            const miniRepeatIcon = document.getElementById('mini-repeat-icon');
             
             let iconText = 'repeat';
             let isActive = false;
-            let titleText = "ãªãã¼ã (ãªã)";
+            let titleText = "リピート (オフ)";
             
             if (repeatMode === 'all') {
                 iconText = 'repeat';
                 isActive = true;
-                titleText = "ãªãã¼ã (å¨æ²)";
+                titleText = "リピート (全曲)";
             } else if (repeatMode === 'one') {
                 iconText = 'repeat_one';
                 isActive = true;
-                titleText = "ãªãã¼ã (1æ²)";
+                titleText = "リピート (1曲)";
             } else {
                 iconText = 'repeat';
                 isActive = false;
-                titleText = "ãªãã¼ã (ãªã)";
+                titleText = "リピート (オフ)";
             }
 
-            [btnRepeat, miniBtnRepeat].forEach(btn => {
+            [btnRepeat].forEach(btn => {
                 if(!btn) return;
                 if(isActive) btn.classList.add('active');
                 else btn.classList.remove('active');
                 btn.title = titleText;
             });
-            [repeatIcon, miniRepeatIcon].forEach(icon => {
+            [repeatIcon].forEach(icon => {
                 if(icon) icon.textContent = iconText;
             });
         }
@@ -1441,7 +1462,7 @@
                 document.getElementById('loading').style.display = 'none';
             } catch (err) {
                 console.error(err);
-                alert('ãã¼ã¿ã®èª­ã¿è¾¼ã¿ã«å¤±æãã¾ããã');
+                alert('データの読み込みに失敗しました。');
             }
         }
 
@@ -1465,11 +1486,10 @@
         };
 
         const formatSpeechDate = (ms) => {
-            if (!ms) return 'æªè¨­å®';
+            if (!ms) return '未設定';
             const d = new Date(ms);
-            if (isNaN(d.getTime())) return 'æªè¨­å®';
-            // 0åãããªããããã®ã¾ã¾æ°å¤ã¨ãã¦èª­ã¾ãããã¨ã§ãã¼ã­ããããããªã©ã®ä¸èªç¶ãªçºé³ãé²ã
-            return `${d.getFullYear()}å¹´${d.getMonth() + 1}æ${d.getDate()}æ¥ ${d.getHours()}æ${d.getMinutes()}å`;
+            if (isNaN(d.getTime())) return '未設定';
+            return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${d.getHours()}時${d.getMinutes()}分`;
         };
 
         const getMusicVocalCharacterNames = (vocal) => {
@@ -1487,14 +1507,14 @@
             return names.filter(Boolean);
         };
 
-        const buildSpeechSentence = (label, value) => `${label}ã${value}ã`;
+        const buildSpeechSentence = (label, value) => `${label}、${value}。`;
 
         function getPreferredJapaneseVoice() {
             if (!('speechSynthesis' in window) || typeof window.speechSynthesis.getVoices !== 'function') return null;
             const voices = window.speechSynthesis.getVoices() || [];
             if (!voices.length) return null;
 
-            const candidates = voices.filter(v => /^ja(-|$)/i.test(v.lang || '') || /japanese|æ¥æ¬èª/i.test(v.name || ''));
+            const candidates = voices.filter(v => /^ja(-|$)/i.test(v.lang || '') || /japanese|日本語/i.test(v.name || ''));
             const pool = candidates.length ? candidates : voices.filter(v => (v.lang || '').toLowerCase().startsWith('ja'));
             if (!pool.length) return null;
 
@@ -1502,7 +1522,7 @@
                 const name = `${voice.name || ''} ${voice.lang || ''}`.toLowerCase();
                 let score = 0;
                 if (/ja(-|$)/i.test(voice.lang || '')) score += 30;
-                if (/japanese|æ¥æ¬èª/i.test(voice.name || '')) score += 40;
+                if (/japanese|日本語/i.test(voice.name || '')) score += 40;
                 if (/google|microsoft|siri|natural|premium|enhanced|neural/i.test(name)) score += 25;
                 if (/kyoko|nozomi|otoya|hikari|sakura|haruka|naomi|kenta|taro|yumi|emiko/i.test(name)) score += 10;
                 if (voice.localService) score += 5;
@@ -1558,39 +1578,34 @@
             if (!pCurrentMusic) return false;
             if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
 
-            // èª­ã¿ä¸ããã­ã¹ããèªç¶ã«ããããã®ãã«ãã¼é¢æ°
             const adjustText = (text) => {
-                if (!text) return 'æªè¨­å®';
+                if (!text) return '未設定';
                 let t = String(text);
-                // è±å¤§æå­ã®é£ç¶ãåèªã¨ãã¦èª­ã¾ããããï¼ä¾: GIGA -> Gigaï¼åé ­ã®ã¿å¤§æå­ã«ãã
                 t = t.replace(/[A-Z]{2,}/g, m => m.charAt(0) + m.slice(1).toLowerCase());
-                // ç¹æ®è¨å·ãã¹ãã¼ã¹ã«ç½®æãã¦ä¸èªç¶ãªèª­ã¿ãé¿ãã
-                t = t.replace(/[*_~ã»]/g, ' ');
-                // æ°å­ã®åã®ä¸è¦ãª0ãæ¶ãï¼ä¾: 09 -> 9ï¼
+                t = t.replace(/[*_~・]/g, ' ');
                 t = t.replace(/\b0+(\d+)\b/g, '$1');
                 return t;
             };
 
             const parts = [];
             if (speechInfoSettings.title) {
-                // ã¿ã¤ãã«ã¯èª­ã¿æ¹ï¼pronunciationï¼ãåªåãã
-                const titleText = pCurrentMusic.pronunciation || pCurrentMusic.title || 'æªè¨­å®';
-                parts.push(buildSpeechSentence('ã¿ã¤ãã«', adjustText(titleText)));
+                const titleText = pCurrentMusic.pronunciation || pCurrentMusic.title || '未設定';
+                parts.push(buildSpeechSentence('タイトル', adjustText(titleText)));
             }
-            if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('æ¥½æ²ID', pCurrentMusic.id ?? 'æªè¨­å®'));
-            if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ã¦ãããã¿ã°', getTagName(pCurrentMusic.id)));
+            if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('楽曲ID', pCurrentMusic.id ?? '未設定'));
+            if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ユニットタグ', getTagName(pCurrentMusic.id)));
             if (speechInfoSettings.credits) {
                 const lyricist = adjustText(pCurrentMusic.lyricist);
                 const composer = adjustText(pCurrentMusic.composer);
                 const arranger = adjustText(pCurrentMusic.arranger);
-                parts.push(`ä½è©ã${lyricist}ãä½æ²ã${composer}ãç·¨æ²ã${arranger}ã`);
+                parts.push(`作詞、${lyricist}。作曲、${composer}。編曲、${arranger}。`);
             }
             if (speechInfoSettings.publishedAt) {
-                parts.push(buildSpeechSentence('å¬éæ¥æ', formatSpeechDate(pCurrentMusic.publishedAt)));
+                parts.push(buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)));
             }
             if (speechInfoSettings.vocalCharacters) {
                 const names = getMusicVocalCharacterNames(pCurrentVocal);
-                parts.push(buildSpeechSentence('ç¾å¨åçä¸­ã®æ­å±ã­ã£ã©ã¯ã¿ã¼', names.length ? names.join('ã') : 'æªè¨­å®'));
+                parts.push(buildSpeechSentence('現在再生中の歌唱キャラクター', names.length ? names.join('、') : '未設定'));
             }
 
             if (parts.length === 0) return false;
@@ -1629,7 +1644,7 @@
         const getTagName = (musicId) => {
             const mTags = tagMap.get(musicId) || [];
             const tagId = mTags.find(t => t !== 'all') || 'other';
-            return TAG_DEF.find(t => t.id === tagId)?.label || 'ãã®ä»';
+            return TAG_DEF.find(t => t.id === tagId)?.label || 'その他';
         };
 
         const getMeta = (music, sKey, sDiff) => {
@@ -1674,14 +1689,21 @@
             const playerViewCont = document.getElementById('player-view-container');
             const listOnlyControls = document.getElementById('list-only-controls');
             const mainSearchBar = document.getElementById('main-search-bar');
+            
+            const playerOnlyControls = document.getElementById('player-only-controls');
+            const playerSearchBar = document.getElementById('player-search-bar');
 
             btnViewList.addEventListener('click', () => {
                 btnViewPlayer.classList.remove('active');
                 btnViewList.classList.add('active');
                 listViewCont.style.display = 'block';
                 playerViewCont.style.display = 'none';
+                
                 listOnlyControls.style.display = 'flex';
                 mainSearchBar.style.display = 'flex'; 
+                playerOnlyControls.style.display = 'none';
+                playerSearchBar.style.display = 'none'; 
+
                 renderList(); 
                 updateMiniPlayerVisibility();
             });
@@ -1690,8 +1712,12 @@
                 btnViewPlayer.classList.add('active');
                 listViewCont.style.display = 'none';
                 playerViewCont.style.display = 'block';
+                
                 listOnlyControls.style.display = 'none';
                 mainSearchBar.style.display = 'none'; 
+                playerOnlyControls.style.display = 'flex';
+                playerSearchBar.style.display = 'flex';
+
                 renderPlayerList();
                 if(pCurrentMusic) updatePlayerPageInfo(); 
                 updateMiniPlayerVisibility();
@@ -1869,8 +1895,6 @@
             document.getElementById('mini-btn-prev').addEventListener('click', playPrev);
             document.getElementById('mini-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); });
             document.getElementById('mini-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); });
-            document.getElementById('mini-btn-shuffle').addEventListener('click', toggleShuffle);
-            document.getElementById('mini-btn-repeat').addEventListener('click', toggleRepeat);
 
             document.getElementById('mini-info-area').addEventListener('click', () => {
                 document.getElementById('btn-view-player').click();
@@ -1997,10 +2021,10 @@
             const miniPlayer = document.getElementById('mini-player');
             const mainEl = document.querySelector('main');
             if (document.getElementById('list-view-container').style.display !== 'none' && pCurrentMusic) {
-                miniPlayer.style.display = 'flex';
+                miniPlayer.classList.add('show');
                 mainEl.classList.add('with-mini-player');
             } else {
-                miniPlayer.style.display = 'none';
+                miniPlayer.classList.remove('show');
                 mainEl.classList.remove('with-mini-player');
             }
         }
@@ -2223,11 +2247,11 @@
                     <span id="time-duration">0:00</span>
                 </div>
                 <div class="player-buttons">
-                    <button id="btn-back-10" title="10ç§æ»ã"><span class="material-icons-round">replay_10</span></button>
-                    <button id="btn-back-5" title="5ç§æ»ã"><span class="material-icons-round">replay_5</span></button>
+                    <button id="btn-back-10" title="10秒戻る"><span class="material-icons-round">replay_10</span></button>
+                    <button id="btn-back-5" title="5秒戻る"><span class="material-icons-round">replay_5</span></button>
                     <button id="play-pause-btn"><span class="material-icons-round" id="play-icon">play_arrow</span></button>
-                    <button id="btn-forward-5" title="5ç§é²ã"><span class="material-icons-round">forward_5</span></button>
-                    <button id="btn-forward-10" title="10ç§é²ã"><span class="material-icons-round">forward_10</span></button>
+                    <button id="btn-forward-5" title="5秒進む"><span class="material-icons-round">forward_5</span></button>
+                    <button id="btn-forward-10" title="10秒進む"><span class="material-icons-round">forward_10</span></button>
                 </div>
             `;
             body.appendChild(pCont);
@@ -2264,13 +2288,13 @@
             const infoCont = document.createElement('div');
             infoCont.className = 'info-list';
             const infos = [
-                { l: 'æ¥½æ²ID', v: music.id },
-                { l: 'ã¿ã¤ãã«', v: `${music.title} <br><small style="color:var(--text-sub)">(${music.pronunciation || '-'})</small>` },
-                { l: 'ã¦ãããã¿ã°', v: getTagName(music.id) },
-                { l: 'ä½è©', v: music.lyricist || '-' },
-                { l: 'ä½æ²', v: music.composer || '-' },
-                { l: 'ç·¨æ²', v: music.arranger || '-' },
-                { l: 'å¬éæ¥æ', v: formatDate(music.publishedAt) }
+                { l: '楽曲ID', v: music.id },
+                { l: 'タイトル', v: `${music.title} <br><small style="color:var(--text-sub)">(${music.pronunciation || '-'})</small>` },
+                { l: 'ユニットタグ', v: getTagName(music.id) },
+                { l: '作詞', v: music.lyricist || '-' },
+                { l: '作曲', v: music.composer || '-' },
+                { l: '編曲', v: music.arranger || '-' },
+                { l: '公開日時', v: formatDate(music.publishedAt) }
             ];
             infos.forEach(i => {
                 const row = document.createElement('div');
@@ -2284,20 +2308,20 @@
             if (origLink) {
                 const lRow = document.createElement('div');
                 lRow.className = 'info-row';
-                lRow.innerHTML = `<div class="info-label">ãããª</div>
+                lRow.innerHTML = `<div class="info-label">ビデオ</div>
                                   <div class="info-value"><a href="${origLink}" target="_blank" class="link-btn" id="orig-video-link"><span class="material-icons-round">open_in_new</span>YouTube</a></div>`;
                 body.appendChild(lRow);
                 setTimeout(() => {
                     const lNode = document.getElementById('orig-video-link');
                     if(lNode) {
-                        lNode.onclick = (e) => { if (!confirm('å¤é¨ãµã¤ãã¸ç§»åãã¾ããããããã§ããï¼')) e.preventDefault(); };
+                        lNode.onclick = (e) => { if (!confirm('外部サイトへ移動します。よろしいですか？')) e.preventDefault(); };
                     }
                 }, 0);
             }
 
             const diffs = diffMap.get(music.id) || {};
             const tableCont = document.createElement('div');
-            let tableHTML = `<table class="diff-table"><tr><th>é£æåº¦</th><th>ã¬ãã«</th><th>ãã¼ãæ°</th></tr>`;
+            let tableHTML = `<table class="diff-table"><tr><th>難易度</th><th>レベル</th><th>ノーツ数</th></tr>`;
             DIFF_ORDER.forEach(diffName => {
                 const d = diffs[diffName];
                 if (d) {
@@ -2343,6 +2367,13 @@
             pJacket.src = getJacketUrl(pCurrentMusic.id);
             pTitle.textContent = pCurrentMusic.title;
             pTitle.title = pCurrentMusic.title;
+
+            // クレジット情報の更新
+            const pCredits = document.getElementById('p-credits');
+            pCredits.style.display = 'block';
+            document.getElementById('p-credit-lyricist').textContent = `作詞: ${pCurrentMusic.lyricist || '-'}`;
+            document.getElementById('p-credit-composer').textContent = `作曲: ${pCurrentMusic.composer || '-'}`;
+            document.getElementById('p-credit-arranger').textContent = `編曲: ${pCurrentMusic.arranger || '-'}`;
 
             let finalVocalName = '';
 
