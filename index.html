@@ -301,6 +301,72 @@
             cursor: pointer;
         }
 
+        .panel-search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .panel-search-row .search-bar {
+            flex: 1 1 260px;
+            min-width: 0;
+        }
+
+        .date-range-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .date-range-group label {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-sub);
+            min-width: 120px;
+        }
+
+        .date-range-group input[type="date"] {
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--primary-bg);
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+
+        .apply-btn {
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .apply-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .apply-btn:active {
+            transform: translateY(0);
+        }
+
+
         /* Main Content */
         main {
             padding: 20px;
@@ -980,17 +1046,7 @@
 
     <header>
         <div class="header-top">
-            <div class="search-bar" id="main-search-bar">
-                <span class="material-icons-round">search</span>
-                <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
-            </div>
-            
-            <div class="search-bar" id="player-search-bar" style="display: none;">
-                <span class="material-icons-round">search</span>
-                <input type="text" id="p-search-input" placeholder="リストを検索">
-            </div>
-
-            <div class="controls">
+<div class="controls">
                 <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
                     <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
                     <button class="icon-btn" id="btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
@@ -1016,7 +1072,27 @@
         <!-- List View -->
         <div id="list-view-container">
             <!-- Filter Panel -->
+            
             <div id="filter-panel" class="panel">
+                <div class="filter-section">
+                    <div class="filter-title">検索・公開日時</div>
+                    <div class="panel-search-row">
+                        <div class="search-bar" id="main-search-bar">
+                            <span class="material-icons-round">search</span>
+                            <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
+                        </div>
+                        <div class="date-range-group">
+                            <label>
+                                <span>公開日開始</span>
+                                <input type="date" id="published-from">
+                            </label>
+                            <label>
+                                <span>公開日終了</span>
+                                <input type="date" id="published-to">
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div class="filter-section">
                     <div class="filter-title">ユニットタグ (1つ選択)</div>
                     <div class="filter-group" id="tag-filters"></div>
@@ -1030,28 +1106,30 @@
                     <div class="char-grid-filter" id="game-char-filters"></div>
                     <div class="outside-chars-filter" id="outside-char-filters"></div>
                 </div>
-            </div>
-
-            <!-- Sort Panel -->
-            <div id="sort-panel" class="panel">
-                <div class="sort-controls">
-                    <select id="sort-key">
-                        <option value="id">ID順</option>
-                        <option value="title">タイトル（名前）順</option>
-                        <option value="publishedAt" selected>公開日時順</option>
-                        <option value="level">楽曲レベル順</option>
-                    </select>
-                    <select id="sort-diff" style="display: none;">
-                        <option value="easy" selected>Easy</option>
-                        <option value="normal">Normal</option>
-                        <option value="hard">Hard</option>
-                        <option value="expert">Expert</option>
-                        <option value="master">Master</option>
-                        <option value="append">Append</option>
-                    </select>
-                    <button class="icon-btn active" id="btn-sort-order" title="昇順/降順切り替え">
-                        <span class="material-icons-round" id="sort-order-icon">arrow_downward</span>
-                    </button>
+                <div class="filter-section">
+                    <div class="filter-title">並び替え</div>
+                    <div class="sort-controls">
+                        <select id="sort-key">
+                            <option value="id">ID順</option>
+                            <option value="title">タイトル（名前）順</option>
+                            <option value="publishedAt" selected>公開日時順</option>
+                            <option value="level">楽曲レベル順</option>
+                        </select>
+                        <select id="sort-diff" style="display: none;">
+                            <option value="easy" selected>Easy</option>
+                            <option value="normal">Normal</option>
+                            <option value="hard">Hard</option>
+                            <option value="expert">Expert</option>
+                            <option value="master">Master</option>
+                            <option value="append">Append</option>
+                        </select>
+                        <button class="icon-btn active" id="btn-sort-order" title="昇順/降順切り替え">
+                            <span class="material-icons-round" id="sort-order-icon">arrow_downward</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="apply-btn" id="btn-apply-list-filters">適用</button>
                 </div>
             </div>
 
@@ -1061,6 +1139,25 @@
         <!-- Player View -->
         <div id="player-view-container" style="display: none;">
             <div id="p-filter-panel" class="panel">
+                <div class="filter-section">
+                    <div class="filter-title">検索・公開日時</div>
+                    <div class="panel-search-row">
+                        <div class="search-bar" id="player-search-bar">
+                            <span class="material-icons-round">search</span>
+                            <input type="text" id="p-search-input" placeholder="リストを検索">
+                        </div>
+                        <div class="date-range-group">
+                            <label>
+                                <span>公開日開始</span>
+                                <input type="date" id="p-published-from">
+                            </label>
+                            <label>
+                                <span>公開日終了</span>
+                                <input type="date" id="p-published-to">
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div class="filter-section">
                     <div class="filter-title">ユニットタグ (1つ選択)</div>
                     <div class="filter-group" id="p-tag-filters"></div>
@@ -1074,31 +1171,35 @@
                     <div class="char-grid-filter" id="p-game-char-filters"></div>
                     <div class="outside-chars-filter" id="p-outside-char-filters"></div>
                 </div>
-            </div>
-
-            <div id="p-sort-panel" class="panel">
-                <div class="sort-controls">
-                    <select id="p-sort-key">
-                        <option value="id">ID順</option>
-                        <option value="title">タイトル（名前）順</option>
-                        <option value="publishedAt" selected>公開日時順</option>
-                        <option value="level">楽曲レベル順</option>
-                    </select>
-                    <select id="p-sort-diff" style="display: none;">
-                        <option value="easy" selected>Easy</option>
-                        <option value="normal">Normal</option>
-                        <option value="hard">Hard</option>
-                        <option value="expert">Expert</option>
-                        <option value="master">Master</option>
-                        <option value="append">Append</option>
-                    </select>
-                    <button class="icon-btn active" id="p-btn-sort-order" title="昇順/降順切り替え">
-                        <span class="material-icons-round" id="p-sort-order-icon">arrow_downward</span>
-                    </button>
+                <div class="filter-section">
+                    <div class="filter-title">並び替え</div>
+                    <div class="sort-controls">
+                        <select id="p-sort-key">
+                            <option value="id">ID順</option>
+                            <option value="title">タイトル（名前）順</option>
+                            <option value="publishedAt" selected>公開日時順</option>
+                            <option value="level">楽曲レベル順</option>
+                        </select>
+                        <select id="p-sort-diff" style="display: none;">
+                            <option value="easy" selected>Easy</option>
+                            <option value="normal">Normal</option>
+                            <option value="hard">Hard</option>
+                            <option value="expert">Expert</option>
+                            <option value="master">Master</option>
+                            <option value="append">Append</option>
+                        </select>
+                        <button class="icon-btn active" id="p-btn-sort-order" title="昇順/降順切り替え">
+                            <span class="material-icons-round" id="p-sort-order-icon">arrow_downward</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="apply-btn" id="btn-apply-player-filters">適用</button>
                 </div>
             </div>
 
             <div class="player-layout">
+
                 <div class="player-main-sticky">
                     <div class="player-main">
                         <img id="p-jacket" class="detail-jacket" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="jacket" onerror="handleImageError(this)">
@@ -1195,9 +1296,7 @@
             <div class="modal-body">
                 <div class="setting-row">
                     <span>デフォルトボーカル優先</span>
-                    <select id="default-vocal-select" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none;">
-                        <option value="none">指定なし</option>
-                        <option value="sekai">セカイバージョン</option>
+                    <select id="default-vocal-select" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none;">                        <option value="sekai" selected>セカイバージョン</option>
                         <option value="virtual_singer">バーチャルシンガー</option>
                     </select>
                 </div>
@@ -1300,6 +1399,18 @@
         let sortKey = 'publishedAt';
         let sortOrder = 'desc';
         let sortDiff = 'easy';
+        let publishedFrom = '';
+        let publishedTo = '';
+
+        let draftSearchTerm = '';
+        let draftPublishedFrom = '';
+        let draftPublishedTo = '';
+        let draftActiveTag = 'all';
+        let draftActiveWritten = 'all';
+        let draftSelectedChars = new Set();
+        let draftSortKey = 'publishedAt';
+        let draftSortOrder = 'desc';
+        let draftSortDiff = 'easy';
         
         let p_searchTerm = '';
         let p_activeTag = 'all';
@@ -1308,6 +1419,18 @@
         let p_sortKey = 'publishedAt';
         let p_sortOrder = 'desc';
         let p_sortDiff = 'easy';
+        let p_publishedFrom = '';
+        let p_publishedTo = '';
+
+        let p_draftSearchTerm = '';
+        let p_draftPublishedFrom = '';
+        let p_draftPublishedTo = '';
+        let p_draftActiveTag = 'all';
+        let p_draftActiveWritten = 'all';
+        let p_draftSelectedChars = new Set();
+        let p_draftSortKey = 'publishedAt';
+        let p_draftSortOrder = 'desc';
+        let p_draftSortDiff = 'easy';
         
         let currentPlaylist = [];
         let isShuffle = false;
@@ -1326,7 +1449,8 @@
         let mAudioRetryCount = 0;
 
         let skipSilence = localStorage.getItem('skipSilence') === 'true';
-        let defaultVocalPref = localStorage.getItem('defaultVocalPref') || 'none';
+        let defaultVocalPref = normalizeDefaultVocalPref(localStorage.getItem('defaultVocalPref'));
+        localStorage.setItem('defaultVocalPref', defaultVocalPref);
 
         const DEFAULT_SPEECH_SETTINGS = {
             enabled: true,
@@ -1338,6 +1462,176 @@
             publishedAt: true,
             vocalCharacters: true
         };
+
+        function normalizeDefaultVocalPref(value) {
+            return value === 'virtual_singer' ? 'virtual_singer' : 'sekai';
+        }
+
+        function cloneCharSet(source) {
+            return new Set(source ? Array.from(source) : []);
+        }
+
+        function syncListDraftFromActive() {
+            draftSearchTerm = searchTerm;
+            draftPublishedFrom = publishedFrom;
+            draftPublishedTo = publishedTo;
+            draftActiveTag = activeTag;
+            draftActiveWritten = activeWritten;
+            draftSelectedChars = cloneCharSet(selectedChars);
+            draftSortKey = sortKey;
+            draftSortOrder = sortOrder;
+            draftSortDiff = sortDiff;
+        }
+
+        function syncPlayerDraftFromActive() {
+            p_draftSearchTerm = p_searchTerm;
+            p_draftPublishedFrom = p_publishedFrom;
+            p_draftPublishedTo = p_publishedTo;
+            p_draftActiveTag = p_activeTag;
+            p_draftActiveWritten = p_activeWritten;
+            p_draftSelectedChars = cloneCharSet(p_selectedChars);
+            p_draftSortKey = p_sortKey;
+            p_draftSortOrder = p_sortOrder;
+            p_draftSortDiff = p_sortDiff;
+        }
+
+        function syncListPanelUI() {
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = draftSearchTerm || '';
+
+            const publishedFromInput = document.getElementById('published-from');
+            if (publishedFromInput) publishedFromInput.value = draftPublishedFrom || '';
+            const publishedToInput = document.getElementById('published-to');
+            if (publishedToInput) publishedToInput.value = draftPublishedTo || '';
+
+            const sortKeySelect = document.getElementById('sort-key');
+            const sortDiffSelect = document.getElementById('sort-diff');
+            const sortOrderIcon = document.getElementById('sort-order-icon');
+            if (sortKeySelect) sortKeySelect.value = draftSortKey;
+            if (sortDiffSelect) {
+                sortDiffSelect.value = draftSortDiff;
+                sortDiffSelect.style.display = draftSortKey === 'level' ? 'inline-block' : 'none';
+            }
+            if (sortOrderIcon) sortOrderIcon.textContent = draftSortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
+
+            const tagContainer = document.getElementById('tag-filters');
+            if (tagContainer) {
+                tagContainer.querySelectorAll('.chip').forEach((chip, idx) => {
+                    const item = TAG_DEF[idx];
+                    chip.classList.toggle('active', !!item && item.id === draftActiveTag);
+                });
+            }
+
+            const writtenContainer = document.getElementById('written-filters');
+            if (writtenContainer) {
+                writtenContainer.querySelectorAll('.chip').forEach((chip, idx) => {
+                    const item = WRITTEN_DEF[idx];
+                    chip.classList.toggle('active', !!item && item.id === draftActiveWritten);
+                });
+            }
+
+            const gChars = document.querySelectorAll('#game-char-filters .char-item');
+            gChars.forEach((chip, idx) => {
+                const item = gameChars[idx];
+                chip.classList.toggle('active', !!item && draftSelectedChars.has(`game_${item.id}`));
+            });
+
+            const oChars = document.querySelectorAll('#outside-char-filters .chip');
+            oChars.forEach((chip, idx) => {
+                const item = outsideChars[idx];
+                chip.classList.toggle('active', !!item && draftSelectedChars.has(`outside_${item.id}`));
+            });
+        }
+
+        function syncPlayerPanelUI() {
+            const searchInput = document.getElementById('p-search-input');
+            if (searchInput) searchInput.value = p_draftSearchTerm || '';
+
+            const publishedFromInput = document.getElementById('p-published-from');
+            if (publishedFromInput) publishedFromInput.value = p_draftPublishedFrom || '';
+            const publishedToInput = document.getElementById('p-published-to');
+            if (publishedToInput) publishedToInput.value = p_draftPublishedTo || '';
+
+            const sortKeySelect = document.getElementById('p-sort-key');
+            const sortDiffSelect = document.getElementById('p-sort-diff');
+            const sortOrderIcon = document.getElementById('p-sort-order-icon');
+            if (sortKeySelect) sortKeySelect.value = p_draftSortKey;
+            if (sortDiffSelect) {
+                sortDiffSelect.value = p_draftSortDiff;
+                sortDiffSelect.style.display = p_draftSortKey === 'level' ? 'inline-block' : 'none';
+            }
+            if (sortOrderIcon) sortOrderIcon.textContent = p_draftSortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
+
+            const tagContainer = document.getElementById('p-tag-filters');
+            if (tagContainer) {
+                tagContainer.querySelectorAll('.chip').forEach((chip, idx) => {
+                    const item = TAG_DEF[idx];
+                    chip.classList.toggle('active', !!item && item.id === p_draftActiveTag);
+                });
+            }
+
+            const writtenContainer = document.getElementById('p-written-filters');
+            if (writtenContainer) {
+                writtenContainer.querySelectorAll('.chip').forEach((chip, idx) => {
+                    const item = WRITTEN_DEF[idx];
+                    chip.classList.toggle('active', !!item && item.id === p_draftActiveWritten);
+                });
+            }
+
+            const gChars = document.querySelectorAll('#p-game-char-filters .char-item');
+            gChars.forEach((chip, idx) => {
+                const item = gameChars[idx];
+                chip.classList.toggle('active', !!item && p_draftSelectedChars.has(`game_${item.id}`));
+            });
+
+            const oChars = document.querySelectorAll('#p-outside-char-filters .chip');
+            oChars.forEach((chip, idx) => {
+                const item = outsideChars[idx];
+                chip.classList.toggle('active', !!item && p_draftSelectedChars.has(`outside_${item.id}`));
+            });
+        }
+
+        function applyListDraft() {
+            searchTerm = draftSearchTerm;
+            publishedFrom = draftPublishedFrom;
+            publishedTo = draftPublishedTo;
+            activeTag = draftActiveTag;
+            activeWritten = draftActiveWritten;
+            selectedChars = cloneCharSet(draftSelectedChars);
+            sortKey = draftSortKey;
+            sortOrder = draftSortOrder;
+            sortDiff = draftSortDiff;
+            document.getElementById('filter-panel').classList.remove('show');
+            renderList();
+        }
+
+        function applyPlayerDraft() {
+            p_searchTerm = p_draftSearchTerm;
+            p_publishedFrom = p_draftPublishedFrom;
+            p_publishedTo = p_draftPublishedTo;
+            p_activeTag = p_draftActiveTag;
+            p_activeWritten = p_draftActiveWritten;
+            p_selectedChars = cloneCharSet(p_draftSelectedChars);
+            p_sortKey = p_draftSortKey;
+            p_sortOrder = p_draftSortOrder;
+            p_sortDiff = p_draftSortDiff;
+            document.getElementById('p-filter-panel').classList.remove('show');
+            if (pCurrentMusic) updatePlayerPageInfo();
+            else renderPlayerList();
+        }
+
+        function openListPanel() {
+            syncListDraftFromActive();
+            syncListPanelUI();
+            document.getElementById('filter-panel').classList.toggle('show');
+        }
+
+        function openPlayerPanel() {
+            syncPlayerDraftFromActive();
+            syncPlayerPanelUI();
+            document.getElementById('p-filter-panel').classList.toggle('show');
+        }
+
 
         function loadSpeechSettings() {
             try {
@@ -1694,7 +1988,6 @@
 
         function getDefaultVocal(music, mVocals) {
             if (!mVocals || mVocals.length === 0) return null;
-            if (defaultVocalPref === 'none') return mVocals[0];
             const targetVocal = mVocals.find(v => v.musicVocalType === defaultVocalPref);
             if (targetVocal) return targetVocal;
             return mVocals[0];
@@ -1726,44 +2019,49 @@
             }
         });
 
+        
         function setupUI() {
             const btnViewList = document.getElementById('btn-view-list');
             const btnViewPlayer = document.getElementById('btn-view-player');
             const listViewCont = document.getElementById('list-view-container');
             const playerViewCont = document.getElementById('player-view-container');
             const listOnlyControls = document.getElementById('list-only-controls');
-            const mainSearchBar = document.getElementById('main-search-bar');
-            
             const playerOnlyControls = document.getElementById('player-only-controls');
-            const playerSearchBar = document.getElementById('player-search-bar');
 
             btnViewList.addEventListener('click', () => {
                 btnViewPlayer.classList.remove('active');
                 btnViewList.classList.add('active');
                 listViewCont.style.display = 'block';
                 playerViewCont.style.display = 'none';
-                
-                listOnlyControls.style.display = 'flex';
-                mainSearchBar.style.display = 'flex'; 
-                playerOnlyControls.style.display = 'none';
-                playerSearchBar.style.display = 'none'; 
 
-                renderList(); 
+                listOnlyControls.style.display = 'flex';
+                playerOnlyControls.style.display = 'none';
+
+                document.getElementById('filter-panel').classList.remove('show');
+                document.getElementById('p-filter-panel').classList.remove('show');
+
+                syncListDraftFromActive();
+                syncListPanelUI();
+                renderList();
                 updateMiniPlayerVisibility();
             });
+
             btnViewPlayer.addEventListener('click', () => {
                 btnViewList.classList.remove('active');
                 btnViewPlayer.classList.add('active');
                 listViewCont.style.display = 'none';
                 playerViewCont.style.display = 'block';
-                
-                listOnlyControls.style.display = 'none';
-                mainSearchBar.style.display = 'none'; 
-                playerOnlyControls.style.display = 'flex';
-                playerSearchBar.style.display = 'flex';
 
-                renderPlayerList();
-                if(pCurrentMusic) updatePlayerPageInfo(); 
+                listOnlyControls.style.display = 'none';
+                playerOnlyControls.style.display = 'flex';
+
+                document.getElementById('filter-panel').classList.remove('show');
+                document.getElementById('p-filter-panel').classList.remove('show');
+
+                syncPlayerDraftFromActive();
+                syncPlayerPanelUI();
+                if (pCurrentMusic) updatePlayerPageInfo();
+                else renderPlayerList();
                 updateMiniPlayerVisibility();
             });
 
@@ -1772,7 +2070,7 @@
                 { id: 'btn-layout-3', name: 'layout-3' },
                 { id: 'btn-layout-5', name: 'layout-5' }
             ];
-            
+
             layoutBtns.forEach(item => {
                 const btnEl = document.getElementById(item.id);
                 btnEl.addEventListener('click', () => {
@@ -1785,29 +2083,24 @@
             });
 
             document.getElementById('btn-filter').addEventListener('click', () => {
-                document.getElementById('filter-panel').classList.toggle('show');
-                document.getElementById('sort-panel').classList.remove('show');
+                openListPanel();
+                document.getElementById('p-filter-panel').classList.remove('show');
             });
             document.getElementById('btn-sort').addEventListener('click', () => {
-                document.getElementById('sort-panel').classList.toggle('show');
-                document.getElementById('filter-panel').classList.remove('show');
+                openListPanel();
+                document.getElementById('p-filter-panel').classList.remove('show');
             });
 
-            document.getElementById('search-input').addEventListener('input', (e) => {
-                searchTerm = e.target.value.trim().toLowerCase();
-                renderList();
-            });
+            document.getElementById('btn-apply-list-filters').addEventListener('click', applyListDraft);
 
             const tagContainer = document.getElementById('tag-filters');
             TAG_DEF.forEach(t => {
                 const chip = document.createElement('div');
-                chip.className = `chip ${t.id === activeTag ? 'active' : ''}`;
+                chip.className = 'chip';
                 chip.innerHTML = `<span class="material-icons-round">${t.icon}</span>${t.label}`;
                 chip.onclick = () => {
-                    tagContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    activeTag = t.id;
-                    renderList();
+                    draftActiveTag = t.id;
+                    syncListPanelUI();
                 };
                 tagContainer.appendChild(chip);
             });
@@ -1815,16 +2108,34 @@
             const writtenContainer = document.getElementById('written-filters');
             WRITTEN_DEF.forEach(w => {
                 const chip = document.createElement('div');
-                chip.className = `chip ${w.id === activeWritten ? 'active' : ''}`;
+                chip.className = 'chip';
                 chip.innerHTML = `<span class="material-icons-round">${w.icon}</span>${w.label}`;
                 chip.onclick = () => {
-                    writtenContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    activeWritten = w.id;
-                    renderList();
+                    draftActiveWritten = w.id;
+                    syncListPanelUI();
                 };
                 writtenContainer.appendChild(chip);
             });
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    draftSearchTerm = e.target.value.trim().toLowerCase();
+                });
+            }
+
+            const publishedFromInput = document.getElementById('published-from');
+            if (publishedFromInput) {
+                publishedFromInput.addEventListener('change', (e) => {
+                    draftPublishedFrom = e.target.value;
+                });
+            }
+            const publishedToInput = document.getElementById('published-to');
+            if (publishedToInput) {
+                publishedToInput.addEventListener('change', (e) => {
+                    draftPublishedTo = e.target.value;
+                });
+            }
 
             const gCharContainer = document.getElementById('game-char-filters');
             gameChars.forEach(c => {
@@ -1834,7 +2145,12 @@
                     <img src="${ASSET_BASE}/character/character_sd_l/chr_sp_${c.id}.png" alt="${c.givenName || ''}" loading="lazy" onerror="handleImageError(this)">
                     <span>${c.firstName || ''}${c.givenName || ''}</span>
                 `;
-                div.onclick = () => toggleCharFilter(`game_${c.id}`, div, selectedChars, renderList);
+                div.onclick = () => {
+                    const key = `game_${c.id}`;
+                    if (draftSelectedChars.has(key)) draftSelectedChars.delete(key);
+                    else draftSelectedChars.add(key);
+                    syncListPanelUI();
+                };
                 gCharContainer.appendChild(div);
             });
 
@@ -1843,135 +2159,57 @@
                 const chip = document.createElement('div');
                 chip.className = 'chip';
                 chip.textContent = c.name;
-                chip.onclick = () => toggleCharFilter(`outside_${c.id}`, chip, selectedChars, renderList);
+                chip.onclick = () => {
+                    const key = `outside_${c.id}`;
+                    if (draftSelectedChars.has(key)) draftSelectedChars.delete(key);
+                    else draftSelectedChars.add(key);
+                    syncListPanelUI();
+                };
                 oCharContainer.appendChild(chip);
             });
 
-            function toggleCharFilter(key, el, setObj, renderFunc) {
-                if (setObj.has(key)) {
-                    setObj.delete(key);
-                    el.classList.remove('active');
-                } else {
-                    setObj.add(key);
-                    el.classList.add('active');
-                }
-                renderFunc();
-            }
-
             const sortKeySelect = document.getElementById('sort-key');
             const sortDiffSelect = document.getElementById('sort-diff');
-            
+
             sortKeySelect.addEventListener('change', (e) => {
-                sortKey = e.target.value;
-                sortDiffSelect.style.display = sortKey === 'level' ? 'inline-block' : 'none';
-                renderList();
+                draftSortKey = e.target.value;
+                syncListPanelUI();
             });
             sortDiffSelect.addEventListener('change', (e) => {
-                sortDiff = e.target.value;
-                renderList();
+                draftSortDiff = e.target.value;
+                syncListPanelUI();
             });
             document.getElementById('btn-sort-order').addEventListener('click', () => {
-                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-                document.getElementById('sort-order-icon').textContent = sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
-                renderList();
+                draftSortOrder = draftSortOrder === 'asc' ? 'desc' : 'asc';
+                syncListPanelUI();
             });
 
-            document.getElementById('btn-settings').addEventListener('click', () => {
-                document.getElementById('settings-modal').classList.add('show');
-            });
-            document.getElementById('btn-close-settings').addEventListener('click', () => {
-                document.getElementById('settings-modal').classList.remove('show');
-            });
-            const skipTog = document.getElementById('skip-toggle');
-            skipTog.checked = skipSilence;
-            skipTog.addEventListener('change', (e) => {
-                skipSilence = e.target.checked;
-                localStorage.setItem('skipSilence', skipSilence);
-            });
-            const vocalSel = document.getElementById('default-vocal-select');
-            vocalSel.value = defaultVocalPref;
-            vocalSel.addEventListener('change', (e) => {
-                defaultVocalPref = e.target.value;
-                localStorage.setItem('defaultVocalPref', defaultVocalPref);
-            });
-
-            updateSpeechSettingsUI();
-            
-            const enabledToggle = document.getElementById('speech-enabled-toggle');
-            if(enabledToggle) {
-                enabledToggle.addEventListener('change', (e) => {
-                    speechInfoSettings.enabled = e.target.checked;
-                    document.getElementById('speech-details-container').style.display = e.target.checked ? 'block' : 'none';
-                    saveSpeechSettings();
-                });
-            }
-
-            const rateSlider = document.getElementById('speech-rate-slider');
-            if(rateSlider) {
-                rateSlider.addEventListener('input', (e) => {
-                    document.getElementById('speech-rate-display').textContent = e.target.value + 'x';
-                });
-                rateSlider.addEventListener('change', (e) => {
-                    speechInfoSettings.rate = parseFloat(e.target.value);
-                    saveSpeechSettings();
-                });
-            }
-
-            const speechToggleMap = [
-                ['speech-title-toggle', 'title'],
-                ['speech-musicid-toggle', 'musicId'],
-                ['speech-unittag-toggle', 'unitTag'],
-                ['speech-credits-toggle', 'credits'],
-                ['speech-publishedat-toggle', 'publishedAt'],
-                ['speech-vocal-toggle', 'vocalCharacters']
-            ];
-            speechToggleMap.forEach(([id, key]) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.addEventListener('change', (e) => {
-                    speechInfoSettings[key] = e.target.checked;
-                    saveSpeechSettings();
-                });
-            });
-
-            document.getElementById('mini-play-pause-btn').addEventListener('click', togglePlayerPlay);
-            document.getElementById('mini-next-btn').addEventListener('click', () => playNext(false));
-            document.getElementById('mini-btn-prev').addEventListener('click', playPrev);
-            document.getElementById('mini-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
-            document.getElementById('mini-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
-
-            document.getElementById('mini-info-area').addEventListener('click', () => {
-                document.getElementById('btn-view-player').click();
-            });
-
+            syncListDraftFromActive();
+            syncListPanelUI();
             setupAudioListeners();
         }
 
+        
         function setupPlayerUI() {
             document.getElementById('p-btn-filter').addEventListener('click', () => {
-                document.getElementById('p-filter-panel').classList.toggle('show');
-                document.getElementById('p-sort-panel').classList.remove('show');
+                openPlayerPanel();
+                document.getElementById('filter-panel').classList.remove('show');
             });
             document.getElementById('p-btn-sort').addEventListener('click', () => {
-                document.getElementById('p-sort-panel').classList.toggle('show');
-                document.getElementById('p-filter-panel').classList.remove('show');
+                openPlayerPanel();
+                document.getElementById('filter-panel').classList.remove('show');
             });
 
-            document.getElementById('p-search-input').addEventListener('input', (e) => {
-                p_searchTerm = e.target.value.trim().toLowerCase();
-                renderPlayerList();
-            });
+            document.getElementById('btn-apply-player-filters').addEventListener('click', applyPlayerDraft);
 
             const pTagContainer = document.getElementById('p-tag-filters');
             TAG_DEF.forEach(t => {
                 const chip = document.createElement('div');
-                chip.className = `chip ${t.id === p_activeTag ? 'active' : ''}`;
+                chip.className = 'chip';
                 chip.innerHTML = `<span class="material-icons-round">${t.icon}</span>${t.label}`;
                 chip.onclick = () => {
-                    pTagContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    p_activeTag = t.id;
-                    renderPlayerList();
+                    p_draftActiveTag = t.id;
+                    syncPlayerPanelUI();
                 };
                 pTagContainer.appendChild(chip);
             });
@@ -1979,16 +2217,34 @@
             const pWrittenContainer = document.getElementById('p-written-filters');
             WRITTEN_DEF.forEach(w => {
                 const chip = document.createElement('div');
-                chip.className = `chip ${w.id === p_activeWritten ? 'active' : ''}`;
+                chip.className = 'chip';
                 chip.innerHTML = `<span class="material-icons-round">${w.icon}</span>${w.label}`;
                 chip.onclick = () => {
-                    pWrittenContainer.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    p_activeWritten = w.id;
-                    renderPlayerList();
+                    p_draftActiveWritten = w.id;
+                    syncPlayerPanelUI();
                 };
                 pWrittenContainer.appendChild(chip);
             });
+
+            const pSearchInput = document.getElementById('p-search-input');
+            if (pSearchInput) {
+                pSearchInput.addEventListener('input', (e) => {
+                    p_draftSearchTerm = e.target.value.trim().toLowerCase();
+                });
+            }
+
+            const pPublishedFromInput = document.getElementById('p-published-from');
+            if (pPublishedFromInput) {
+                pPublishedFromInput.addEventListener('change', (e) => {
+                    p_draftPublishedFrom = e.target.value;
+                });
+            }
+            const pPublishedToInput = document.getElementById('p-published-to');
+            if (pPublishedToInput) {
+                pPublishedToInput.addEventListener('change', (e) => {
+                    p_draftPublishedTo = e.target.value;
+                });
+            }
 
             const pGCharContainer = document.getElementById('p-game-char-filters');
             gameChars.forEach(c => {
@@ -1999,14 +2255,10 @@
                     <span>${c.firstName || ''}${c.givenName || ''}</span>
                 `;
                 div.onclick = () => {
-                    if (p_selectedChars.has(`game_${c.id}`)) {
-                        p_selectedChars.delete(`game_${c.id}`);
-                        div.classList.remove('active');
-                    } else {
-                        p_selectedChars.add(`game_${c.id}`);
-                        div.classList.add('active');
-                    }
-                    renderPlayerList();
+                    const key = `game_${c.id}`;
+                    if (p_draftSelectedChars.has(key)) p_draftSelectedChars.delete(key);
+                    else p_draftSelectedChars.add(key);
+                    syncPlayerPanelUI();
                 };
                 pGCharContainer.appendChild(div);
             });
@@ -2017,48 +2269,45 @@
                 chip.className = 'chip';
                 chip.textContent = c.name;
                 chip.onclick = () => {
-                    if (p_selectedChars.has(`outside_${c.id}`)) {
-                        p_selectedChars.delete(`outside_${c.id}`);
-                        chip.classList.remove('active');
-                    } else {
-                        p_selectedChars.add(`outside_${c.id}`);
-                        chip.classList.add('active');
-                    }
-                    renderPlayerList();
+                    const key = `outside_${c.id}`;
+                    if (p_draftSelectedChars.has(key)) p_draftSelectedChars.delete(key);
+                    else p_draftSelectedChars.add(key);
+                    syncPlayerPanelUI();
                 };
                 pOCharContainer.appendChild(chip);
             });
 
             const pSortKeySelect = document.getElementById('p-sort-key');
             const pSortDiffSelect = document.getElementById('p-sort-diff');
-            
+
             pSortKeySelect.addEventListener('change', (e) => {
-                p_sortKey = e.target.value;
-                pSortDiffSelect.style.display = p_sortKey === 'level' ? 'inline-block' : 'none';
-                renderPlayerList();
+                p_draftSortKey = e.target.value;
+                syncPlayerPanelUI();
             });
             pSortDiffSelect.addEventListener('change', (e) => {
-                p_sortDiff = e.target.value;
-                renderPlayerList();
+                p_draftSortDiff = e.target.value;
+                syncPlayerPanelUI();
             });
             document.getElementById('p-btn-sort-order').addEventListener('click', () => {
-                p_sortOrder = p_sortOrder === 'asc' ? 'desc' : 'asc';
-                document.getElementById('p-sort-order-icon').textContent = p_sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward';
-                renderPlayerList();
+                p_draftSortOrder = p_draftSortOrder === 'asc' ? 'desc' : 'asc';
+                syncPlayerPanelUI();
             });
 
             document.getElementById('p-play-pause-btn').addEventListener('click', togglePlayerPlay);
             document.getElementById('p-btn-prev').addEventListener('click', playPrev);
             document.getElementById('p-btn-next').addEventListener('click', () => playNext(false));
-            
+
             document.getElementById('p-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
             document.getElementById('p-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
 
             const btnShuffle = document.getElementById('p-btn-shuffle');
             btnShuffle.addEventListener('click', toggleShuffle);
-            
+
             const btnRepeat = document.getElementById('p-btn-repeat');
             btnRepeat.addEventListener('click', toggleRepeat);
+
+            syncPlayerDraftFromActive();
+            syncPlayerPanelUI();
         }
 
         function updateMiniPlayerVisibility() {
@@ -2074,12 +2323,19 @@
             }
         }
 
-        function getFilteredAndSortedList(search, aTag, aWritten, sChars, sKey, sOrder, sDiff) {
+        
+        function getFilteredAndSortedList(search, aTag, aWritten, sChars, sKey, sOrder, sDiff, publishedFromValue = '', publishedToValue = '') {
+            const fromTime = publishedFromValue ? new Date(`${publishedFromValue}T00:00:00`).getTime() : null;
+            const toTime = publishedToValue ? new Date(`${publishedToValue}T23:59:59.999`).getTime() : null;
+
             let filtered = musics.filter(m => {
                 if (search) {
                     const matchText = [m.title, m.pronunciation, m.lyricist, m.composer, m.arranger].join(' ').toLowerCase();
                     if (!matchText.includes(search)) return false;
                 }
+                if (fromTime !== null && (m.publishedAt || 0) < fromTime) return false;
+                if (toTime !== null && (m.publishedAt || 0) > toTime) return false;
+
                 if (aTag !== 'all') {
                     const mTags = tagMap.get(m.id) || [];
                     if (!mTags.includes(aTag)) return false;
@@ -2100,7 +2356,7 @@
                         if (!allCharsInMusic.has(charKey)) return false;
                     }
                 }
-                
+
                 if (sKey === 'level') {
                     const diffInfo = diffMap.get(m.id)?.[sDiff];
                     if (!diffInfo) return false;
@@ -2118,7 +2374,7 @@
                     valA = diffMap.get(a.id)?.[sDiff]?.playLevel || 0;
                     valB = diffMap.get(b.id)?.[sDiff]?.playLevel || 0;
                 }
-                
+
                 if (valA < valB) return sOrder === 'asc' ? -1 : 1;
                 if (valA > valB) return sOrder === 'asc' ? 1 : -1;
                 return 0;
@@ -2128,17 +2384,17 @@
         }
 
         function renderList() {
-            const filtered = getFilteredAndSortedList(searchTerm, activeTag, activeWritten, selectedChars, sortKey, sortOrder, sortDiff);
+            const filtered = getFilteredAndSortedList(searchTerm, activeTag, activeWritten, selectedChars, sortKey, sortOrder, sortDiff, publishedFrom, publishedTo);
             const container = document.getElementById('music-list');
             container.innerHTML = '';
-            
+
             const fragment = document.createDocumentFragment();
             filtered.forEach(m => {
                 const el = document.createElement('div');
                 el.className = 'music-item';
                 if (pCurrentMusic && pCurrentMusic.id === m.id) el.classList.add('playing');
                 el.onclick = () => openDetail(m);
-                
+
                 const meta = getMeta(m, sortKey, sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
@@ -2153,10 +2409,10 @@
         }
 
         function renderPlayerList() {
-            currentPlaylist = getFilteredAndSortedList(p_searchTerm, p_activeTag, p_activeWritten, p_selectedChars, p_sortKey, p_sortOrder, p_sortDiff);
+            currentPlaylist = getFilteredAndSortedList(p_searchTerm, p_activeTag, p_activeWritten, p_selectedChars, p_sortKey, p_sortOrder, p_sortDiff, p_publishedFrom, p_publishedTo);
             const container = document.getElementById('player-music-list');
             container.innerHTML = '';
-            
+
             const fragment = document.createDocumentFragment();
             currentPlaylist.forEach(m => {
                 const el = document.createElement('div');
@@ -2167,7 +2423,7 @@
                     const vocal = getDefaultVocal(m, mVocals);
                     loadPlayerAudio(m, vocal, true);
                 };
-                
+
                 const meta = getMeta(m, p_sortKey, p_sortDiff);
                 el.innerHTML = `
                     <img src="${getJacketUrl(m.id)}" alt="jacket" loading="lazy" onerror="handleImageError(this)">
@@ -2771,6 +3027,22 @@
             }
         }
 
+        let lastMainPositionUpdate = 0;
+        let lastModalPositionUpdate = 0;
+
+        function handleThrottledPositionUpdate(audio) {
+            const now = performance.now();
+            if (audio === pAudio) {
+                if (now - lastMainPositionUpdate < 250) return;
+                lastMainPositionUpdate = now;
+            } else {
+                if (now - lastModalPositionUpdate < 250) return;
+                lastModalPositionUpdate = now;
+            }
+            updatePositionState(audio);
+        }
+
+
         function setupAudioListeners() {
             pAudio.addEventListener('play', syncPlayerUI);
             pAudio.addEventListener('pause', syncPlayerUI);
@@ -2778,7 +3050,7 @@
                 syncPlayerUI();
                 playNext(true);
             });
-            pAudio.addEventListener('timeupdate', () => updatePositionState(pAudio));
+            pAudio.addEventListener('timeupdate', () => handleThrottledPositionUpdate(pAudio));
             pAudio.addEventListener('loadedmetadata', () => updatePositionState(pAudio));
             pAudio.addEventListener('error', syncPlayerUI);
 
@@ -2809,7 +3081,7 @@
             mAudio.addEventListener('ended', () => {
                 syncModalUI();
             });
-            mAudio.addEventListener('timeupdate', () => updatePositionState(mAudio));
+            mAudio.addEventListener('timeupdate', () => handleThrottledPositionUpdate(mAudio));
             mAudio.addEventListener('loadedmetadata', () => updatePositionState(mAudio));
             mAudio.addEventListener('error', syncModalUI);
         }
