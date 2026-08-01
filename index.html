@@ -584,7 +584,21 @@
         .mini-controls button .material-icons-round { font-size: 28px; }
         .mini-controls button.icon-btn.active { background: transparent; color: var(--accent-color); }
         .mini-progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; width: 100%; }
-        .mini-progress-fill { height: 100%; background: var(--accent-color); width: 0%; }
+        /* 発熱対策(1): widthアニメーションによるリフローを防ぐためtransformに変更 */
+        .mini-progress-fill { height: 100%; background: var(--accent-color); width: 100%; transform: scaleX(0); transform-origin: left; }
+
+        /* 自動スクロール(Marquee)用 */
+        .scroll-text {
+            display: inline-block;
+        }
+        .scroll-text.marquee {
+            padding-left: 100%;
+            animation: marquee 10s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
 
         /* Modal */
         .modal-overlay {
@@ -911,34 +925,35 @@
                 gap: 12px;
             }
 
+            /* ウィジェットを1行に収めるための修正 */
             .mini-player.show { 
-                padding: 12px 16px; 
-                display: grid;
-                grid-template-columns: 48px 1fr;
-                grid-template-areas:
-                    "jacket info"
-                    "controls controls";
-                gap: 10px 12px;
+                padding: 8px 12px; 
+                display: flex;
+                flex-direction: row;
+                gap: 8px;
                 align-items: center;
+                flex-wrap: nowrap;
             }
-            .mini-progress-bar { grid-column: 1 / -1; }
-            .mini-jacket { grid-area: jacket; width: 48px; height: 48px; }
-            .mini-info { grid-area: info; align-self: center; }
-            .mini-title { font-size: 13px; }
-            .mini-vocal { font-size: 11px; }
+            .mini-progress-bar { width: 100%; }
+            .mini-jacket { width: 40px; height: 40px; }
+            .mini-info { flex: 1 1 0%; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+            .mini-title { font-size: 12px; overflow: hidden; white-space: nowrap; }
+            .mini-vocal { font-size: 10px; overflow: hidden; white-space: nowrap; margin-top: 2px; }
             
             .mini-controls {
-                grid-area: controls;
                 display: flex;
-                justify-content: center;
-                width: 100%;
-                margin-top: 4px;
-                gap: 12px;
+                flex-shrink: 0;
+                justify-content: flex-end;
+                width: auto;
+                margin-top: 0;
+                gap: 4px;
             }
             .mini-controls button {
-                padding: 8px; 
+                padding: 4px; 
+                min-width: 32px;
+                min-height: 32px;
             }
-            .mini-controls button .material-icons-round { font-size: 26px; }
+            .mini-controls button .material-icons-round { font-size: 22px; }
         }
         
         @media (max-width: 480px) {
@@ -1136,8 +1151,8 @@
         <div class="mini-progress-bar"><div id="mini-progress" class="mini-progress-fill"></div></div>
         <img id="mini-jacket" class="mini-jacket" src="" alt="jacket" onerror="handleImageError(this)">
         <div class="mini-info" id="mini-info-area" title="プレイヤーを開く">
-            <div id="mini-title" class="mini-title">Title</div>
-            <div id="mini-vocal" class="mini-vocal">Vocal</div>
+            <div id="mini-title" class="mini-title"><span class="scroll-text">Title</span></div>
+            <div id="mini-vocal" class="mini-vocal"><span class="scroll-text">Vocal</span></div>
         </div>
         <div class="mini-controls">
             <button id="mini-btn-prev" class="icon-btn" title="前の曲"><span class="material-icons-round">skip_previous</span></button>
@@ -1685,6 +1700,32 @@
             return mVocals[0];
         }
 
+        // ウィジェットテキストの自動スクロール判定関数
+        function checkMiniPlayerTextScroll() {
+            const mTitle = document.getElementById('mini-title');
+            const mVocal = document.getElementById('mini-vocal');
+            
+            [mTitle, mVocal].forEach(container => {
+                if (!container) return;
+                const textSpan = container.querySelector('.scroll-text');
+                if (!textSpan) return;
+                
+                textSpan.classList.remove('marquee');
+                
+                requestAnimationFrame(() => {
+                    if (textSpan.scrollWidth > container.clientWidth) {
+                        textSpan.classList.add('marquee');
+                    }
+                });
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            if (document.getElementById('mini-player').classList.contains('show')) {
+                checkMiniPlayerTextScroll();
+            }
+        });
+
         function setupUI() {
             const btnViewList = document.getElementById('btn-view-list');
             const btnViewPlayer = document.getElementById('btn-view-player');
@@ -1896,8 +1937,8 @@
             document.getElementById('mini-play-pause-btn').addEventListener('click', togglePlayerPlay);
             document.getElementById('mini-next-btn').addEventListener('click', () => playNext(false));
             document.getElementById('mini-btn-prev').addEventListener('click', playPrev);
-            document.getElementById('mini-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); });
-            document.getElementById('mini-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); });
+            document.getElementById('mini-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
+            document.getElementById('mini-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
 
             document.getElementById('mini-info-area').addEventListener('click', () => {
                 document.getElementById('btn-view-player').click();
@@ -2010,8 +2051,8 @@
             document.getElementById('p-btn-prev').addEventListener('click', playPrev);
             document.getElementById('p-btn-next').addEventListener('click', () => playNext(false));
             
-            document.getElementById('p-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); });
-            document.getElementById('p-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); });
+            document.getElementById('p-btn-back-10').addEventListener('click', () => { pAudio.currentTime = Math.max(0, pAudio.currentTime - 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
+            document.getElementById('p-btn-forward-10').addEventListener('click', () => { if(pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10); updatePositionState(pAudio); updateMediaSessionPositionState(pAudio); });
 
             const btnShuffle = document.getElementById('p-btn-shuffle');
             btnShuffle.addEventListener('click', toggleShuffle);
@@ -2026,6 +2067,7 @@
             if (document.getElementById('list-view-container').style.display !== 'none' && pCurrentMusic) {
                 miniPlayer.classList.add('show');
                 mainEl.classList.add('with-mini-player');
+                checkMiniPlayerTextScroll();
             } else {
                 miniPlayer.classList.remove('show');
                 mainEl.classList.remove('with-mini-player');
@@ -2257,10 +2299,10 @@
 
             const seekBar = pCont.querySelector('#seek-bar');
             pCont.querySelector('#play-pause-btn').onclick = toggleModalPlay;
-            pCont.querySelector('#btn-back-10').onclick = () => { mAudio.currentTime = Math.max(0, mAudio.currentTime - 10); updatePositionState(mAudio); };
-            pCont.querySelector('#btn-back-5').onclick = () => { mAudio.currentTime = Math.max(0, mAudio.currentTime - 5); updatePositionState(mAudio); };
-            pCont.querySelector('#btn-forward-5').onclick = () => { if(mAudio.duration) mAudio.currentTime = Math.min(mAudio.duration, mAudio.currentTime + 5); updatePositionState(mAudio); };
-            pCont.querySelector('#btn-forward-10').onclick = () => { if(mAudio.duration) mAudio.currentTime = Math.min(mAudio.duration, mAudio.currentTime + 10); updatePositionState(mAudio); };
+            pCont.querySelector('#btn-back-10').onclick = () => { mAudio.currentTime = Math.max(0, mAudio.currentTime - 10); updatePositionState(mAudio); updateMediaSessionPositionState(mAudio); };
+            pCont.querySelector('#btn-back-5').onclick = () => { mAudio.currentTime = Math.max(0, mAudio.currentTime - 5); updatePositionState(mAudio); updateMediaSessionPositionState(mAudio); };
+            pCont.querySelector('#btn-forward-5').onclick = () => { if(mAudio.duration) mAudio.currentTime = Math.min(mAudio.duration, mAudio.currentTime + 5); updatePositionState(mAudio); updateMediaSessionPositionState(mAudio); };
+            pCont.querySelector('#btn-forward-10').onclick = () => { if(mAudio.duration) mAudio.currentTime = Math.min(mAudio.duration, mAudio.currentTime + 10); updatePositionState(mAudio); updateMediaSessionPositionState(mAudio); };
             
             const startSeekModal = () => { mIsSeeking = true; };
             const finishSeekModal = (e) => {
@@ -2268,6 +2310,7 @@
                     mAudio.currentTime = (e.target.value / 100) * mAudio.duration;
                     mIsSeeking = false;
                     updatePositionState(mAudio);
+                    updateMediaSessionPositionState(mAudio);
                 }
             };
 
@@ -2422,8 +2465,9 @@
             const mTitle = document.getElementById('mini-title');
             const mVocal = document.getElementById('mini-vocal');
             if(mJacket) mJacket.src = getJacketUrl(pCurrentMusic.id);
-            if(mTitle) mTitle.textContent = pCurrentMusic.title;
-            if(mVocal) mVocal.textContent = finalVocalName;
+            if(mTitle) mTitle.innerHTML = `<span class="scroll-text">${pCurrentMusic.title}</span>`;
+            if(mVocal) mVocal.innerHTML = `<span class="scroll-text">${finalVocalName}</span>`;
+            
             updateMiniPlayerVisibility();
             
             renderPlayerList();
@@ -2668,6 +2712,18 @@
             else mAudio.pause();
         }
         
+        function updateMediaSessionPositionState(audio) {
+            if ('mediaSession' in navigator && !isNaN(audio.duration) && !isNaN(audio.currentTime)) {
+                try {
+                    navigator.mediaSession.setPositionState({
+                        duration: audio.duration,
+                        playbackRate: audio.playbackRate,
+                        position: audio.currentTime
+                    });
+                } catch (e) {}
+            }
+        }
+        
         function syncPlayerUI() {
             const isP = !pAudio.paused;
             const pIcon = document.getElementById('p-play-icon');
@@ -2675,6 +2731,7 @@
             if(pIcon) pIcon.textContent = isP ? 'pause' : 'play_arrow';
             if(mIcon) mIcon.textContent = isP ? 'pause' : 'play_arrow';
             updatePositionState(pAudio);
+            updateMediaSessionPositionState(pAudio);
         }
 
         function syncModalUI() {
@@ -2682,6 +2739,7 @@
             const icon = document.getElementById('play-icon');
             if(icon) icon.textContent = isP ? 'pause' : 'play_arrow';
             updatePositionState(mAudio);
+            updateMediaSessionPositionState(mAudio);
         }
 
         function updatePositionState(audio) {
@@ -2700,7 +2758,7 @@
                 if (td) td.textContent = formatTime(duration);
 
                 const miniProg = document.getElementById('mini-progress');
-                if (miniProg && duration > 0) miniProg.style.width = `${(current / duration) * 100}%`;
+                if (miniProg && duration > 0) miniProg.style.transform = `scaleX(${current / duration})`;
             } else {
                 if (!mIsSeeking) {
                     const sb = document.getElementById('seek-bar');
@@ -2710,16 +2768,6 @@
                 }
                 const td = document.getElementById('time-duration');
                 if (td) td.textContent = formatTime(duration);
-            }
-            
-            if ('mediaSession' in navigator && !audio.paused && !isNaN(duration) && !isNaN(current)) {
-                try {
-                    navigator.mediaSession.setPositionState({
-                        duration: duration,
-                        playbackRate: audio.playbackRate,
-                        position: current
-                    });
-                } catch (e) {}
             }
         }
 
@@ -2741,6 +2789,7 @@
                     pAudio.currentTime = (e.target.value / 100) * pAudio.duration;
                     pIsSeeking = false;
                     updatePositionState(pAudio);
+                    updateMediaSessionPositionState(pAudio);
                 }
             };
             pSeekBar.addEventListener('mousedown', startSeekP);
@@ -2767,48 +2816,45 @@
 
         function setupMediaSession(music, vocal, audioEl, isMainPlayer) {
             if ('mediaSession' in navigator) {
-                const names = getMusicVocalCharacterNames(vocal);
+                let vocalName = '';
+                if (vocal) {
+                    const names = getMusicVocalCharacterNames(vocal);
+                    vocalName = vocal.displayName || names.join(', ') || 'Unknown Vocal';
+                }
+                
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: music.title,
-                    artist: names.length ? names.join(', ') : (music.composer || 'Unknown'),
+                    artist: vocalName,
                     album: 'Sekai Music DB',
                     artwork: [
-                        { src: getJacketUrl(music.id), sizes: '256x256', type: 'image/png' },
                         { src: getJacketUrl(music.id), sizes: '512x512', type: 'image/png' }
                     ]
                 });
 
                 if (isMainPlayer) {
-                    navigator.mediaSession.setActionHandler('play', startPlayerPlay);
-                    navigator.mediaSession.setActionHandler('pause', () => pAudio.pause());
-                    navigator.mediaSession.setActionHandler('previoustrack', playPrev);
-                    navigator.mediaSession.setActionHandler('nexttrack', () => playNext(false));
-                    navigator.mediaSession.setActionHandler('seekto', (details) => {
-                        if (details.fastSeek && 'fastSeek' in pAudio) {
-                            pAudio.fastSeek(details.seekTime);
-                        } else {
-                            pAudio.currentTime = details.seekTime;
-                        }
-                        updatePositionState(pAudio);
+                    navigator.mediaSession.setActionHandler('seekbackward', () => {
+                        audioEl.currentTime = Math.max(0, audioEl.currentTime - 10);
+                        updatePositionState(audioEl);
+                        updateMediaSessionPositionState(audioEl);
                     });
-                } else {
-                    navigator.mediaSession.setActionHandler('play', startModalPlay);
-                    navigator.mediaSession.setActionHandler('pause', () => mAudio.pause());
-                    navigator.mediaSession.setActionHandler('previoustrack', null);
-                    navigator.mediaSession.setActionHandler('nexttrack', null);
-                    navigator.mediaSession.setActionHandler('seekto', (details) => {
-                        if (details.fastSeek && 'fastSeek' in mAudio) {
-                            mAudio.fastSeek(details.seekTime);
-                        } else {
-                            mAudio.currentTime = details.seekTime;
+                    
+                    navigator.mediaSession.setActionHandler('seekforward', () => {
+                        if (audioEl.duration) {
+                            audioEl.currentTime = Math.min(audioEl.duration, audioEl.currentTime + 10);
                         }
-                        updatePositionState(mAudio);
+                        updatePositionState(audioEl);
+                        updateMediaSessionPositionState(audioEl);
                     });
+                    
+                    try {
+                        navigator.mediaSession.setActionHandler('previoustrack', null);
+                        navigator.mediaSession.setActionHandler('nexttrack', null);
+                    } catch(e) {}
                 }
             }
         }
 
-        document.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
