@@ -1049,7 +1049,6 @@
 <div class="controls">
                 <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
                     <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
-                    <button class="icon-btn" id="btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
                     <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                     <button class="icon-btn" id="btn-layout-1" title="1列表示"><span class="material-icons-round">view_list</span></button>
                     <button class="icon-btn active" id="btn-layout-3" title="3列表示"><span class="material-icons-round">view_module</span></button>
@@ -1058,12 +1057,11 @@
 
                 <span id="player-only-controls" style="display: none; gap: 8px; align-items: center;">
                     <button class="icon-btn" id="p-btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
-                    <button class="icon-btn" id="p-btn-sort" title="並び替え"><span class="material-icons-round">sort</span></button>
                 </span>
                 
                 <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                 
-                <button class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
+                <button type="button" class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
             </div>
         </div>
     </header>
@@ -1291,7 +1289,7 @@
         <div class="modal-content" style="max-width: 400px; height: auto;">
             <div class="modal-header">
                 <h2>設定</h2>
-                <button class="icon-btn" id="btn-close-settings"><span class="material-icons-round">close</span></button>
+                <button type="button" class="icon-btn" id="btn-close-settings"><span class="material-icons-round">close</span></button>
             </div>
             <div class="modal-body">
                 <div class="setting-row">
@@ -2086,10 +2084,6 @@
                 openListPanel();
                 document.getElementById('p-filter-panel').classList.remove('show');
             });
-            document.getElementById('btn-sort').addEventListener('click', () => {
-                openListPanel();
-                document.getElementById('p-filter-panel').classList.remove('show');
-            });
 
             document.getElementById('btn-apply-list-filters').addEventListener('click', applyListDraft);
 
@@ -2184,6 +2178,105 @@
                 syncListPanelUI();
             });
 
+            const settingsModal = document.getElementById('settings-modal');
+            const btnSettings = document.getElementById('btn-settings');
+            const btnCloseSettings = document.getElementById('btn-close-settings');
+            const defaultVocalSelect = document.getElementById('default-vocal-select');
+
+            const openSettingsModal = () => {
+                if (defaultVocalSelect && !defaultVocalSelect.value) {
+                    defaultVocalSelect.value = 'sekai';
+                }
+                if (settingsModal) settingsModal.classList.add('show');
+            };
+
+            const closeSettingsModal = () => {
+                if (settingsModal) settingsModal.classList.remove('show');
+            };
+
+            window.openSettingsModal = openSettingsModal;
+            window.closeSettingsModal = closeSettingsModal;
+
+            if (btnSettings) {
+                btnSettings.addEventListener('click', openSettingsModal);
+                btnSettings.onclick = openSettingsModal;
+            }
+            if (btnCloseSettings) {
+                btnCloseSettings.addEventListener('click', closeSettingsModal);
+                btnCloseSettings.onclick = closeSettingsModal;
+            }
+            if (settingsModal) {
+                settingsModal.addEventListener('click', (e) => {
+                    if (e.target === settingsModal) closeSettingsModal();
+                });
+                const settingsContent = settingsModal.querySelector('.modal-content');
+                if (settingsContent) {
+                    settingsContent.addEventListener('click', (e) => e.stopPropagation());
+                }
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeSettingsModal();
+            });
+
+            const skipTog = document.getElementById('skip-toggle');
+            if (skipTog) {
+                skipTog.checked = skipSilence;
+                skipTog.addEventListener('change', (e) => {
+                    skipSilence = e.target.checked;
+                    localStorage.setItem('skipSilence', skipSilence);
+                });
+            }
+
+            const vocalSel = document.getElementById('default-vocal-select');
+            if (vocalSel) {
+                vocalSel.value = defaultVocalPref;
+                vocalSel.addEventListener('change', (e) => {
+                    defaultVocalPref = normalizeDefaultVocalPref(e.target.value);
+                    localStorage.setItem('defaultVocalPref', defaultVocalPref);
+                });
+            }
+
+            updateSpeechSettingsUI();
+
+            const enabledToggle = document.getElementById('speech-enabled-toggle');
+            if (enabledToggle) {
+                enabledToggle.addEventListener('change', (e) => {
+                    speechInfoSettings.enabled = e.target.checked;
+                    const details = document.getElementById('speech-details-container');
+                    if (details) details.style.display = e.target.checked ? 'block' : 'none';
+                    saveSpeechSettings();
+                });
+            }
+
+            const rateSlider = document.getElementById('speech-rate-slider');
+            if (rateSlider) {
+                rateSlider.addEventListener('input', (e) => {
+                    const display = document.getElementById('speech-rate-display');
+                    if (display) display.textContent = e.target.value + 'x';
+                });
+                rateSlider.addEventListener('change', (e) => {
+                    speechInfoSettings.rate = parseFloat(e.target.value);
+                    saveSpeechSettings();
+                });
+            }
+
+            const speechToggleMap = [
+                ['speech-title-toggle', 'title'],
+                ['speech-musicid-toggle', 'musicId'],
+                ['speech-unittag-toggle', 'unitTag'],
+                ['speech-credits-toggle', 'credits'],
+                ['speech-publishedat-toggle', 'publishedAt'],
+                ['speech-vocal-toggle', 'vocalCharacters']
+            ];
+            speechToggleMap.forEach(([id, key]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('change', (e) => {
+                    speechInfoSettings[key] = e.target.checked;
+                    saveSpeechSettings();
+                });
+            });
+
             syncListDraftFromActive();
             syncListPanelUI();
             setupAudioListeners();
@@ -2192,10 +2285,6 @@
         
         function setupPlayerUI() {
             document.getElementById('p-btn-filter').addEventListener('click', () => {
-                openPlayerPanel();
-                document.getElementById('filter-panel').classList.remove('show');
-            });
-            document.getElementById('p-btn-sort').addEventListener('click', () => {
                 openPlayerPanel();
                 document.getElementById('filter-panel').classList.remove('show');
             });
