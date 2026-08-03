@@ -652,7 +652,7 @@
         .mini-controls button.icon-btn.active { background: transparent; color: var(--accent-color); }
         .mini-progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; width: 100%; }
         /* 発熱対策(1): widthアニメーションによるリフローを防ぐためtransformに変更 */
-        .mini-progress-fill { height: 100%; background: var(--accent-color); width: 100%; transform: scaleX(0); transform-origin: left; }
+        .mini-progress-fill { height: 100%; background: var(--accent-color); width: 100%; transform: scaleX(0); transform-origin: left; will-change: transform; }
 
         /* 自動スクロール(Marquee)用 */
         .scroll-text {
@@ -661,10 +661,11 @@
         .scroll-text.marquee {
             padding-left: 100%;
             animation: marquee 10s linear infinite;
+            will-change: transform;
         }
         @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
         }
 
         /* Modal */
@@ -680,6 +681,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
+            will-change: opacity;
         }
         .modal-overlay.show {
             opacity: 1;
@@ -697,6 +699,7 @@
             transform: translateY(20px);
             transition: transform 0.3s;
             overflow: hidden;
+            will-change: transform;
         }
         .modal-overlay.show .modal-content {
             transform: translateY(0);
@@ -949,7 +952,7 @@
             color: var(--accent-color);
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        .spin { animation: spin 1s linear infinite; font-size: 48px; }
+        .spin { animation: spin 1s linear infinite; font-size: 48px; will-change: transform; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -1059,10 +1062,6 @@
                 <span id="player-only-controls" style="display: none; gap: 8px; align-items: center;">
                     <button class="icon-btn" id="p-btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
                 </span>
-                
-                <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
-                
-                <button type="button" class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
             </div>
         </div>
     </header>
@@ -1270,6 +1269,9 @@
         </button>
         <button class="nav-btn" id="btn-view-player" title="プレイヤー画面">
             <span class="material-icons-round">play_circle</span>プレイヤー
+        </button>
+        <button class="nav-btn" type="button" id="btn-settings" title="設定画面">
+            <span class="material-icons-round">settings</span>設定
         </button>
     </nav>
 
@@ -1992,18 +1994,49 @@
         }
 
         // ウィジェットテキストの自動スクロール判定関数
-        function checkMiniPlayerTextScroll() {
+        let miniPlayerScrollRafId = 0;
+        let miniPlayerScrollSignature = '';
+
+        function checkMiniPlayerTextScroll(force = false) {
+            const miniPlayer = document.getElementById('mini-player');
             const mTitle = document.getElementById('mini-title');
             const mVocal = document.getElementById('mini-vocal');
-            
+            const isShowing = !!(miniPlayer && miniPlayer.classList.contains('show'));
+            const isPlaying = !pAudio.paused;
+            const isHidden = document.hidden;
+            const signature = [
+                isShowing ? 1 : 0,
+                isPlaying ? 1 : 0,
+                isHidden ? 1 : 0,
+                mTitle?.textContent || '',
+                mVocal?.textContent || ''
+            ].join('|');
+
+            if (!force && signature === miniPlayerScrollSignature) return;
+            miniPlayerScrollSignature = signature;
+
+            if (miniPlayerScrollRafId) {
+                cancelAnimationFrame(miniPlayerScrollRafId);
+                miniPlayerScrollRafId = 0;
+            }
+
             [mTitle, mVocal].forEach(container => {
                 if (!container) return;
                 const textSpan = container.querySelector('.scroll-text');
                 if (!textSpan) return;
-                
                 textSpan.classList.remove('marquee');
-                
-                requestAnimationFrame(() => {
+            });
+
+            if (!(isShowing && isPlaying && !isHidden)) return;
+
+            miniPlayerScrollRafId = requestAnimationFrame(() => {
+                miniPlayerScrollRafId = 0;
+                if (!miniPlayer.classList.contains('show') || pAudio.paused || document.hidden) return;
+
+                [mTitle, mVocal].forEach(container => {
+                    if (!container) return;
+                    const textSpan = container.querySelector('.scroll-text');
+                    if (!textSpan) return;
                     if (textSpan.scrollWidth > container.clientWidth) {
                         textSpan.classList.add('marquee');
                     }
@@ -2013,11 +2046,14 @@
 
         window.addEventListener('resize', () => {
             if (document.getElementById('mini-player').classList.contains('show')) {
-                checkMiniPlayerTextScroll();
+                checkMiniPlayerTextScroll(true);
             }
         });
+        document.addEventListener('visibilitychange', () => {
+            checkMiniPlayerTextScroll(true);
+        });
 
-        
+
         function setupUI() {
             const btnViewList = document.getElementById('btn-view-list');
             const btnViewPlayer = document.getElementById('btn-view-player');
@@ -2405,10 +2441,11 @@
             if (document.getElementById('list-view-container').style.display !== 'none' && pCurrentMusic) {
                 miniPlayer.classList.add('show');
                 mainEl.classList.add('with-mini-player');
-                checkMiniPlayerTextScroll();
+                checkMiniPlayerTextScroll(true);
             } else {
                 miniPlayer.classList.remove('show');
                 mainEl.classList.remove('with-mini-player');
+                checkMiniPlayerTextScroll(true);
             }
         }
 
@@ -3077,6 +3114,7 @@
             if(mIcon) mIcon.textContent = isP ? 'pause' : 'play_arrow';
             updatePositionState(pAudio);
             updateMediaSessionPositionState(pAudio);
+            checkMiniPlayerTextScroll();
         }
 
         function syncModalUI() {
