@@ -121,46 +121,102 @@
             color: var(--accent-color);
         }
 
-        /* Bottom Nav */
-        #bottom-nav {
+        /* 展開メニューバー */
+        .menu-toggle-btn {
+            flex: 0 0 auto;
+        }
+
+        #side-menu-overlay {
             position: fixed;
-            bottom: 0;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 1100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        #side-menu-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #side-menu {
+            position: fixed;
+            top: 0;
             left: 0;
-            right: 0;
-            height: 60px;
+            bottom: 0;
+            width: min(82vw, 320px);
             background: var(--primary-bg);
-            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            z-index: 1101;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            padding: 16px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        #side-menu.show {
+            transform: translateX(0);
+        }
+
+        .side-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 4px 0 16px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+
+        .side-menu-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .side-menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .side-menu-btn {
+            width: 100%;
+            min-height: 48px;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--text-main);
+            display: flex;
             align-items: center;
             gap: 12px;
-            z-index: 100;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            padding: 0 20px;
-        }
-
-        button.nav-btn {
-            flex: 1;
-            max-width: 200px;
-            height: 44px;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            color: var(--text-sub);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
+            padding: 10px 14px;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
         }
 
-        button.nav-btn:hover, button.nav-btn.active {
+        .side-menu-btn:hover, .side-menu-btn.active {
             background: rgba(0, 188, 212, 0.1);
             border-color: var(--accent-color);
             color: var(--accent-color);
+        }
+
+        .side-menu-btn .material-icons-round {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .side-menu-btn span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         @media (min-width: 769px) {
@@ -371,10 +427,10 @@
         main {
             padding: 20px;
             min-height: calc(100vh - 80px);
-            padding-bottom: 80px; /* For bottom-nav */
+            padding-bottom: 20px; /* 展開メニュー使用 */
         }
         main.with-mini-player {
-            padding-bottom: 150px;
+            padding-bottom: 90px;
         }
 
         .list-container {
@@ -628,7 +684,7 @@
         /* Mini Player */
         .mini-player {
             position: fixed;
-            bottom: 60px; /* Above the bottom nav */
+            bottom: 0;
             left: 0;
             right: 0;
             background: var(--primary-bg);
@@ -658,13 +714,10 @@
         .scroll-text {
             display: inline-block;
         }
+        /* 長時間の常時アニメーションを避け、スマートフォンの発熱・電力消費を抑える */
         .scroll-text.marquee {
-            padding-left: 100%;
-            animation: marquee 10s linear infinite;
-        }
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            padding-left: 0;
+            animation: none;
         }
 
         /* Modal */
@@ -955,6 +1008,10 @@
 
         /* --- 縦画面(スマートフォン・タブレット向け)のレスポンシブ最適化 --- */
         @media (max-width: 768px) {
+            .menu-toggle-btn {
+                align-self: flex-start;
+            }
+
             .header-top {
                 flex-direction: column;
                 align-items: stretch;
@@ -1047,7 +1104,10 @@
 
     <header>
         <div class="header-top">
-<div class="controls">
+            <button type="button" class="icon-btn menu-toggle-btn" id="menu-toggle-btn" title="メニュー" aria-label="メニューを開く" aria-expanded="false">
+                <span class="material-icons-round" id="menu-toggle-icon">menu</span>
+            </button>
+            <div class="controls">
                 <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
                     <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
                     <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
@@ -1060,9 +1120,6 @@
                     <button class="icon-btn" id="p-btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
                 </span>
                 
-                <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
-                
-                <button type="button" class="icon-btn" id="btn-settings" title="設定"><span class="material-icons-round">settings</span></button>
             </div>
         </div>
     </header>
@@ -1263,15 +1320,27 @@
         </div>
     </div>
     
-    <!-- Bottom Navigation -->
-    <nav id="bottom-nav">
-        <button class="nav-btn active" id="btn-view-list" title="一覧画面">
-            <span class="material-icons-round">queue_music</span>一覧
-        </button>
-        <button class="nav-btn" id="btn-view-player" title="プレイヤー画面">
-            <span class="material-icons-round">play_circle</span>プレイヤー
-        </button>
-    </nav>
+    <!-- 展開メニューバー -->
+    <div id="side-menu-overlay"></div>
+    <aside id="side-menu" aria-hidden="true">
+        <div class="side-menu-header">
+            <div class="side-menu-title">メニュー</div>
+            <button type="button" class="icon-btn" id="side-menu-close" title="メニューを閉じる" aria-label="メニューを閉じる">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <nav class="side-menu-list" aria-label="画面移動">
+            <button type="button" class="side-menu-btn active" id="menu-view-list">
+                <span class="material-icons-round">queue_music</span><span>一覧</span>
+            </button>
+            <button type="button" class="side-menu-btn" id="menu-view-player">
+                <span class="material-icons-round">play_circle</span><span>プレイヤー</span>
+            </button>
+            <button type="button" class="side-menu-btn" id="menu-view-settings">
+                <span class="material-icons-round">settings</span><span>設定</span>
+            </button>
+        </nav>
+    </aside>
 
     <!-- Detail Modal -->
     <div id="detail-modal" class="modal-overlay">
@@ -2019,12 +2088,65 @@
 
         
         function setupUI() {
-            const btnViewList = document.getElementById('btn-view-list');
-            const btnViewPlayer = document.getElementById('btn-view-player');
             const listViewCont = document.getElementById('list-view-container');
             const playerViewCont = document.getElementById('player-view-container');
             const listOnlyControls = document.getElementById('list-only-controls');
             const playerOnlyControls = document.getElementById('player-only-controls');
+            const menuToggleBtn = document.getElementById('menu-toggle-btn');
+            const menuToggleIcon = document.getElementById('menu-toggle-icon');
+            const sideMenu = document.getElementById('side-menu');
+            const sideMenuOverlay = document.getElementById('side-menu-overlay');
+            const sideMenuClose = document.getElementById('side-menu-close');
+            const menuViewList = document.getElementById('menu-view-list');
+            const menuViewPlayer = document.getElementById('menu-view-player');
+            const menuViewSettings = document.getElementById('menu-view-settings');
+            const btnViewList = menuViewList;
+            const btnViewPlayer = menuViewPlayer;
+
+            const closeSideMenu = () => {
+                if (sideMenu) {
+                    sideMenu.classList.remove('show');
+                    sideMenu.setAttribute('aria-hidden', 'true');
+                }
+                if (sideMenuOverlay) sideMenuOverlay.classList.remove('show');
+                if (menuToggleBtn) {
+                    menuToggleBtn.setAttribute('aria-expanded', 'false');
+                    menuToggleBtn.setAttribute('aria-label', 'メニューを開く');
+                }
+                if (menuToggleIcon) menuToggleIcon.textContent = 'menu';
+                document.body.style.overflow = '';
+            };
+
+            const openSideMenu = () => {
+                if (sideMenu) {
+                    sideMenu.classList.add('show');
+                    sideMenu.setAttribute('aria-hidden', 'false');
+                }
+                if (sideMenuOverlay) sideMenuOverlay.classList.add('show');
+                if (menuToggleBtn) {
+                    menuToggleBtn.setAttribute('aria-expanded', 'true');
+                    menuToggleBtn.setAttribute('aria-label', 'メニューを閉じる');
+                }
+                if (menuToggleIcon) menuToggleIcon.textContent = 'close';
+                document.body.style.overflow = 'hidden';
+            };
+
+            const toggleSideMenu = () => {
+                if (sideMenu && sideMenu.classList.contains('show')) closeSideMenu();
+                else openSideMenu();
+            };
+
+            const syncMenuActive = (view) => {
+                if (menuViewList) menuViewList.classList.toggle('active', view === 'list');
+                if (menuViewPlayer) menuViewPlayer.classList.toggle('active', view === 'player');
+                if (menuViewSettings) menuViewSettings.classList.toggle('active', view === 'settings');
+            };
+
+            syncMenuActive('list');
+
+            if (menuToggleBtn) menuToggleBtn.addEventListener('click', toggleSideMenu);
+            if (sideMenuClose) sideMenuClose.addEventListener('click', closeSideMenu);
+            if (sideMenuOverlay) sideMenuOverlay.addEventListener('click', closeSideMenu);
 
             btnViewList.addEventListener('click', () => {
                 btnViewPlayer.classList.remove('active');
@@ -2042,6 +2164,8 @@
                 syncListPanelUI();
                 renderList();
                 updateMiniPlayerVisibility();
+                syncMenuActive('list');
+                closeSideMenu();
             });
 
             btnViewPlayer.addEventListener('click', () => {
@@ -2061,6 +2185,8 @@
                 if (pCurrentMusic) updatePlayerPageInfo();
                 else renderPlayerList();
                 updateMiniPlayerVisibility();
+                syncMenuActive('player');
+                closeSideMenu();
             });
 
             const layoutBtns = [
@@ -2179,7 +2305,6 @@
             });
 
             const settingsModal = document.getElementById('settings-modal');
-            const btnSettings = document.getElementById('btn-settings');
             const btnCloseSettings = document.getElementById('btn-close-settings');
             const defaultVocalSelect = document.getElementById('default-vocal-select');
 
@@ -2188,19 +2313,24 @@
                     defaultVocalSelect.value = 'sekai';
                 }
                 if (settingsModal) settingsModal.classList.add('show');
+                syncMenuActive('settings');
             };
 
             const closeSettingsModal = () => {
                 if (settingsModal) settingsModal.classList.remove('show');
+                syncMenuActive(document.getElementById('list-view-container').style.display === 'none' ? 'player' : 'list');
             };
+
+            if (menuViewSettings) {
+                menuViewSettings.addEventListener('click', () => {
+                    closeSideMenu();
+                    openSettingsModal();
+                });
+            }
 
             window.openSettingsModal = openSettingsModal;
             window.closeSettingsModal = closeSettingsModal;
 
-            if (btnSettings) {
-                btnSettings.addEventListener('click', openSettingsModal);
-                btnSettings.onclick = openSettingsModal;
-            }
             if (btnCloseSettings) {
                 btnCloseSettings.addEventListener('click', closeSettingsModal);
                 btnCloseSettings.onclick = closeSettingsModal;
@@ -2215,7 +2345,10 @@
                 }
             }
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeSettingsModal();
+                if (e.key === 'Escape') {
+                    closeSettingsModal();
+                    closeSideMenu();
+                }
             });
 
             const skipTog = document.getElementById('skip-toggle');
@@ -2678,6 +2811,7 @@
                 { l: '楽曲ID', v: music.id },
                 { l: 'タイトル', v: `${music.title} <br><small style="color:var(--text-sub)">(${music.pronunciation || '-'})</small>` },
                 { l: 'ユニットタグ', v: getTagName(music.id) },
+                { l: '種別', v: music.isNewlyWrittenMusic ? '書き下ろし' : 'カバー' },
                 { l: '作詞', v: music.lyricist || '-' },
                 { l: '作曲', v: music.composer || '-' },
                 { l: '編曲', v: music.arranger || '-' },
@@ -3120,12 +3254,15 @@
         let lastModalPositionUpdate = 0;
 
         function handleThrottledPositionUpdate(audio) {
+            // 画面が非表示の間は進捗DOMの更新を止め、長時間のバックグラウンド再生による負荷を抑える。
+            if (document.visibilityState !== 'visible') return;
+
             const now = performance.now();
             if (audio === pAudio) {
-                if (now - lastMainPositionUpdate < 250) return;
+                if (now - lastMainPositionUpdate < 500) return;
                 lastMainPositionUpdate = now;
             } else {
-                if (now - lastModalPositionUpdate < 250) return;
+                if (now - lastModalPositionUpdate < 500) return;
                 lastModalPositionUpdate = now;
             }
             updatePositionState(audio);
