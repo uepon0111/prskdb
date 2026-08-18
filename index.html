@@ -369,6 +369,28 @@
             min-width: 0;
         }
 
+        .filter-search-large {
+            width: 100%;
+        }
+
+        .filter-search-large .search-bar {
+            width: 100%;
+            min-width: 0;
+            max-width: none;
+            min-height: 46px;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+        }
+
+        .filter-search-large .search-bar input {
+            font-size: 15px;
+            padding: 6px 8px;
+        }
+
+        .search-operator-control-block {
+            width: min(100%, 240px);
+        }
+
         .search-operator-control {
             display: flex;
             flex-direction: column;
@@ -386,6 +408,11 @@
 
         .app-screen {
             width: 100%;
+            padding-bottom: 20px;
+        }
+
+        main.with-mini-player .app-screen {
+            padding-bottom: 90px;
         }
 
         .settings-shell {
@@ -648,6 +675,9 @@
         }
 
         .music-item {
+            content-visibility: auto;
+            contain-intrinsic-size: 180px;
+            contain: layout paint style;
             background: var(--primary-bg);
             border-radius: var(--radius-md);
             padding: 12px;
@@ -927,7 +957,8 @@
         .scroll-text.marquee {
             animation: marquee 12s linear infinite;
         }
-        body.page-hidden .scroll-text.marquee {
+        body.page-hidden .scroll-text.marquee,
+        .mini-player:not(.mini-playing) .scroll-text.marquee {
             animation-play-state: paused;
         }
         @keyframes marquee {
@@ -1351,31 +1382,36 @@
             
             <div id="filter-panel" class="panel">
                 <div class="filter-section">
-                    <div class="filter-title">検索・公開日時</div>
-                    <div class="panel-search-row">
+                    <div class="filter-title">検索</div>
+                    <div class="filter-search-large">
                         <div class="search-bar" id="main-search-bar">
                             <span class="material-icons-round">search</span>
                             <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
                         </div>
-                        <label class="search-operator-control">
-                            <span>検索条件</span>
-                            <select id="search-operator" aria-label="一覧検索条件">
-                                <option value="and">AND</option>
-                                <option value="or">OR</option>
-                                <option value="nand">NAND</option>
-                                <option value="nor">NOR</option>
-                            </select>
+                    </div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">検索条件</div>
+                    <label class="search-operator-control search-operator-control-block">
+                        <select id="search-operator" aria-label="一覧検索条件">
+                            <option value="and">AND</option>
+                            <option value="or">OR</option>
+                            <option value="nand">NAND</option>
+                            <option value="nor">NOR</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">公開日絞り込み</div>
+                    <div class="date-range-group">
+                        <label>
+                            <span>公開日開始</span>
+                            <input type="date" id="published-from">
                         </label>
-                        <div class="date-range-group">
-                            <label>
-                                <span>公開日開始</span>
-                                <input type="date" id="published-from">
-                            </label>
-                            <label>
-                                <span>公開日終了</span>
-                                <input type="date" id="published-to">
-                            </label>
-                        </div>
+                        <label>
+                            <span>公開日終了</span>
+                            <input type="date" id="published-to">
+                        </label>
                     </div>
                 </div>
                 <div class="filter-section">
@@ -1425,31 +1461,36 @@
         <div id="player-view-container" style="display: none;">
             <div id="p-filter-panel" class="panel">
                 <div class="filter-section">
-                    <div class="filter-title">検索・公開日時</div>
-                    <div class="panel-search-row">
+                    <div class="filter-title">検索</div>
+                    <div class="filter-search-large">
                         <div class="search-bar" id="player-search-bar">
                             <span class="material-icons-round">search</span>
                             <input type="text" id="p-search-input" placeholder="リストを検索">
                         </div>
-                        <label class="search-operator-control">
-                            <span>検索条件</span>
-                            <select id="p-search-operator" aria-label="プレイヤー検索条件">
-                                <option value="and">AND</option>
-                                <option value="or">OR</option>
-                                <option value="nand">NAND</option>
-                                <option value="nor">NOR</option>
-                            </select>
+                    </div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">検索条件</div>
+                    <label class="search-operator-control search-operator-control-block">
+                        <select id="p-search-operator" aria-label="プレイヤー検索条件">
+                            <option value="and">AND</option>
+                            <option value="or">OR</option>
+                            <option value="nand">NAND</option>
+                            <option value="nor">NOR</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">公開日絞り込み</div>
+                    <div class="date-range-group">
+                        <label>
+                            <span>公開日開始</span>
+                            <input type="date" id="p-published-from">
                         </label>
-                        <div class="date-range-group">
-                            <label>
-                                <span>公開日開始</span>
-                                <input type="date" id="p-published-from">
-                            </label>
-                            <label>
-                                <span>公開日終了</span>
-                                <input type="date" id="p-published-to">
-                            </label>
-                        </div>
+                        <label>
+                            <span>公開日終了</span>
+                            <input type="date" id="p-published-to">
+                        </label>
                     </div>
                 </div>
                 <div class="filter-section">
@@ -2368,16 +2409,34 @@
 
         function estimateSpeechDuration(text) {
             const rate = Math.max(0.75, Math.min(1.25, speechInfoSettings.rate || 1));
-            const normalized = String(text || '').replace(/\s+/g, '');
-            const characterCount = Array.from(normalized).length;
-            // 日本語音声の実測差を吸収するため、実時間よりかなり安全側に見積もる。
-            // さらに開始前後の音声エンジン待ち時間を含め、曲終了直前まで食い込まないようにする。
-            return Math.max(2.5, (characterCount * 0.115) / rate + 1.2);
+            const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+            const chars = Array.from(normalized);
+            if (chars.length === 0) return 0;
+
+            let time = 0;
+            let punctuationCount = 0;
+            for (const ch of chars) {
+                if (/[。、，．,.!?！？:：;；]/.test(ch)) {
+                    time += 0.18;
+                    punctuationCount++;
+                } else if (/[A-Za-z0-9]/.test(ch)) {
+                    time += 0.085;
+                } else {
+                    // 日本語は漢字・かな・記号を1文字単位で安全側に見積もる。
+                    time += 0.16;
+                }
+            }
+
+            // 音声エンジンの開始遅延・文境界の揺れを吸収する余裕。
+            const startup = 1.5;
+            const punctuationPause = Math.min(2.5, punctuationCount * 0.08);
+            return Math.max(3.0, (time / rate) + startup + punctuationPause);
         }
 
         let pSpeechEndTimer = null;
         let pSpeechAdvanceFallbackTimer = null;
         let pSpeechScheduleToken = 0;
+        let pSpeechTrackEndedWaiting = false;
 
         function cancelSpeechSchedule() {
             pSpeechScheduleToken++;
@@ -2413,9 +2472,17 @@
             utterance.onerror = () => {
                 pSpeechAnnouncedForCurrentTrack = false;
                 pSpeechAnnouncePending = true;
+                if (pSpeechTrackEndedWaiting) {
+                    pSpeechTrackEndedWaiting = false;
+                    playNext(true);
+                }
             };
             utterance.onend = () => {
                 pSpeechAnnouncedForCurrentTrack = true;
+                if (pSpeechTrackEndedWaiting) {
+                    pSpeechTrackEndedWaiting = false;
+                    playNext(true);
+                }
             };
 
             try {
@@ -2447,13 +2514,16 @@
             if (!parts.length) return;
             const speechText = parts.join(' ');
             const estimate = estimateSpeechDuration(speechText);
-            // 最後の数秒を予備時間として確保し、読み上げが曲終了直前まで残ることを避ける。
-            const safetyBuffer = Math.max(1.5, Math.min(4, estimate * 0.2));
+            // 予測時間だけでなく、速度・文字量・句読点・音声エンジンの起動遅延を含め、
+            // 曲終了より前に読み上げを開始できる位置まで前倒しする。
+            const safetyBuffer = Math.max(2.5, Math.min(6.0, estimate * 0.35));
             const startAt = Math.max(0, duration - estimate - safetyBuffer);
             const remaining = startAt - pAudio.currentTime;
             const token = ++pSpeechScheduleToken;
 
             if (remaining <= 0) {
+                // 極端に短い曲では冒頭から読み上げる。曲終了時に読み上げ途中なら、
+                // endedハンドラが読み上げ完了まで次曲への移行を待つため途中で切れない。
                 speakPlayerMusicInfo();
                 return;
             }
@@ -2898,6 +2968,10 @@
                         cancelPlayerSpeech();
                         pSpeechAnnouncePending = false;
                         pSpeechAnnouncedForCurrentTrack = false;
+                        if (pSpeechTrackEndedWaiting) {
+                            pSpeechTrackEndedWaiting = false;
+                            playNext(true);
+                        }
                     } else {
                         pSpeechAnnouncePending = true;
                         pSpeechAnnouncedForCurrentTrack = false;
@@ -3094,7 +3168,11 @@
         function updateMiniPlayerVisibility() {
             const miniPlayer = document.getElementById('mini-player');
             const mainEl = document.querySelector('main');
-            if (document.getElementById('list-view-container').style.display !== 'none' && pCurrentMusic) {
+            const listVisible = document.getElementById('list-view-container')?.style.display !== 'none';
+            const settingsVisible = document.getElementById('settings-view-container')?.style.display !== 'none';
+            const speechSettingsVisible = document.getElementById('speech-settings-view-container')?.style.display !== 'none';
+            const shouldShow = !!pCurrentMusic && (listVisible || settingsVisible || speechSettingsVisible);
+            if (shouldShow) {
                 miniPlayer.classList.add('show');
                 mainEl.classList.add('with-mini-player');
                 checkMiniPlayerTextScroll();
@@ -3519,9 +3597,11 @@
             if(mVocal) mVocal.innerHTML = `<span class="scroll-text">${finalVocalName}</span>`;
             
             updateMiniPlayerVisibility();
-            
-            renderPlayerList();
-            renderList();
+
+            const listVisible = document.getElementById('list-view-container')?.style.display !== 'none';
+            const playerVisible = document.getElementById('player-view-container')?.style.display !== 'none';
+            if (listVisible) renderList();
+            if (playerVisible) renderPlayerList();
         }
 
         function loadPlayerAudio(music, vocal, autoPlay = false) {
@@ -3530,6 +3610,7 @@
             pAudioRetryCount = 0;
             pSpeechAnnouncePending = true;
             pSpeechAnnouncedForCurrentTrack = false;
+            pSpeechTrackEndedWaiting = false;
             cancelPlayerSpeech();
             const baseUrl = getAudioBaseUrl(vocal);
 
@@ -3775,8 +3856,10 @@
             const isP = !pAudio.paused;
             const pIcon = document.getElementById('p-play-icon');
             const mIcon = document.getElementById('mini-play-icon');
+            const miniPlayer = document.getElementById('mini-player');
             if(pIcon) pIcon.textContent = isP ? 'pause' : 'play_arrow';
             if(mIcon) mIcon.textContent = isP ? 'pause' : 'play_arrow';
+            if (miniPlayer) miniPlayer.classList.toggle('mini-playing', isP);
             updatePositionState(pAudio);
             updateMediaSessionPositionState(pAudio);
         }
@@ -3827,10 +3910,10 @@
 
             const now = performance.now();
             if (audio === pAudio) {
-                if (now - lastMainPositionUpdate < 500) return;
+                if (now - lastMainPositionUpdate < 750) return;
                 lastMainPositionUpdate = now;
             } else {
-                if (now - lastModalPositionUpdate < 500) return;
+                if (now - lastModalPositionUpdate < 750) return;
                 lastModalPositionUpdate = now;
             }
             updatePositionState(audio);
@@ -3842,27 +3925,17 @@
             pAudio.addEventListener('pause', syncPlayerUI);
             pAudio.addEventListener('ended', () => {
                 syncPlayerUI();
-                if (speechInfoSettings.timing === 'end' && speechInfoSettings.enabled && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
-                    let advanced = false;
-                    const finishSpeechAndAdvance = () => {
-                        if (advanced) return;
-                        advanced = true;
-                        if ('speechSynthesis' in window) window.speechSynthesis.removeEventListener('end', finishSpeechAndAdvance);
-                        if (pSpeechAdvanceFallbackTimer !== null) {
-                            clearTimeout(pSpeechAdvanceFallbackTimer);
-                            pSpeechAdvanceFallbackTimer = null;
-                        }
-                        playNext(true);
-                    };
-                    window.speechSynthesis.addEventListener('end', finishSpeechAndAdvance, { once: true });
-                    pSpeechAdvanceFallbackTimer = setTimeout(() => {
-                        pSpeechAdvanceFallbackTimer = null;
-                        try { if (window.speechSynthesis.speaking) window.speechSynthesis.cancel(); } catch (e) {}
-                        finishSpeechAndAdvance();
-                    }, 8000);
-                } else {
-                    playNext(true);
+                if (speechInfoSettings.timing === 'end' && speechInfoSettings.enabled && 'speechSynthesis' in window) {
+                    const synthesis = window.speechSynthesis;
+                    if (synthesis.speaking || synthesis.pending) {
+                        // 発話側のutterance.onend/onerrorから次曲へ進む。speechSynthesis本体の
+                        // `end`イベントには依存しないため、ブラウザ差で途中キャンセルされない。
+                        pSpeechTrackEndedWaiting = true;
+                        return;
+                    }
                 }
+                pSpeechTrackEndedWaiting = false;
+                playNext(true);
             });
             pAudio.addEventListener('timeupdate', () => handleThrottledPositionUpdate(pAudio));
             pAudio.addEventListener('loadedmetadata', () => { updatePositionState(pAudio); if (!pAudio.paused) scheduleSpeechForCurrentTrack(); });
