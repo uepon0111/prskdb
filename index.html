@@ -925,8 +925,10 @@
             --marquee-distance: 0px;
         }
         .scroll-text.marquee {
-            animation: marquee 9s linear infinite;
-            will-change: transform;
+            animation: marquee 12s linear infinite;
+        }
+        body.page-hidden .scroll-text.marquee {
+            animation-play-state: paused;
         }
         @keyframes marquee {
             0%, 14% { transform: translateX(0); }
@@ -1221,17 +1223,22 @@
 
         /* --- 縦画面(スマートフォン・タブレット向け)のレスポンシブ最適化 --- */
         @media (max-width: 768px) {
-            .menu-toggle-btn {
-                align-self: flex-start;
-            }
-
             .header-top {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: nowrap;
+                gap: 8px;
             }
+            .menu-toggle-btn { align-self: auto; flex-shrink: 0; }
             .search-bar { width: 100%; max-width: 100%; min-width: 100%; }
-            .controls { width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
+            .controls {
+                width: auto;
+                flex: 1 1 auto;
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                gap: 4px;
+                min-width: 0;
+            }
 
             .layout-3 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .layout-5 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -1324,9 +1331,9 @@
                 <span id="list-only-controls" style="display: flex; gap: 8px; align-items: center;">
                     <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
                     <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
-                    <button class="icon-btn" id="btn-layout-1" title="1列表示"><span class="material-icons-round">view_list</span></button>
-                    <button class="icon-btn active" id="btn-layout-3" title="3列表示"><span class="material-icons-round">view_module</span></button>
-                    <button class="icon-btn" id="btn-layout-5" title="5列表示"><span class="material-icons-round">grid_view</span></button>
+                    <button class="icon-btn" id="btn-layout-1" title="1列表示" aria-label="1列表示"><span class="material-icons-round">view_list</span></button>
+                    <button class="icon-btn active" id="btn-layout-3" title="2列表示（PCでは3列）" aria-label="2列表示（PCでは3列）"><span class="material-icons-round">view_module</span></button>
+                    <button class="icon-btn" id="btn-layout-5" title="3列表示（PCでは5列）" aria-label="3列表示（PCでは5列）"><span class="material-icons-round">grid_view</span></button>
                 </span>
 
                 <span id="player-only-controls" style="display: none; gap: 8px; align-items: center;">
@@ -1372,7 +1379,7 @@
                     </div>
                 </div>
                 <div class="filter-section">
-                    <div class="filter-title">ユニットタグ (1つ選択)</div>
+                    <div class="filter-title">ユニットタグ（複数選択）</div>
                     <div class="filter-group" id="tag-filters"></div>
                 </div>
                 <div class="filter-section">
@@ -1446,7 +1453,7 @@
                     </div>
                 </div>
                 <div class="filter-section">
-                    <div class="filter-title">ユニットタグ (1つ選択)</div>
+                    <div class="filter-title">ユニットタグ（複数選択）</div>
                     <div class="filter-group" id="p-tag-filters"></div>
                 </div>
                 <div class="filter-section">
@@ -1611,12 +1618,6 @@
             </section>
 
             <section class="settings-card">
-                <h2>読み上げ順序</h2>
-                <p class="settings-help">上から順番に読み上げます。</p>
-                <div id="speech-order-list" class="speech-order-list"></div>
-            </section>
-
-            <section class="settings-card">
                 <h2>読み上げタイミング</h2>
                 <div class="timing-options">
                     <label class="timing-option">
@@ -1628,7 +1629,7 @@
                         <span>曲の最後</span>
                     </label>
                 </div>
-                <p class="settings-help">「曲の最後」では、読み上げに必要な時間を自動計算し、曲終了前に読み上げが終わるように開始します。</p>
+                <p class="settings-help">「曲の最後」では、読み上げ時間を安全側に見積もり、曲終了後に途切れないよう余裕を持って開始します。</p>
             </section>
 
             <section class="settings-card">
@@ -1641,6 +1642,12 @@
                     <div class="setting-row"><span>公開日時</span><label class="toggle-switch"><input type="checkbox" id="speech-publishedat-toggle"><span class="slider"></span></label></div>
                     <div class="setting-row"><span>現在再生中の歌唱キャラクター</span><label class="toggle-switch"><input type="checkbox" id="speech-vocal-toggle"><span class="slider"></span></label></div>
                 </div>
+            </section>
+
+            <section class="settings-card">
+                <h2>読み上げ順序</h2>
+                <p class="settings-help">オンにしている項目だけ表示されます。上から順番に読み上げます。</p>
+                <div id="speech-order-list" class="speech-order-list"></div>
             </section>
         </div>
     </div>
@@ -1721,7 +1728,7 @@
         let currentLayout = 'layout-3';
         let searchTerm = '';
         let searchOperator = 'and';
-        let activeTag = 'all';
+        let activeTag = new Set();
         let activeWritten = 'all';
         let selectedChars = new Set();
         let sortKey = 'publishedAt';
@@ -1734,7 +1741,7 @@
         let draftSearchOperator = 'and';
         let draftPublishedFrom = '';
         let draftPublishedTo = '';
-        let draftActiveTag = 'all';
+        let draftActiveTag = new Set();
         let draftActiveWritten = 'all';
         let draftSelectedChars = new Set();
         let draftSortKey = 'publishedAt';
@@ -1743,7 +1750,7 @@
         
         let p_searchTerm = '';
         let p_searchOperator = 'and';
-        let p_activeTag = 'all';
+        let p_activeTag = new Set();
         let p_activeWritten = 'all';
         let p_selectedChars = new Set();
         let p_sortKey = 'publishedAt';
@@ -1756,7 +1763,7 @@
         let p_draftSearchOperator = 'and';
         let p_draftPublishedFrom = '';
         let p_draftPublishedTo = '';
-        let p_draftActiveTag = 'all';
+        let p_draftActiveTag = new Set();
         let p_draftActiveWritten = 'all';
         let p_draftSelectedChars = new Set();
         let p_draftSortKey = 'publishedAt';
@@ -1768,12 +1775,16 @@
         let repeatMode = 'all'; 
 
         const pAudio = new Audio();
+        pAudio.preload = 'none';
+        pAudio.playsInline = true;
         let pCurrentMusic = null;
         let pCurrentVocal = null;
         let pIsSeeking = false; 
         let pAudioRetryCount = 0;
 
         const mAudio = new Audio();
+        mAudio.preload = 'none';
+        mAudio.playsInline = true;
         let mCurrentMusic = null;
         let mCurrentVocal = null;
         let mIsSeeking = false;
@@ -1818,7 +1829,7 @@
             draftSearchOperator = searchOperator;
             draftPublishedFrom = publishedFrom;
             draftPublishedTo = publishedTo;
-            draftActiveTag = activeTag;
+            draftActiveTag = cloneCharSet(activeTag);
             draftActiveWritten = activeWritten;
             draftSelectedChars = cloneCharSet(selectedChars);
             draftSortKey = sortKey;
@@ -1831,7 +1842,7 @@
             p_draftSearchOperator = p_searchOperator;
             p_draftPublishedFrom = p_publishedFrom;
             p_draftPublishedTo = p_publishedTo;
-            p_draftActiveTag = p_activeTag;
+            p_draftActiveTag = cloneCharSet(p_activeTag);
             p_draftActiveWritten = p_activeWritten;
             p_draftSelectedChars = cloneCharSet(p_selectedChars);
             p_draftSortKey = p_sortKey;
@@ -1862,9 +1873,11 @@
 
             const tagContainer = document.getElementById('tag-filters');
             if (tagContainer) {
+                const allSelected = draftActiveTag.size === 0 || draftActiveTag.has('all');
                 tagContainer.querySelectorAll('.chip').forEach((chip, idx) => {
                     const item = TAG_DEF[idx];
-                    chip.classList.toggle('active', !!item && item.id === draftActiveTag);
+                    const active = !!item && (item.id === 'all' ? allSelected : !allSelected && draftActiveTag.has(item.id));
+                    chip.classList.toggle('active', active);
                 });
             }
 
@@ -1912,9 +1925,11 @@
 
             const tagContainer = document.getElementById('p-tag-filters');
             if (tagContainer) {
+                const allSelected = p_draftActiveTag.size === 0 || p_draftActiveTag.has('all');
                 tagContainer.querySelectorAll('.chip').forEach((chip, idx) => {
                     const item = TAG_DEF[idx];
-                    chip.classList.toggle('active', !!item && item.id === p_draftActiveTag);
+                    const active = !!item && (item.id === 'all' ? allSelected : !allSelected && p_draftActiveTag.has(item.id));
+                    chip.classList.toggle('active', active);
                 });
             }
 
@@ -1944,7 +1959,7 @@
             searchOperator = draftSearchOperator;
             publishedFrom = draftPublishedFrom;
             publishedTo = draftPublishedTo;
-            activeTag = draftActiveTag;
+            activeTag = cloneCharSet(draftActiveTag);
             activeWritten = draftActiveWritten;
             selectedChars = cloneCharSet(draftSelectedChars);
             sortKey = draftSortKey;
@@ -1959,7 +1974,7 @@
             p_searchOperator = p_draftSearchOperator;
             p_publishedFrom = p_draftPublishedFrom;
             p_publishedTo = p_draftPublishedTo;
-            p_activeTag = p_draftActiveTag;
+            p_activeTag = cloneCharSet(p_draftActiveTag);
             p_activeWritten = p_draftActiveWritten;
             p_selectedChars = cloneCharSet(p_draftSelectedChars);
             p_sortKey = p_draftSortKey;
@@ -2240,7 +2255,9 @@
             const container = document.getElementById('speech-order-list');
             if (!container) return;
             container.innerHTML = '';
-            speechInfoSettings.order.forEach((key, index) => {
+
+            const enabledKeys = speechInfoSettings.order.filter(key => speechInfoSettings[key] === true);
+            enabledKeys.forEach((key, visibleIndex) => {
                 const row = document.createElement('div');
                 row.className = 'speech-order-item';
 
@@ -2257,8 +2274,8 @@
                 up.title = '上へ';
                 up.setAttribute('aria-label', `${label.textContent}を上へ`);
                 up.innerHTML = '<span class="material-icons-round">keyboard_arrow_up</span>';
-                up.disabled = index === 0;
-                up.addEventListener('click', () => moveSpeechOrder(index, -1));
+                up.disabled = visibleIndex === 0;
+                up.addEventListener('click', () => moveSpeechOrder(key, -1));
 
                 const down = document.createElement('button');
                 down.type = 'button';
@@ -2266,8 +2283,8 @@
                 down.title = '下へ';
                 down.setAttribute('aria-label', `${label.textContent}を下へ`);
                 down.innerHTML = '<span class="material-icons-round">keyboard_arrow_down</span>';
-                down.disabled = index === speechInfoSettings.order.length - 1;
-                down.addEventListener('click', () => moveSpeechOrder(index, 1));
+                down.disabled = visibleIndex === enabledKeys.length - 1;
+                down.addEventListener('click', () => moveSpeechOrder(key, 1));
 
                 actions.appendChild(up);
                 actions.appendChild(down);
@@ -2275,13 +2292,30 @@
                 row.appendChild(actions);
                 container.appendChild(row);
             });
+
+            if (enabledKeys.length === 0) {
+                const empty = document.createElement('p');
+                empty.className = 'settings-help';
+                empty.textContent = '読み上げ項目が1つ以上オンになると、ここに順序が表示されます。';
+                container.appendChild(empty);
+            }
         }
 
-        function moveSpeechOrder(index, direction) {
-            const nextIndex = index + direction;
-            if (nextIndex < 0 || nextIndex >= speechInfoSettings.order.length) return;
+        function moveSpeechOrder(key, direction) {
+            const currentIndex = speechInfoSettings.order.indexOf(key);
+            if (currentIndex < 0) return;
+
+            const step = direction < 0 ? -1 : 1;
+            let targetIndex = currentIndex + step;
+            while (targetIndex >= 0 && targetIndex < speechInfoSettings.order.length) {
+                const targetKey = speechInfoSettings.order[targetIndex];
+                if (speechInfoSettings[targetKey] === true) break;
+                targetIndex += step;
+            }
+            if (targetIndex < 0 || targetIndex >= speechInfoSettings.order.length) return;
+
             const next = [...speechInfoSettings.order];
-            [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+            [next[currentIndex], next[targetIndex]] = [next[targetIndex], next[currentIndex]];
             speechInfoSettings.order = next;
             saveSpeechSettings();
             renderSpeechOrder();
@@ -2334,11 +2368,15 @@
 
         function estimateSpeechDuration(text) {
             const rate = Math.max(0.75, Math.min(1.25, speechInfoSettings.rate || 1));
-            const normalizedLength = String(text || '').replace(/\s+/g, '').length;
-            return Math.max(1.5, (normalizedLength * 0.075) / rate + 0.6);
+            const normalized = String(text || '').replace(/\s+/g, '');
+            const characterCount = Array.from(normalized).length;
+            // 日本語音声の実測差を吸収するため、実時間よりかなり安全側に見積もる。
+            // さらに開始前後の音声エンジン待ち時間を含め、曲終了直前まで食い込まないようにする。
+            return Math.max(2.5, (characterCount * 0.115) / rate + 1.2);
         }
 
         let pSpeechEndTimer = null;
+        let pSpeechAdvanceFallbackTimer = null;
         let pSpeechScheduleToken = 0;
 
         function cancelSpeechSchedule() {
@@ -2346,6 +2384,10 @@
             if (pSpeechEndTimer !== null) {
                 clearTimeout(pSpeechEndTimer);
                 pSpeechEndTimer = null;
+            }
+            if (pSpeechAdvanceFallbackTimer !== null) {
+                clearTimeout(pSpeechAdvanceFallbackTimer);
+                pSpeechAdvanceFallbackTimer = null;
             }
         }
 
@@ -2405,7 +2447,9 @@
             if (!parts.length) return;
             const speechText = parts.join(' ');
             const estimate = estimateSpeechDuration(speechText);
-            const startAt = Math.max(0, duration - estimate - 0.25);
+            // 最後の数秒を予備時間として確保し、読み上げが曲終了直前まで残ることを避ける。
+            const safetyBuffer = Math.max(1.5, Math.min(4, estimate * 0.2));
+            const startAt = Math.max(0, duration - estimate - safetyBuffer);
             const remaining = startAt - pAudio.currentTime;
             const token = ++pSpeechScheduleToken;
 
@@ -2485,10 +2529,19 @@
             });
         }
 
+        let miniScrollResizeTimer = null;
         window.addEventListener('resize', () => {
-            if (document.getElementById('mini-player').classList.contains('show')) {
-                checkMiniPlayerTextScroll();
-            }
+            if (miniScrollResizeTimer !== null) clearTimeout(miniScrollResizeTimer);
+            miniScrollResizeTimer = setTimeout(() => {
+                miniScrollResizeTimer = null;
+                if (document.getElementById('mini-player').classList.contains('show')) {
+                    checkMiniPlayerTextScroll();
+                }
+            }, 120);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            document.body.classList.toggle('page-hidden', document.visibilityState !== 'visible');
         });
 
         
@@ -2630,7 +2683,15 @@
                 chip.className = 'chip';
                 chip.innerHTML = `<span class="material-icons-round">${t.icon}</span>${t.label}`;
                 chip.onclick = () => {
-                    draftActiveTag = t.id;
+                    if (t.id === 'all') {
+                        draftActiveTag = new Set(['all']);
+                    } else {
+                        const next = new Set(draftActiveTag);
+                        next.delete('all');
+                        if (next.has(t.id)) next.delete(t.id);
+                        else next.add(t.id);
+                        draftActiveTag = next;
+                    }
                     syncListPanelUI();
                 };
                 tagContainer.appendChild(chip);
@@ -2874,6 +2935,7 @@
                 el.addEventListener('change', (e) => {
                     speechInfoSettings[key] = e.target.checked;
                     saveSpeechSettings();
+                    renderSpeechOrder();
                     if (speechInfoSettings.timing === 'end' && !pAudio.paused) scheduleSpeechForCurrentTrack();
                 });
             });
@@ -2912,7 +2974,15 @@
                 chip.className = 'chip';
                 chip.innerHTML = `<span class="material-icons-round">${t.icon}</span>${t.label}`;
                 chip.onclick = () => {
-                    p_draftActiveTag = t.id;
+                    if (t.id === 'all') {
+                        p_draftActiveTag = new Set(['all']);
+                    } else {
+                        const next = new Set(p_draftActiveTag);
+                        next.delete('all');
+                        if (next.has(t.id)) next.delete(t.id);
+                        else next.add(t.id);
+                        p_draftActiveTag = next;
+                    }
                     syncPlayerPanelUI();
                 };
                 pTagContainer.appendChild(chip);
@@ -3053,7 +3123,13 @@
                 if (fromTime !== null && (m.publishedAt || 0) < fromTime) return false;
                 if (toTime !== null && (m.publishedAt || 0) > toTime) return false;
 
-                if (aTag !== 'all') {
+                if (aTag instanceof Set) {
+                    if (aTag.size > 0 && !aTag.has('all')) {
+                        const mTags = tagMap.get(m.id) || [];
+                        const hasSelectedUnit = Array.from(aTag).some(tagId => mTags.includes(tagId));
+                        if (!hasSelectedUnit) return false;
+                    }
+                } else if (aTag !== 'all') {
                     const mTags = tagMap.get(m.id) || [];
                     if (!mTags.includes(aTag)) return false;
                 }
@@ -3766,7 +3842,27 @@
             pAudio.addEventListener('pause', syncPlayerUI);
             pAudio.addEventListener('ended', () => {
                 syncPlayerUI();
-                playNext(true);
+                if (speechInfoSettings.timing === 'end' && speechInfoSettings.enabled && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
+                    let advanced = false;
+                    const finishSpeechAndAdvance = () => {
+                        if (advanced) return;
+                        advanced = true;
+                        if ('speechSynthesis' in window) window.speechSynthesis.removeEventListener('end', finishSpeechAndAdvance);
+                        if (pSpeechAdvanceFallbackTimer !== null) {
+                            clearTimeout(pSpeechAdvanceFallbackTimer);
+                            pSpeechAdvanceFallbackTimer = null;
+                        }
+                        playNext(true);
+                    };
+                    window.speechSynthesis.addEventListener('end', finishSpeechAndAdvance, { once: true });
+                    pSpeechAdvanceFallbackTimer = setTimeout(() => {
+                        pSpeechAdvanceFallbackTimer = null;
+                        try { if (window.speechSynthesis.speaking) window.speechSynthesis.cancel(); } catch (e) {}
+                        finishSpeechAndAdvance();
+                    }, 8000);
+                } else {
+                    playNext(true);
+                }
             });
             pAudio.addEventListener('timeupdate', () => handleThrottledPositionUpdate(pAudio));
             pAudio.addEventListener('loadedmetadata', () => { updatePositionState(pAudio); if (!pAudio.paused) scheduleSpeechForCurrentTrack(); });
