@@ -369,6 +369,215 @@
             min-width: 0;
         }
 
+        .search-operator-control {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 108px;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .search-operator-control select {
+            width: 100%;
+            min-height: 38px;
+            font-weight: 700;
+        }
+
+        .app-screen {
+            width: 100%;
+        }
+
+        .settings-shell {
+            width: min(100%, 760px);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 4px 2px 8px;
+        }
+
+        .settings-header h1 {
+            font-size: clamp(22px, 4vw, 30px);
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .settings-header p {
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
+        .settings-header-with-back {
+            align-items: center;
+        }
+
+        .settings-card {
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: clamp(16px, 3vw, 22px);
+        }
+
+        .settings-card h2 {
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .setting-row-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .setting-row small, .settings-detail-action small, .settings-help {
+            color: var(--text-sub);
+            font-size: 12px;
+        }
+
+        .settings-detail-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .settings-detail-action > div {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-height: 40px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--secondary-bg);
+            color: var(--text-main);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .range-with-value {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: min(100%, 280px);
+        }
+
+        .range-with-value input {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .range-with-value span {
+            width: 3.5em;
+            text-align: right;
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
+        .speech-order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .speech-order-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+        }
+
+        .speech-order-label {
+            min-width: 0;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .speech-order-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .speech-order-actions button {
+            min-width: 36px;
+            min-height: 36px;
+            padding: 4px;
+        }
+
+        .timing-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .timing-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--secondary-bg);
+            cursor: pointer;
+        }
+
+        .timing-option input {
+            accent-color: var(--accent-color);
+        }
+
+        @media (max-width: 600px) {
+            .panel-search-row {
+                flex-direction: column;
+            }
+            .search-operator-control {
+                width: 100%;
+            }
+            .settings-detail-action {
+                align-items: stretch;
+                flex-direction: column;
+            }
+            .secondary-btn {
+                width: 100%;
+            }
+            .range-with-value {
+                min-width: 0;
+                width: 55%;
+            }
+            .setting-row {
+                align-items: center;
+            }
+            .timing-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
         .date-range-group {
             display: flex;
             flex-wrap: wrap;
@@ -713,11 +922,15 @@
         /* 自動スクロール(Marquee)用 */
         .scroll-text {
             display: inline-block;
+            --marquee-distance: 0px;
         }
-        /* 長時間の常時アニメーションを避け、スマートフォンの発熱・電力消費を抑える */
         .scroll-text.marquee {
-            padding-left: 0;
-            animation: none;
+            animation: marquee 9s linear infinite;
+            will-change: transform;
+        }
+        @keyframes marquee {
+            0%, 14% { transform: translateX(0); }
+            86%, 100% { transform: translateX(calc(var(--marquee-distance) * -1)); }
         }
 
         /* Modal */
@@ -1137,6 +1350,15 @@
                             <span class="material-icons-round">search</span>
                             <input type="text" id="search-input" placeholder="タイトル、読み方、クリエイターで検索">
                         </div>
+                        <label class="search-operator-control">
+                            <span>検索条件</span>
+                            <select id="search-operator" aria-label="一覧検索条件">
+                                <option value="and">AND</option>
+                                <option value="or">OR</option>
+                                <option value="nand">NAND</option>
+                                <option value="nor">NOR</option>
+                            </select>
+                        </label>
                         <div class="date-range-group">
                             <label>
                                 <span>公開日開始</span>
@@ -1202,6 +1424,15 @@
                             <span class="material-icons-round">search</span>
                             <input type="text" id="p-search-input" placeholder="リストを検索">
                         </div>
+                        <label class="search-operator-control">
+                            <span>検索条件</span>
+                            <select id="p-search-operator" aria-label="プレイヤー検索条件">
+                                <option value="and">AND</option>
+                                <option value="or">OR</option>
+                                <option value="nand">NAND</option>
+                                <option value="nor">NOR</option>
+                            </select>
+                        </label>
                         <div class="date-range-group">
                             <label>
                                 <span>公開日開始</span>
@@ -1301,6 +1532,118 @@
                 </div>
             </div>
         </div>
+    <!-- Settings Screen -->
+    <div id="settings-view-container" class="app-screen" style="display: none;">
+        <div class="settings-shell">
+            <div class="settings-header">
+                <div>
+                    <h1>設定</h1>
+                    <p>再生や読み上げの動作を設定します。</p>
+                </div>
+            </div>
+
+            <section class="settings-card">
+                <h2>再生</h2>
+                <div class="setting-row">
+                    <span>デフォルトボーカル優先</span>
+                    <select id="default-vocal-select">
+                        <option value="sekai" selected>セカイバージョン</option>
+                        <option value="virtual_singer">バーチャルシンガー</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <span>無音部分のスキップ</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="skip-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="settings-card">
+                <h2>読み上げ</h2>
+                <div class="setting-row">
+                    <div class="setting-row-text">
+                        <span>読み上げ機能</span>
+                        <small>楽曲情報を音声で読み上げます。</small>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="speech-enabled-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-detail-action" id="speech-detail-action-row">
+                    <div>
+                        <strong>読み上げ詳細設定</strong>
+                        <small>速度・項目・順序・タイミングを変更</small>
+                    </div>
+                    <button type="button" class="secondary-btn" id="open-speech-details">
+                        <span class="material-icons-round">chevron_right</span>
+                        詳細設定
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Speech Detail Settings Screen -->
+    <div id="speech-settings-view-container" class="app-screen" style="display: none;">
+        <div class="settings-shell">
+            <div class="settings-header settings-header-with-back">
+                <button type="button" class="icon-btn" id="speech-settings-back" title="設定に戻る" aria-label="設定に戻る">
+                    <span class="material-icons-round">arrow_back</span>
+                </button>
+                <div>
+                    <h1>読み上げ詳細設定</h1>
+                    <p>読み上げる内容と順序、タイミングを設定します。</p>
+                </div>
+            </div>
+
+            <section class="settings-card">
+                <h2>読み上げ速度</h2>
+                <div class="setting-row">
+                    <span>速度</span>
+                    <div class="range-with-value">
+                        <input type="range" id="speech-rate-slider" min="0.75" max="1.25" step="0.05" value="1.0">
+                        <span id="speech-rate-display">1x</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="settings-card">
+                <h2>読み上げ順序</h2>
+                <p class="settings-help">上から順番に読み上げます。</p>
+                <div id="speech-order-list" class="speech-order-list"></div>
+            </section>
+
+            <section class="settings-card">
+                <h2>読み上げタイミング</h2>
+                <div class="timing-options">
+                    <label class="timing-option">
+                        <input type="radio" name="speech-timing" value="start" id="speech-timing-start">
+                        <span>曲の冒頭</span>
+                    </label>
+                    <label class="timing-option">
+                        <input type="radio" name="speech-timing" value="end" id="speech-timing-end">
+                        <span>曲の最後</span>
+                    </label>
+                </div>
+                <p class="settings-help">「曲の最後」では、読み上げに必要な時間を自動計算し、曲終了前に読み上げが終わるように開始します。</p>
+            </section>
+
+            <section class="settings-card">
+                <h2>読み上げ項目</h2>
+                <div class="speech-toggle-list">
+                    <div class="setting-row"><span>タイトル</span><label class="toggle-switch"><input type="checkbox" id="speech-title-toggle"><span class="slider"></span></label></div>
+                    <div class="setting-row"><span>楽曲ID</span><label class="toggle-switch"><input type="checkbox" id="speech-musicid-toggle"><span class="slider"></span></label></div>
+                    <div class="setting-row"><span>ユニットタグ</span><label class="toggle-switch"><input type="checkbox" id="speech-unittag-toggle"><span class="slider"></span></label></div>
+                    <div class="setting-row"><span>作詞・作曲・編曲</span><label class="toggle-switch"><input type="checkbox" id="speech-credits-toggle"><span class="slider"></span></label></div>
+                    <div class="setting-row"><span>公開日時</span><label class="toggle-switch"><input type="checkbox" id="speech-publishedat-toggle"><span class="slider"></span></label></div>
+                    <div class="setting-row"><span>現在再生中の歌唱キャラクター</span><label class="toggle-switch"><input type="checkbox" id="speech-vocal-toggle"><span class="slider"></span></label></div>
+                </div>
+            </section>
+        </div>
+    </div>
     </main>
 
     <!-- Mini Player for List View -->
@@ -1354,90 +1697,7 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-content" style="width: min(92vw, 400px); max-height: min(80vh, 640px); height: auto;">
-            <div class="modal-header">
-                <h2>設定</h2>
-                <button type="button" class="icon-btn" id="btn-close-settings"><span class="material-icons-round">close</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="setting-row">
-                    <span>デフォルトボーカル優先</span>
-                    <select id="default-vocal-select" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none;">                        <option value="sekai" selected>セカイバージョン</option>
-                        <option value="virtual_singer">バーチャルシンガー</option>
-                    </select>
-                </div>
-                <div class="setting-row">
-                    <span>無音部分のスキップ</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="skip-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
 
-                <div class="setting-row">
-                    <span>読み上げ機能</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="speech-enabled-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <div id="speech-details-container" style="display: none; padding-left: 16px; border-left: 2px solid var(--border-color); margin-top: 8px;">
-                    <div class="setting-row">
-                        <span>読み上げ速度</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="range" id="speech-rate-slider" min="0.75" max="1.25" step="0.05" value="1.0">
-                            <span id="speech-rate-display" style="width: 3.5em; text-align: right; font-size: 13px; color: var(--text-sub);">1x</span>
-                        </div>
-                    </div>
-                    <div class="setting-row">
-                        <span>タイトル</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="speech-title-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-row">
-                        <span>楽曲ID</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="speech-musicid-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-row">
-                        <span>ユニットタグ</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="speech-unittag-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-row">
-                        <span>作詞・作曲・編曲</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="speech-credits-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-row">
-                        <span>公開日時</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="speech-publishedat-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-row">
-                        <span>現在再生中の歌唱キャラクター</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="speech-vocal-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         function handleImageError(img) {
@@ -1460,6 +1720,7 @@
 
         let currentLayout = 'layout-3';
         let searchTerm = '';
+        let searchOperator = 'and';
         let activeTag = 'all';
         let activeWritten = 'all';
         let selectedChars = new Set();
@@ -1470,6 +1731,7 @@
         let publishedTo = '';
 
         let draftSearchTerm = '';
+        let draftSearchOperator = 'and';
         let draftPublishedFrom = '';
         let draftPublishedTo = '';
         let draftActiveTag = 'all';
@@ -1480,6 +1742,7 @@
         let draftSortDiff = 'easy';
         
         let p_searchTerm = '';
+        let p_searchOperator = 'and';
         let p_activeTag = 'all';
         let p_activeWritten = 'all';
         let p_selectedChars = new Set();
@@ -1490,6 +1753,7 @@
         let p_publishedTo = '';
 
         let p_draftSearchTerm = '';
+        let p_draftSearchOperator = 'and';
         let p_draftPublishedFrom = '';
         let p_draftPublishedTo = '';
         let p_draftActiveTag = 'all';
@@ -1527,7 +1791,18 @@
             unitTag: true,
             credits: true,
             publishedAt: true,
-            vocalCharacters: true
+            vocalCharacters: true,
+            order: ['title', 'musicId', 'unitTag', 'credits', 'publishedAt', 'vocalCharacters'],
+            timing: 'start'
+        };
+
+        const SPEECH_ITEM_LABELS = {
+            title: 'タイトル',
+            musicId: '楽曲ID',
+            unitTag: 'ユニットタグ',
+            credits: '作詞・作曲・編曲',
+            publishedAt: '公開日時',
+            vocalCharacters: '現在再生中の歌唱キャラクター'
         };
 
         function normalizeDefaultVocalPref(value) {
@@ -1540,6 +1815,7 @@
 
         function syncListDraftFromActive() {
             draftSearchTerm = searchTerm;
+            draftSearchOperator = searchOperator;
             draftPublishedFrom = publishedFrom;
             draftPublishedTo = publishedTo;
             draftActiveTag = activeTag;
@@ -1552,6 +1828,7 @@
 
         function syncPlayerDraftFromActive() {
             p_draftSearchTerm = p_searchTerm;
+            p_draftSearchOperator = p_searchOperator;
             p_draftPublishedFrom = p_publishedFrom;
             p_draftPublishedTo = p_publishedTo;
             p_draftActiveTag = p_activeTag;
@@ -1565,6 +1842,8 @@
         function syncListPanelUI() {
             const searchInput = document.getElementById('search-input');
             if (searchInput) searchInput.value = draftSearchTerm || '';
+            const searchOperator = document.getElementById('search-operator');
+            if (searchOperator) searchOperator.value = draftSearchOperator || 'and';
 
             const publishedFromInput = document.getElementById('published-from');
             if (publishedFromInput) publishedFromInput.value = draftPublishedFrom || '';
@@ -1613,6 +1892,8 @@
         function syncPlayerPanelUI() {
             const searchInput = document.getElementById('p-search-input');
             if (searchInput) searchInput.value = p_draftSearchTerm || '';
+            const searchOperator = document.getElementById('p-search-operator');
+            if (searchOperator) searchOperator.value = p_draftSearchOperator || 'and';
 
             const publishedFromInput = document.getElementById('p-published-from');
             if (publishedFromInput) publishedFromInput.value = p_draftPublishedFrom || '';
@@ -1660,6 +1941,7 @@
 
         function applyListDraft() {
             searchTerm = draftSearchTerm;
+            searchOperator = draftSearchOperator;
             publishedFrom = draftPublishedFrom;
             publishedTo = draftPublishedTo;
             activeTag = draftActiveTag;
@@ -1674,6 +1956,7 @@
 
         function applyPlayerDraft() {
             p_searchTerm = p_draftSearchTerm;
+            p_searchOperator = p_draftSearchOperator;
             p_publishedFrom = p_draftPublishedFrom;
             p_publishedTo = p_draftPublishedTo;
             p_activeTag = p_draftActiveTag;
@@ -1706,7 +1989,11 @@
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     if (parsed && typeof parsed === 'object') {
+                        const validKeys = Object.keys(SPEECH_ITEM_LABELS);
+                        const savedOrder = Array.isArray(parsed.order) ? parsed.order.filter(k => validKeys.includes(k)) : [];
+                        const order = [...savedOrder, ...DEFAULT_SPEECH_SETTINGS.order.filter(k => !savedOrder.includes(k))];
                         return {
+                            ...DEFAULT_SPEECH_SETTINGS,
                             enabled: parsed.enabled !== false,
                             rate: typeof parsed.rate === 'number' ? Math.max(0.75, Math.min(1.25, parsed.rate)) : 1.0,
                             title: parsed.title !== false,
@@ -1714,12 +2001,14 @@
                             unitTag: parsed.unitTag !== false,
                             credits: parsed.credits !== false,
                             publishedAt: parsed.publishedAt !== false,
-                            vocalCharacters: parsed.vocalCharacters !== false
+                            vocalCharacters: parsed.vocalCharacters !== false,
+                            order,
+                            timing: parsed.timing === 'end' ? 'end' : 'start'
                         };
                     }
                 }
             } catch (e) {}
-            return { ...DEFAULT_SPEECH_SETTINGS };
+            return { ...DEFAULT_SPEECH_SETTINGS, order: [...DEFAULT_SPEECH_SETTINGS.order] };
         }
 
         let speechInfoSettings = loadSpeechSettings();
@@ -1916,8 +2205,8 @@
             const enabledToggle = document.getElementById('speech-enabled-toggle');
             if (enabledToggle) enabledToggle.checked = !!speechInfoSettings.enabled;
 
-            const detailsContainer = document.getElementById('speech-details-container');
-            if (detailsContainer) detailsContainer.style.display = speechInfoSettings.enabled ? 'block' : 'none';
+            const detailAction = document.getElementById('speech-detail-action-row');
+            if (detailAction) detailAction.style.display = speechInfoSettings.enabled ? 'flex' : 'none';
 
             const rateSlider = document.getElementById('speech-rate-slider');
             const rateDisplay = document.getElementById('speech-rate-display');
@@ -1938,6 +2227,64 @@
                 const el = document.getElementById(id);
                 if (el) el.checked = !!speechInfoSettings[key];
             });
+
+            const startRadio = document.getElementById('speech-timing-start');
+            const endRadio = document.getElementById('speech-timing-end');
+            if (startRadio) startRadio.checked = speechInfoSettings.timing !== 'end';
+            if (endRadio) endRadio.checked = speechInfoSettings.timing === 'end';
+
+            renderSpeechOrder();
+        }
+
+        function renderSpeechOrder() {
+            const container = document.getElementById('speech-order-list');
+            if (!container) return;
+            container.innerHTML = '';
+            speechInfoSettings.order.forEach((key, index) => {
+                const row = document.createElement('div');
+                row.className = 'speech-order-item';
+
+                const label = document.createElement('div');
+                label.className = 'speech-order-label';
+                label.textContent = SPEECH_ITEM_LABELS[key] || key;
+
+                const actions = document.createElement('div');
+                actions.className = 'speech-order-actions';
+
+                const up = document.createElement('button');
+                up.type = 'button';
+                up.className = 'icon-btn';
+                up.title = '上へ';
+                up.setAttribute('aria-label', `${label.textContent}を上へ`);
+                up.innerHTML = '<span class="material-icons-round">keyboard_arrow_up</span>';
+                up.disabled = index === 0;
+                up.addEventListener('click', () => moveSpeechOrder(index, -1));
+
+                const down = document.createElement('button');
+                down.type = 'button';
+                down.className = 'icon-btn';
+                down.title = '下へ';
+                down.setAttribute('aria-label', `${label.textContent}を下へ`);
+                down.innerHTML = '<span class="material-icons-round">keyboard_arrow_down</span>';
+                down.disabled = index === speechInfoSettings.order.length - 1;
+                down.addEventListener('click', () => moveSpeechOrder(index, 1));
+
+                actions.appendChild(up);
+                actions.appendChild(down);
+                row.appendChild(label);
+                row.appendChild(actions);
+                container.appendChild(row);
+            });
+        }
+
+        function moveSpeechOrder(index, direction) {
+            const nextIndex = index + direction;
+            if (nextIndex < 0 || nextIndex >= speechInfoSettings.order.length) return;
+            const next = [...speechInfoSettings.order];
+            [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+            speechInfoSettings.order = next;
+            saveSpeechSettings();
+            renderSpeechOrder();
         }
 
         function saveSpeechSettings() {
@@ -1947,16 +2294,14 @@
         }
 
         function cancelPlayerSpeech() {
+            cancelSpeechSchedule();
             if ('speechSynthesis' in window) {
                 try { window.speechSynthesis.cancel(); } catch (e) {}
             }
         }
 
-        function speakPlayerMusicInfo() {
-            if (!speechInfoSettings.enabled) return false;
-            if (!pCurrentMusic) return false;
-            if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
-
+        function buildPlayerSpeechParts() {
+            if (!pCurrentMusic) return [];
             const adjustText = (text) => {
                 if (!text) return '未設定';
                 let t = String(text);
@@ -1966,27 +2311,50 @@
                 return t;
             };
 
-            const parts = [];
-            if (speechInfoSettings.title) {
-                const titleText = pCurrentMusic.pronunciation || pCurrentMusic.title || '未設定';
-                parts.push(buildSpeechSentence('タイトル', adjustText(titleText)));
-            }
-            if (speechInfoSettings.musicId) parts.push(buildSpeechSentence('楽曲ID', pCurrentMusic.id ?? '未設定'));
-            if (speechInfoSettings.unitTag) parts.push(buildSpeechSentence('ユニットタグ', getTagName(pCurrentMusic.id)));
-            if (speechInfoSettings.credits) {
-                const lyricist = adjustText(pCurrentMusic.lyricist);
-                const composer = adjustText(pCurrentMusic.composer);
-                const arranger = adjustText(pCurrentMusic.arranger);
-                parts.push(`作詞、${lyricist}。作曲、${composer}。編曲、${arranger}。`);
-            }
-            if (speechInfoSettings.publishedAt) {
-                parts.push(buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)));
-            }
-            if (speechInfoSettings.vocalCharacters) {
-                const names = getMusicVocalCharacterNames(pCurrentVocal);
-                parts.push(buildSpeechSentence('現在再生中の歌唱キャラクター', names.length ? names.join('、') : '未設定'));
-            }
+            const partMap = {
+                title: () => speechInfoSettings.title ? buildSpeechSentence('タイトル', adjustText(pCurrentMusic.pronunciation || pCurrentMusic.title || '未設定')) : null,
+                musicId: () => speechInfoSettings.musicId ? buildSpeechSentence('楽曲ID', pCurrentMusic.id ?? '未設定') : null,
+                unitTag: () => speechInfoSettings.unitTag ? buildSpeechSentence('ユニットタグ', getTagName(pCurrentMusic.id)) : null,
+                credits: () => {
+                    if (!speechInfoSettings.credits) return null;
+                    return `作詞、${adjustText(pCurrentMusic.lyricist)}。作曲、${adjustText(pCurrentMusic.composer)}。編曲、${adjustText(pCurrentMusic.arranger)}。`;
+                },
+                publishedAt: () => speechInfoSettings.publishedAt ? buildSpeechSentence('公開日時', formatSpeechDate(pCurrentMusic.publishedAt)) : null,
+                vocalCharacters: () => {
+                    if (!speechInfoSettings.vocalCharacters) return null;
+                    const names = getMusicVocalCharacterNames(pCurrentVocal);
+                    return buildSpeechSentence('現在再生中の歌唱キャラクター', names.length ? names.join('、') : '未設定');
+                }
+            };
 
+            return speechInfoSettings.order
+                .map(key => partMap[key] ? partMap[key]() : null)
+                .filter(Boolean);
+        }
+
+        function estimateSpeechDuration(text) {
+            const rate = Math.max(0.75, Math.min(1.25, speechInfoSettings.rate || 1));
+            const normalizedLength = String(text || '').replace(/\s+/g, '').length;
+            return Math.max(1.5, (normalizedLength * 0.075) / rate + 0.6);
+        }
+
+        let pSpeechEndTimer = null;
+        let pSpeechScheduleToken = 0;
+
+        function cancelSpeechSchedule() {
+            pSpeechScheduleToken++;
+            if (pSpeechEndTimer !== null) {
+                clearTimeout(pSpeechEndTimer);
+                pSpeechEndTimer = null;
+            }
+        }
+
+        function speakPlayerMusicInfo() {
+            if (!speechInfoSettings.enabled) return false;
+            if (!pCurrentMusic) return false;
+            if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
+
+            const parts = buildPlayerSpeechParts();
             if (parts.length === 0) return false;
 
             cancelPlayerSpeech();
@@ -2018,7 +2386,41 @@
                 pSpeechAnnouncePending = true;
                 return false;
             }
-        };
+        }
+
+        function scheduleSpeechForCurrentTrack() {
+            cancelSpeechSchedule();
+            if (!speechInfoSettings.enabled || !pCurrentMusic || !pAudio || pAudio.paused) return;
+            if (pSpeechAnnouncedForCurrentTrack) return;
+
+            if (speechInfoSettings.timing === 'start') {
+                speakPlayerMusicInfo();
+                return;
+            }
+
+            const duration = pAudio.duration;
+            if (!Number.isFinite(duration) || duration <= 0) return;
+
+            const parts = buildPlayerSpeechParts();
+            if (!parts.length) return;
+            const speechText = parts.join(' ');
+            const estimate = estimateSpeechDuration(speechText);
+            const startAt = Math.max(0, duration - estimate - 0.25);
+            const remaining = startAt - pAudio.currentTime;
+            const token = ++pSpeechScheduleToken;
+
+            if (remaining <= 0) {
+                speakPlayerMusicInfo();
+                return;
+            }
+
+            pSpeechEndTimer = setTimeout(() => {
+                pSpeechEndTimer = null;
+                if (token !== pSpeechScheduleToken) return;
+                if (!speechInfoSettings.enabled || pAudio.paused || !pCurrentMusic || pSpeechAnnouncedForCurrentTrack) return;
+                speakPlayerMusicInfo();
+            }, remaining * 1000);
+        }
 
         const getTagName = (musicId) => {
             const mTags = tagMap.get(musicId) || [];
@@ -2064,16 +2466,19 @@
         function checkMiniPlayerTextScroll() {
             const mTitle = document.getElementById('mini-title');
             const mVocal = document.getElementById('mini-vocal');
-            
+
             [mTitle, mVocal].forEach(container => {
                 if (!container) return;
                 const textSpan = container.querySelector('.scroll-text');
                 if (!textSpan) return;
-                
+
                 textSpan.classList.remove('marquee');
-                
+                textSpan.style.removeProperty('--marquee-distance');
+
                 requestAnimationFrame(() => {
-                    if (textSpan.scrollWidth > container.clientWidth) {
+                    const distance = Math.max(0, textSpan.scrollWidth - container.clientWidth);
+                    if (distance > 4) {
+                        textSpan.style.setProperty('--marquee-distance', `${distance}px`);
                         textSpan.classList.add('marquee');
                     }
                 });
@@ -2090,6 +2495,8 @@
         function setupUI() {
             const listViewCont = document.getElementById('list-view-container');
             const playerViewCont = document.getElementById('player-view-container');
+            const settingsViewCont = document.getElementById('settings-view-container');
+            const speechSettingsViewCont = document.getElementById('speech-settings-view-container');
             const listOnlyControls = document.getElementById('list-only-controls');
             const playerOnlyControls = document.getElementById('player-only-controls');
             const menuToggleBtn = document.getElementById('menu-toggle-btn');
@@ -2153,6 +2560,8 @@
                 btnViewList.classList.add('active');
                 listViewCont.style.display = 'block';
                 playerViewCont.style.display = 'none';
+                settingsViewCont.style.display = 'none';
+                speechSettingsViewCont.style.display = 'none';
 
                 listOnlyControls.style.display = 'flex';
                 playerOnlyControls.style.display = 'none';
@@ -2173,6 +2582,8 @@
                 btnViewPlayer.classList.add('active');
                 listViewCont.style.display = 'none';
                 playerViewCont.style.display = 'block';
+                settingsViewCont.style.display = 'none';
+                speechSettingsViewCont.style.display = 'none';
 
                 listOnlyControls.style.display = 'none';
                 playerOnlyControls.style.display = 'flex';
@@ -2243,6 +2654,13 @@
                     draftSearchTerm = e.target.value.trim().toLowerCase();
                 });
             }
+            const searchOperatorSelect = document.getElementById('search-operator');
+            if (searchOperatorSelect) {
+                searchOperatorSelect.addEventListener('change', (e) => {
+                    draftSearchOperator = ['and', 'or', 'nand', 'nor'].includes(e.target.value) ? e.target.value : 'and';
+                    syncListPanelUI();
+                });
+            }
 
             const publishedFromInput = document.getElementById('published-from');
             if (publishedFromInput) {
@@ -2304,49 +2722,89 @@
                 syncListPanelUI();
             });
 
-            const settingsModal = document.getElementById('settings-modal');
-            const btnCloseSettings = document.getElementById('btn-close-settings');
+            const miniInfoArea = document.getElementById('mini-info-area');
+            const miniPrev = document.getElementById('mini-btn-prev');
+            const miniBack10 = document.getElementById('mini-btn-back-10');
+            const miniPlay = document.getElementById('mini-play-pause-btn');
+            const miniForward10 = document.getElementById('mini-btn-forward-10');
+            const miniNext = document.getElementById('mini-next-btn');
+
+            if (miniInfoArea) {
+                miniInfoArea.addEventListener('click', () => {
+                    btnViewPlayer.click();
+                });
+            }
+            if (miniPrev) miniPrev.addEventListener('click', (e) => { e.stopPropagation(); playPrev(); });
+            if (miniBack10) miniBack10.addEventListener('click', (e) => {
+                e.stopPropagation();
+                pAudio.currentTime = Math.max(0, pAudio.currentTime - 10);
+                updatePositionState(pAudio);
+                updateMediaSessionPositionState(pAudio);
+            });
+            if (miniPlay) miniPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlayerPlay(); });
+            if (miniForward10) miniForward10.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (pAudio.duration) pAudio.currentTime = Math.min(pAudio.duration, pAudio.currentTime + 10);
+                updatePositionState(pAudio);
+                updateMediaSessionPositionState(pAudio);
+            });
+            if (miniNext) miniNext.addEventListener('click', (e) => { e.stopPropagation(); playNext(false); });
+
             const defaultVocalSelect = document.getElementById('default-vocal-select');
 
-            const openSettingsModal = () => {
-                if (defaultVocalSelect && !defaultVocalSelect.value) {
-                    defaultVocalSelect.value = 'sekai';
-                }
-                if (settingsModal) settingsModal.classList.add('show');
+            const showSettingsView = () => {
+                listViewCont.style.display = 'none';
+                playerViewCont.style.display = 'none';
+                settingsViewCont.style.display = 'block';
+                speechSettingsViewCont.style.display = 'none';
+                listOnlyControls.style.display = 'none';
+                playerOnlyControls.style.display = 'none';
+                document.getElementById('filter-panel').classList.remove('show');
+                document.getElementById('p-filter-panel').classList.remove('show');
+                updateMiniPlayerVisibility();
+                updateSpeechSettingsUI();
                 syncMenuActive('settings');
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                closeSideMenu();
             };
 
-            const closeSettingsModal = () => {
-                if (settingsModal) settingsModal.classList.remove('show');
-                syncMenuActive(document.getElementById('list-view-container').style.display === 'none' ? 'player' : 'list');
+            const showSpeechSettingsView = () => {
+                listViewCont.style.display = 'none';
+                playerViewCont.style.display = 'none';
+                settingsViewCont.style.display = 'none';
+                speechSettingsViewCont.style.display = 'block';
+                listOnlyControls.style.display = 'none';
+                playerOnlyControls.style.display = 'none';
+                updateMiniPlayerVisibility();
+                updateSpeechSettingsUI();
+                syncMenuActive('settings');
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                closeSideMenu();
+            };
+
+            window.openSettingsModal = showSettingsView;
+            window.closeSettingsModal = () => {
+                settingsViewCont.style.display = 'none';
+                speechSettingsViewCont.style.display = 'none';
             };
 
             if (menuViewSettings) {
-                menuViewSettings.addEventListener('click', () => {
-                    closeSideMenu();
-                    openSettingsModal();
-                });
+                menuViewSettings.addEventListener('click', showSettingsView);
             }
+            const openSpeechDetails = document.getElementById('open-speech-details');
+            if (openSpeechDetails) openSpeechDetails.addEventListener('click', showSpeechSettingsView);
+            const speechSettingsBack = document.getElementById('speech-settings-back');
+            if (speechSettingsBack) speechSettingsBack.addEventListener('click', showSettingsView);
 
-            window.openSettingsModal = openSettingsModal;
-            window.closeSettingsModal = closeSettingsModal;
-
-            if (btnCloseSettings) {
-                btnCloseSettings.addEventListener('click', closeSettingsModal);
-                btnCloseSettings.onclick = closeSettingsModal;
-            }
-            if (settingsModal) {
-                settingsModal.addEventListener('click', (e) => {
-                    if (e.target === settingsModal) closeSettingsModal();
-                });
-                const settingsContent = settingsModal.querySelector('.modal-content');
-                if (settingsContent) {
-                    settingsContent.addEventListener('click', (e) => e.stopPropagation());
-                }
-            }
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    closeSettingsModal();
+                    if (speechSettingsViewCont.style.display !== 'none') {
+                        showSettingsView();
+                    } else if (settingsViewCont.style.display !== 'none') {
+                        listViewCont.style.display = 'block';
+                        settingsViewCont.style.display = 'none';
+                        syncMenuActive('list');
+                    }
                     closeSideMenu();
                 }
             });
@@ -2375,9 +2833,17 @@
             if (enabledToggle) {
                 enabledToggle.addEventListener('change', (e) => {
                     speechInfoSettings.enabled = e.target.checked;
-                    const details = document.getElementById('speech-details-container');
-                    if (details) details.style.display = e.target.checked ? 'block' : 'none';
+                    if (!speechInfoSettings.enabled) {
+                        cancelPlayerSpeech();
+                        pSpeechAnnouncePending = false;
+                        pSpeechAnnouncedForCurrentTrack = false;
+                    } else {
+                        pSpeechAnnouncePending = true;
+                        pSpeechAnnouncedForCurrentTrack = false;
+                        if (!pAudio.paused) scheduleSpeechForCurrentTrack();
+                    }
                     saveSpeechSettings();
+                    updateSpeechSettingsUI();
                 });
             }
 
@@ -2390,6 +2856,7 @@
                 rateSlider.addEventListener('change', (e) => {
                     speechInfoSettings.rate = parseFloat(e.target.value);
                     saveSpeechSettings();
+                    if (speechInfoSettings.timing === 'end' && !pAudio.paused) scheduleSpeechForCurrentTrack();
                 });
             }
 
@@ -2407,6 +2874,21 @@
                 el.addEventListener('change', (e) => {
                     speechInfoSettings[key] = e.target.checked;
                     saveSpeechSettings();
+                    if (speechInfoSettings.timing === 'end' && !pAudio.paused) scheduleSpeechForCurrentTrack();
+                });
+            });
+
+            ['speech-timing-start', 'speech-timing-end'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('change', (e) => {
+                    if (!e.target.checked) return;
+                    speechInfoSettings.timing = e.target.value === 'end' ? 'end' : 'start';
+                    pSpeechAnnouncedForCurrentTrack = false;
+                    pSpeechAnnouncePending = true;
+                    saveSpeechSettings();
+                    cancelSpeechSchedule();
+                    if (!pAudio.paused) scheduleSpeechForCurrentTrack();
                 });
             });
 
@@ -2452,6 +2934,13 @@
             if (pSearchInput) {
                 pSearchInput.addEventListener('input', (e) => {
                     p_draftSearchTerm = e.target.value.trim().toLowerCase();
+                });
+            }
+            const pSearchOperatorSelect = document.getElementById('p-search-operator');
+            if (pSearchOperatorSelect) {
+                pSearchOperatorSelect.addEventListener('change', (e) => {
+                    p_draftSearchOperator = ['and', 'or', 'nand', 'nor'].includes(e.target.value) ? e.target.value : 'and';
+                    syncPlayerPanelUI();
                 });
             }
 
@@ -2546,14 +3035,20 @@
         }
 
         
-        function getFilteredAndSortedList(search, aTag, aWritten, sChars, sKey, sOrder, sDiff, publishedFromValue = '', publishedToValue = '') {
+        function getFilteredAndSortedList(search, searchMode = 'and', aTag, aWritten, sChars, sKey, sOrder, sDiff, publishedFromValue = '', publishedToValue = '') {
             const fromTime = publishedFromValue ? new Date(`${publishedFromValue}T00:00:00`).getTime() : null;
             const toTime = publishedToValue ? new Date(`${publishedToValue}T23:59:59.999`).getTime() : null;
 
             let filtered = musics.filter(m => {
                 if (search) {
                     const matchText = [m.title, m.pronunciation, m.lyricist, m.composer, m.arranger].join(' ').toLowerCase();
-                    if (!matchText.includes(search)) return false;
+                    const terms = search.split(/\s+/).map(v => v.trim()).filter(Boolean);
+                    const matches = terms.map(term => matchText.includes(term));
+                    const anyMatch = matches.some(Boolean);
+                    const allMatch = matches.length > 0 && matches.every(Boolean);
+                    const mode = ['and', 'or', 'nand', 'nor'].includes(searchMode) ? searchMode : 'and';
+                    const include = mode === 'and' ? allMatch : mode === 'or' ? anyMatch : mode === 'nand' ? !allMatch : !anyMatch;
+                    if (!include) return false;
                 }
                 if (fromTime !== null && (m.publishedAt || 0) < fromTime) return false;
                 if (toTime !== null && (m.publishedAt || 0) > toTime) return false;
@@ -2606,7 +3101,7 @@
         }
 
         function renderList() {
-            const filtered = getFilteredAndSortedList(searchTerm, activeTag, activeWritten, selectedChars, sortKey, sortOrder, sortDiff, publishedFrom, publishedTo);
+            const filtered = getFilteredAndSortedList(searchTerm, searchOperator, activeTag, activeWritten, selectedChars, sortKey, sortOrder, sortDiff, publishedFrom, publishedTo);
             const container = document.getElementById('music-list');
             container.innerHTML = '';
 
@@ -2631,7 +3126,7 @@
         }
 
         function renderPlayerList() {
-            currentPlaylist = getFilteredAndSortedList(p_searchTerm, p_activeTag, p_activeWritten, p_selectedChars, p_sortKey, p_sortOrder, p_sortDiff, p_publishedFrom, p_publishedTo);
+            currentPlaylist = getFilteredAndSortedList(p_searchTerm, p_searchOperator, p_activeTag, p_activeWritten, p_selectedChars, p_sortKey, p_sortOrder, p_sortDiff, p_publishedFrom, p_publishedTo);
             const container = document.getElementById('player-music-list');
             container.innerHTML = '';
 
@@ -2997,10 +3492,7 @@
                 }
             };
 
-            // プレイヤー画面でなくても読み上げを行うように修正
-            if (pSpeechAnnouncePending && !pSpeechAnnouncedForCurrentTrack) {
-                speakPlayerMusicInfo();
-            }
+            scheduleSpeechForCurrentTrack();
 
             const doPlay = () => {
                 resetPositionIfNeeded();
@@ -3270,14 +3762,14 @@
 
 
         function setupAudioListeners() {
-            pAudio.addEventListener('play', syncPlayerUI);
+            pAudio.addEventListener('play', () => { syncPlayerUI(); scheduleSpeechForCurrentTrack(); });
             pAudio.addEventListener('pause', syncPlayerUI);
             pAudio.addEventListener('ended', () => {
                 syncPlayerUI();
                 playNext(true);
             });
             pAudio.addEventListener('timeupdate', () => handleThrottledPositionUpdate(pAudio));
-            pAudio.addEventListener('loadedmetadata', () => updatePositionState(pAudio));
+            pAudio.addEventListener('loadedmetadata', () => { updatePositionState(pAudio); if (!pAudio.paused) scheduleSpeechForCurrentTrack(); });
             pAudio.addEventListener('error', syncPlayerUI);
 
             const pSeekBar = document.getElementById('p-seek-bar');
