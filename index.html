@@ -774,6 +774,8 @@
             flex-direction: row;
             gap: 32px;
             align-items: flex-start;
+            width: 100%;
+            min-width: 0;
         }
         .player-main-sticky {
             position: sticky;
@@ -850,8 +852,9 @@
         }
 
         .player-playlist {
-            flex: 1;
+            flex: 1 1 0%;
             min-width: 0;
+            width: 0;
         }
         .playlist-header {
             display: flex;
@@ -864,6 +867,12 @@
             padding: 12px 16px;
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
+            width: 100%;
+            min-width: 0;
+        }
+        #player-music-list {
+            width: 100%;
+            min-width: 0;
         }
         .playlist-header h3 { margin: 0; font-size: 16px; }
         
@@ -949,21 +958,27 @@
         /* 発熱対策(1): widthアニメーションによるリフローを防ぐためtransformに変更 */
         .mini-progress-fill { height: 100%; background: var(--accent-color); width: 100%; transform: scaleX(0); transform-origin: left; }
 
-        /* 自動スクロール(Marquee)用 */
+        /* ミニプレイヤー文字スクロール: 常時連続するmarqueeではなく、ゆっくり移動して停止する軽量方式 */
         .scroll-text {
             display: inline-block;
-            --marquee-distance: 0px;
+            --text-scroll-distance: 0px;
         }
-        .scroll-text.marquee {
-            animation: marquee 12s linear infinite;
+        .scroll-text.text-scroll-animation {
+            animation: miniTextScroll 18s linear infinite;
         }
-        body.page-hidden .scroll-text.marquee,
-        .mini-player:not(.mini-playing) .scroll-text.marquee {
+        body.page-hidden .scroll-text.text-scroll-animation,
+        .mini-player:not(.mini-playing) .scroll-text.text-scroll-animation {
             animation-play-state: paused;
         }
-        @keyframes marquee {
-            0%, 14% { transform: translateX(0); }
-            86%, 100% { transform: translateX(calc(var(--marquee-distance) * -1)); }
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-text.text-scroll-animation {
+                animation: none !important;
+            }
+        }
+        @keyframes miniTextScroll {
+            0%, 24% { transform: translateX(0); }
+            72%, 80% { transform: translateX(calc(var(--text-scroll-distance) * -1)); }
+            80.01%, 100% { transform: translateX(0); }
         }
 
         /* Modal */
@@ -1279,8 +1294,10 @@
             .modal-content { width: 95%; height: 90vh; }
             
             /* Player UI 自動調整 */
-            .player-layout { flex-direction: column; gap: 20px; }
-            .player-main-sticky { position: static; flex: auto; width: 100%; max-width: 100%; }
+            .player-layout { flex-direction: column; gap: 20px; width: 100%; min-width: 0; }
+            .player-main-sticky { position: static; flex: 0 0 auto; width: 100%; max-width: 100%; min-width: 0; }
+            .player-playlist { flex: 0 0 auto; width: 100%; min-width: 0; }
+            #player-music-list { width: 100%; min-width: 0; }
             .player-main { padding: 20px; gap: 16px; }
             .player-main #p-jacket {
                 max-width: 240px;
@@ -2576,24 +2593,37 @@
             return mVocals[0];
         }
 
-        // ウィジェットテキストの自動スクロール判定関数
+        // ミニプレイヤー文字の自動スクロール判定。可視時かつ長文のときだけ1回測定する。
+        let miniScrollCheckFrame = null;
         function checkMiniPlayerTextScroll() {
-            const mTitle = document.getElementById('mini-title');
-            const mVocal = document.getElementById('mini-vocal');
+            if (document.visibilityState !== 'visible') return;
 
-            [mTitle, mVocal].forEach(container => {
-                if (!container) return;
-                const textSpan = container.querySelector('.scroll-text');
-                if (!textSpan) return;
+            if (miniScrollCheckFrame !== null) {
+                cancelAnimationFrame(miniScrollCheckFrame);
+                miniScrollCheckFrame = null;
+            }
 
-                textSpan.classList.remove('marquee');
-                textSpan.style.removeProperty('--marquee-distance');
+            miniScrollCheckFrame = requestAnimationFrame(() => {
+                miniScrollCheckFrame = null;
 
-                requestAnimationFrame(() => {
+                const miniPlayer = document.getElementById('mini-player');
+                if (!miniPlayer || !miniPlayer.classList.contains('show') || document.visibilityState !== 'visible') return;
+
+                const mTitle = document.getElementById('mini-title');
+                const mVocal = document.getElementById('mini-vocal');
+
+                [mTitle, mVocal].forEach(container => {
+                    if (!container) return;
+                    const textSpan = container.querySelector('.scroll-text');
+                    if (!textSpan) return;
+
+                    textSpan.classList.remove('text-scroll-animation');
+                    textSpan.style.removeProperty('--text-scroll-distance');
+
                     const distance = Math.max(0, textSpan.scrollWidth - container.clientWidth);
                     if (distance > 4) {
-                        textSpan.style.setProperty('--marquee-distance', `${distance}px`);
-                        textSpan.classList.add('marquee');
+                        textSpan.style.setProperty('--text-scroll-distance', `${distance}px`);
+                        textSpan.classList.add('text-scroll-animation');
                     }
                 });
             });
@@ -2601,20 +2631,36 @@
 
         let miniScrollResizeTimer = null;
         window.addEventListener('resize', () => {
+            if (document.visibilityState !== 'visible') return;
             if (miniScrollResizeTimer !== null) clearTimeout(miniScrollResizeTimer);
             miniScrollResizeTimer = setTimeout(() => {
                 miniScrollResizeTimer = null;
-                if (document.getElementById('mini-player').classList.contains('show')) {
+                if (document.visibilityState === 'visible' && document.getElementById('mini-player')?.classList.contains('show')) {
                     checkMiniPlayerTextScroll();
                 }
-            }, 120);
+            }, 160);
         });
 
         document.addEventListener('visibilitychange', () => {
-            document.body.classList.toggle('page-hidden', document.visibilityState !== 'visible');
+            const hidden = document.visibilityState !== 'visible';
+            document.body.classList.toggle('page-hidden', hidden);
+
+            if (hidden) {
+                if (miniScrollCheckFrame !== null) {
+                    cancelAnimationFrame(miniScrollCheckFrame);
+                    miniScrollCheckFrame = null;
+                }
+                if (miniScrollResizeTimer !== null) {
+                    clearTimeout(miniScrollResizeTimer);
+                    miniScrollResizeTimer = null;
+                }
+            } else {
+                const miniPlayer = document.getElementById('mini-player');
+                if (miniPlayer?.classList.contains('show')) checkMiniPlayerTextScroll();
+            }
         });
 
-        
+
         function setupUI() {
             const listViewCont = document.getElementById('list-view-container');
             const playerViewCont = document.getElementById('player-view-container');
