@@ -633,7 +633,30 @@
         .filter-actions {
             display: flex;
             justify-content: flex-end;
+            gap: 8px;
             margin-top: 12px;
+        }
+
+        .reset-btn {
+            background: var(--secondary-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: var(--primary-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
         }
 
         .apply-btn {
@@ -1380,8 +1403,8 @@
                     <button class="icon-btn" id="btn-filter" title="絞り込み"><span class="material-icons-round">filter_alt</span></button>
                     <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
                     <button class="icon-btn" id="btn-layout-1" title="1列表示" aria-label="1列表示"><span class="material-icons-round">view_list</span></button>
-                    <button class="icon-btn active" id="btn-layout-3" title="2列表示（PCでは3列）" aria-label="2列表示（PCでは3列）"><span class="material-icons-round">view_module</span></button>
-                    <button class="icon-btn" id="btn-layout-5" title="3列表示（PCでは5列）" aria-label="3列表示（PCでは5列）"><span class="material-icons-round">grid_view</span></button>
+                    <button class="icon-btn active" id="btn-layout-3" title="2列表示（PCでは3列）" aria-label="2列表示（PCでは3列）"><span class="material-icons-round">grid_view</span></button>
+                    <button class="icon-btn" id="btn-layout-5" title="3列表示（PCでは5列）" aria-label="3列表示（PCでは5列）"><span class="material-icons-round">view_module</span></button>
                 </span>
 
                 <span id="player-only-controls" style="display: none; gap: 8px; align-items: center;">
@@ -1467,6 +1490,7 @@
                     </div>
                 </div>
                 <div class="filter-actions">
+                    <button class="reset-btn" id="btn-reset-list-filters" type="button">リセット</button>
                     <button class="apply-btn" id="btn-apply-list-filters">適用</button>
                 </div>
             </div>
@@ -1546,6 +1570,7 @@
                     </div>
                 </div>
                 <div class="filter-actions">
+                    <button class="reset-btn" id="btn-reset-player-filters" type="button">リセット</button>
                     <button class="apply-btn" id="btn-apply-player-filters">適用</button>
                 </div>
             </div>
@@ -1581,7 +1606,7 @@
                                 </div>
                                 <div class="player-buttons-row">
                                     <button class="mode-btn" id="p-btn-shuffle" title="シャッフル (オフ)"><span class="material-icons-round">shuffle</span></button>
-                                    <button class="mode-btn active" id="p-btn-repeat" title="リピート (全曲)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
+                                    <button class="mode-btn" id="p-btn-repeat" title="リピート (オフ)"><span class="material-icons-round" id="p-repeat-icon">repeat</span></button>
                                 </div>
                             </div>
                         </div>
@@ -1830,7 +1855,7 @@
         
         let currentPlaylist = [];
         let isShuffle = false;
-        let repeatMode = 'all'; 
+        let repeatMode = 'none'; 
 
         const pAudio = new Audio();
         pAudio.preload = 'none';
@@ -2010,6 +2035,34 @@
                 const item = outsideChars[idx];
                 chip.classList.toggle('active', !!item && p_draftSelectedChars.has(`outside_${item.id}`));
             });
+        }
+
+        function resetListDraft() {
+            draftSearchTerm = '';
+            draftSearchOperator = 'and';
+            draftPublishedFrom = '';
+            draftPublishedTo = '';
+            draftActiveTag = new Set();
+            draftActiveWritten = 'all';
+            draftSelectedChars = new Set();
+            draftSortKey = 'publishedAt';
+            draftSortOrder = 'desc';
+            draftSortDiff = 'easy';
+            syncListPanelUI();
+        }
+
+        function resetPlayerDraft() {
+            p_draftSearchTerm = '';
+            p_draftSearchOperator = 'and';
+            p_draftPublishedFrom = '';
+            p_draftPublishedTo = '';
+            p_draftActiveTag = new Set();
+            p_draftActiveWritten = 'all';
+            p_draftSelectedChars = new Set();
+            p_draftSortKey = 'publishedAt';
+            p_draftSortOrder = 'desc';
+            p_draftSortDiff = 'easy';
+            syncPlayerPanelUI();
         }
 
         function applyListDraft() {
@@ -2791,6 +2844,7 @@
                 document.getElementById('p-filter-panel').classList.remove('show');
             });
 
+            document.getElementById('btn-reset-list-filters').addEventListener('click', resetListDraft);
             document.getElementById('btn-apply-list-filters').addEventListener('click', applyListDraft);
 
             const tagContainer = document.getElementById('tag-filters');
@@ -3086,6 +3140,7 @@
                 document.getElementById('filter-panel').classList.remove('show');
             });
 
+            document.getElementById('btn-reset-player-filters').addEventListener('click', resetPlayerDraft);
             document.getElementById('btn-apply-player-filters').addEventListener('click', applyPlayerDraft);
 
             const pTagContainer = document.getElementById('p-tag-filters');
